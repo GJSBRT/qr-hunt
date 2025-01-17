@@ -1,3 +1,6 @@
+import '../../css/app.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Link } from '@inertiajs/react';
 import { PropsWithChildren } from 'react';

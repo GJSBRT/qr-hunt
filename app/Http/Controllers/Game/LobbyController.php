@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Game;
 
+use App\Class\GameState;
+use App\Exceptions\InvalidGameState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
@@ -9,14 +11,20 @@ use App\Models\Game;
 use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 
-class GameController extends Controller
+class LobbyController extends Controller
 {
     public function index(Request $request)
     {
-        $game = Game::where('id', $request->session()->get('game_id'));
+        $gameState = new GameState($request);
 
-        return Inertia::render('Game', [
-            'game' => $game
+        try {
+            $gameState->getGameStateFromSession();
+        } catch (InvalidGameState $e) {
+            return Redirect::route('welcome');
+        }
+
+        return Inertia::render('Game/Lobby', [
+            'gameState' => $gameState->toArray(),
         ]);
     }
 
@@ -34,8 +42,9 @@ class GameController extends Controller
             ]);
         }
 
-        $request->session()->put('game_id', $game->id);
+        $gameState = new GameState($request);
+        $gameState->createNewGameStateFromSession($game);
 
-        return Redirect::route('game.index');
+        return Redirect::route('game.lobby.index', $game->id);
     }
 }

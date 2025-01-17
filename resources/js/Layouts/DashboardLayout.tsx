@@ -1,3 +1,5 @@
+import '../../css/app.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { Head, Link } from "@inertiajs/react";
 import { Container, Nav, Navbar, NavDropdown, Row } from "react-bootstrap";
 

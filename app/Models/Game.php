@@ -41,4 +41,8 @@ class Game extends Model
     public function user() {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
+
+    public function teams() {
+        return $this->hasMany(Team::class, 'game_id', 'id');
+    }
 }

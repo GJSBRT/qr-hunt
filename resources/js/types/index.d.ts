@@ -32,3 +32,9 @@ export interface PaginatedData<T> {
     to: number
     total: number
 };
+
+export interface DatabaseObject {
+    id:         number;
+    created_at: string;
+    updated_at: string;
+};

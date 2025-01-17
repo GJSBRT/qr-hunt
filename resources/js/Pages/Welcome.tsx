@@ -1,9 +1,10 @@
+import '../../css/app.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { Head, Link, router } from "@inertiajs/react";
 import { Field, Formik } from "formik";
-import { useState } from "react";
 import { Alert, Button, Container, Form, InputGroup, Row, Stack } from "react-bootstrap";
 
-export default function Welcome({errors}: {errors: {[key: string]: string}}) {
+export default function Welcome({ errors }: { errors: { [key: string]: string } }) {
     return (
         <div className="w-full h-screen grid place-items-center">
             <Head title='Welkom' />
@@ -17,18 +18,20 @@ export default function Welcome({errors}: {errors: {[key: string]: string}}) {
                         </p>
                     </div>
 
-                    <Row className="max-w-xl w-full mx-auto">
-                        <Alert variant="danger">
-                            <ul className="list-disc text-left">
-                                {Object.entries(errors).map(([field, error]) => <li key={field}>{error}</li>)}
-                            </ul>
-                        </Alert>
-                    </Row>
+                    {(Object.keys(errors).length > 0) &&
+                        <Row className="max-w-xl w-full mx-auto">
+                            <Alert variant="danger">
+                                <ul className="list-disc text-left">
+                                    {Object.entries(errors).map(([field, error]) => <li key={field}>{error}</li>)}
+                                </ul>
+                            </Alert>
+                        </Row>
+                    }
 
                     <Formik
                         initialValues={{ code: null }}
                         onSubmit={(values) => {
-                            router.post(route('game.join'), {
+                            router.post(route('game.lobby.join'), {
                                 code: values.code
                             })
                         }}
@@ -36,7 +39,7 @@ export default function Welcome({errors}: {errors: {[key: string]: string}}) {
                         {(form) => (
                             <Form className="max-w-xl mx-auto" onSubmit={form.handleSubmit}>
                                 <Field name="code">
-                                    {({field}: { field: any}) => (
+                                    {({ field }: { field: any }) => (
                                         <div>
                                             <InputGroup className="mb-3">
                                                 <InputGroup.Text>Code</InputGroup.Text>

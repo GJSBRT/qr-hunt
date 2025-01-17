@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Class\GameState;
+use App\Exceptions\InvalidGameState;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -17,17 +19,22 @@ class GameSession
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$request->session()->has('game_id')) {
+        $gameState = new GameState($request);
+
+        try {
+            $gameState->getGameStateFromSession();
+        } catch (InvalidGameState $e) {
             return Redirect::route('welcome');
         }
 
-        $game = Game::where('id', $request->session()->get('game_id'))->first();
-        if (!$game) {
+        if ($request->route()->parameter('game_id') != null && $request->route()->parameter('game_id') != $request->session()->get('game_id')) {
+            $request->session()->forget('game_id');
             return Redirect::route('welcome');
         }
 
-        if ($game->status == Game::STATUS_ENDED) {
+        if ($gameState->game->status == Game::STATUS_ENDED) {
             $request->session()->flash('message', 'Dit spel is afgelopen!');
+            $request->session()->forget('game_id');
             return Redirect::route('welcome');
         }
 
