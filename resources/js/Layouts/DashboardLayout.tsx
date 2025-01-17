@@ -1,11 +1,12 @@
 import { Head, Link } from "@inertiajs/react";
-import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { Container, Nav, Navbar, NavDropdown, Row } from "react-bootstrap";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    title: string;
+    title:          string;
+    description?:   string;
 }
 
-export default function DashboardLayout({ title, children, ...props }: Props) {
+export default function DashboardLayout({ title, description, children, ...props }: Props) {
     return (
         <>
             <Head title={title} />
@@ -27,7 +28,14 @@ export default function DashboardLayout({ title, children, ...props }: Props) {
                     </Container>
                 </Navbar>
 
-                <main>
+                <main className="mt-4">
+                    <Container>
+                        <Row className="mb-2">
+                            <h1>{title}</h1>
+                            {description && <p>{description}</p>}
+                        </Row>
+                    </Container>
+
                     {children}
                 </main>
             </div>

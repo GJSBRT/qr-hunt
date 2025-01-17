@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('code');
             $table->string('status');
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('ended_at')->nullable();
             $table->timestamps();
         });
     }

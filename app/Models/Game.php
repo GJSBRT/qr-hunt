@@ -20,6 +20,8 @@ class Game extends Model
         'name',
         'code',
         'status',
+        'started_at',
+        'ended_at',
     ];
 
     public $searchable = [
@@ -32,6 +34,8 @@ class Game extends Model
         'name',
         'code',
         'status',
+        'started_at',
+        'ended_at',
     ];
 
     public function user() {

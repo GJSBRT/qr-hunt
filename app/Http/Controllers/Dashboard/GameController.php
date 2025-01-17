@@ -13,12 +13,14 @@ class GameController extends Controller
 {
     public function index(Request $request): Response
     {
+        $user = $request->user();
+
         $size = $request->get('size', 50);
         if (!in_array($size, [15, 25, 50, 100])) {
             $size = 50;
         }
 
-        $games = Game::where('id', '!=', null);
+        $games = $user->games();
 
         if ($request->query('search', null) != null) {
             $games = $games->search($request->input('search', ''));
@@ -28,6 +30,16 @@ class GameController extends Controller
 
         return Inertia::render('Dashboard/Games', [
             'games' => $gamesQuery->paginate($size),
+        ]);
+    }
+
+    public function view(Request $request, int $id): Response
+    {
+        $user = $request->user();
+        $game = $user->games()->where('id', $id)->firstOrFail();
+
+        return Inertia::render('Dashboard/Games/View', [
+            'game' => $game,
         ]);
     }
 }
