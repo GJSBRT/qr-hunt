@@ -149,10 +149,11 @@ export class CapacitorBarcodeScannerWeb
                 qrbox: scannerElement.getBoundingClientRect().width * (9 / 16) - 10,
                 aspectRatio: 16 / 9,
                 videoConstraints: {
+                    audio: false,
                     focusMode: "continuous",
                     height: { min: 576, ideal: 1920 },
                     deviceId: undefined,
-                    facingMode: undefined,
+                    facingMode: param.facingMode,
                 },
             };
 

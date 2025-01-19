@@ -24,6 +24,9 @@ export default function ScanQRCode({ }: Props) {
             hint: CapacitorBarcodeScannerTypeHint.QR_CODE,
             cameraDirection: CapacitorBarcodeScannerCameraDirection.BACK,
             scanOrientation: CapacitorBarcodeScannerScanOrientation.PORTRAIT,
+            web: {
+                showCameraSelection: true,
+            }
         });
 
         presentLoading({
