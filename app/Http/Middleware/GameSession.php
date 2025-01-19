@@ -32,10 +32,16 @@ class GameSession
             return Redirect::route('welcome');
         }
 
+        // TODO: May want players to view end results.
         if ($gameState->game->status == Game::STATUS_ENDED) {
-            $request->session()->flash('message', 'Dit spel is afgelopen!');
+            // $request->session()->flash('message', 'Dit spel is afgelopen!');
             $request->session()->forget('game_id');
             return Redirect::route('welcome');
+        }
+
+        // Make sure team players exists when in game
+        if (!str_contains($request->route()->action['as'], 'game.lobby') && $gameState->teamPlayer == null) {
+            return Redirect::route('game.lobby.index');
         }
 
         return $next($request);

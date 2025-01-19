@@ -64,10 +64,34 @@ class GameState {
     }
 
     public function toArray(): array {
+        $team = $this->teamPlayer ? $this->teamPlayer->team()->first() : null;
+        $teamQrCodes = $team ? $team->team_qr_codes()->with(['qr_code', 'power', 'quartet', 'team_player'])->get() : null;
+
+        $quartets = [];
+        if ($teamQrCodes) {
+            foreach($teamQrCodes as $teamQrCode) {
+                if (!$teamQrCode->quartet) continue;
+
+                if (!isset($quartets[$teamQrCode->quartet->category])) {
+                    $quartets[$teamQrCode->quartet->category] = [
+                        'color' => QuartetSettings::CATEGORIES_AND_COLORS[$teamQrCode->quartet->category],
+                        'label' => QuartetSettings::CATEGORIES_AND_LABELS[$teamQrCode->quartet->category],
+                        'cards' => [$teamQrCode->quartet->value]
+                    ];
+                } else {
+                    $quartets[$teamQrCode->quartet->category]['cards'] = [...$quartets[$teamQrCode->quartet->category]['cards'], $teamQrCode->quartet->value];
+                    sort($quartets[$teamQrCode->quartet->category]['cards']);
+                }
+            }
+        }
+
         $array = [
             'game'          => $this->game,
+            'team'          => $team,
             'teamPlayer'    => $this->teamPlayer,
             'teams'         => $this->game->teams()->get(),
+            'teamQrCodes'   => $teamQrCodes,
+            'quartets'      => $quartets,
         ];
 
         return $array;

@@ -30,9 +30,7 @@ export default function CreateTeamButton({ gameState }: { gameState: GameState }
             message: 'Team aan het aanmaken...'
         });
 
-        router.post(route('game.lobby.teams.create', {
-            gameId: gameState.game.id,
-        }), {
+        router.post(route('game.lobby.teams.create'), {
             ...formData
         }, {
             onFinish: () => {

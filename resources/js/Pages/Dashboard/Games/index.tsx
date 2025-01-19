@@ -6,6 +6,7 @@ import { PaginatedData } from "@/types";
 import DataTable from "@/Components/DataTable";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Game, GAME_STATUS_LANGUAGE } from "@/types/game";
+import CreateGameButton from "./Partials/CreateGameButton";
 
 const headers: TableColumnType<Game>[] = [
     {
@@ -30,7 +31,13 @@ const headers: TableColumnType<Game>[] = [
 
 export default function Dashboard({ games }: { games: PaginatedData<Game> }) {
     return (
-        <DashboardLayout title='Spellen'>
+        <DashboardLayout 
+            title='Spellen' 
+            headerSlot={<CreateGameButton/>}
+            breadcrumbs={[
+                { label: 'Spellen', href: route('dashboard.games.index') },
+            ]}
+        >
             <Container>
                 <DataTable data={games.data} headers={headers} searchable onRowClick={(row) => {
                     router.visit(route('dashboard.games.view', row.id));

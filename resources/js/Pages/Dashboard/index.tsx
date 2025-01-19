@@ -3,7 +3,7 @@ import { Container } from "react-bootstrap";
 
 export default function Dashboard() {
     return (
-        <DashboardLayout title='Dashboard'>
+        <DashboardLayout title='Dashboard' breadcrumbs={[]}>
             <Container>
                 sad
             </Container>

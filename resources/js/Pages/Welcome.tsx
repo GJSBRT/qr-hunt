@@ -29,7 +29,7 @@ export default function Welcome({ errors }: { errors: { [key: string]: string } 
                     }
 
                     <Formik
-                        initialValues={{ code: null }}
+                        initialValues={{ code: '' }}
                         onSubmit={(values) => {
                             router.post(route('game.lobby.join'), {
                                 code: values.code

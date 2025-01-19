@@ -1,6 +1,8 @@
 import { Head } from "@inertiajs/react";
 import { IonApp } from '@ionic/react';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
+import '../../css/game.css';
 import '@ionic/react/css/core.css';
 
 /* Basic CSS for apps built with Ionic */
@@ -22,6 +24,8 @@ interface Props extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export default function GameLayout({ title, description, children, ...props }: Props) {
+    defineCustomElements(window);
+
     return (
         <>
             <Head title={title} />

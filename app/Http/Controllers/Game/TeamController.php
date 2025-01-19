@@ -13,17 +13,11 @@ use Illuminate\Validation\ValidationException;
 
 class TeamController extends Controller
 {
-    public function create(Request $request, int $gameId)
+    public function create(Request $request)
     {
         $body = $request->validate([
             'team_name' => 'required|string|min:1|max:255',
         ]);
-
-        if (Team::where('game_id', $gameId)->where('name', $body['team_name'])->count() > 0) {
-            throw ValidationException::withMessages([
-                'team_name' => 'Team naam is al ingebruik'
-            ]);
-        }
 
         $gameState = new GameState($request);
 
@@ -33,8 +27,14 @@ class TeamController extends Controller
             return Redirect::route('welcome');
         }
 
+        if (Team::where('game_id', $gameState->game->id)->where('name', $body['team_name'])->count() > 0) {
+            throw ValidationException::withMessages([
+                'team_name' => 'Team naam is al ingebruik'
+            ]);
+        }
+
         $team = Team::create([
-            'game_id'   => $gameId,
+            'game_id'   => $gameState->game->id,
             'name'      => $body['team_name'],
         ]);
 
@@ -66,10 +66,10 @@ class TeamController extends Controller
 
         $gameState->setTeamPlayer($teamPlayer ?? $gameState->teamPlayer);
 
-        return Redirect::route('game.lobby.index', $gameId);
+        return Redirect::route('game.lobby.index');
     }
 
-    public function switch(Request $request, int $gameId)
+    public function switch(Request $request)
     {
         $body = $request->validate([
             'team_id' => 'required|numeric|exists:team,id',
@@ -112,6 +112,6 @@ class TeamController extends Controller
 
         $gameState->setTeamPlayer($teamPlayer ?? $gameState->teamPlayer);
 
-        return Redirect::route('game.lobby.index', $gameId);
+        return Redirect::route('game.lobby.index');
     }
 }

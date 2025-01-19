@@ -31,9 +31,7 @@ export default function SwitchToTeamButton({ gameState, team }: { gameState: Gam
             message: 'Aan het team aansluiten...'
         });
 
-        router.put(route('game.lobby.teams.switch', {
-            gameId: gameState.game.id,
-        }), {
+        router.put(route('game.lobby.teams.switch'), {
             ...data
         }, {
             onFinish: () => {
