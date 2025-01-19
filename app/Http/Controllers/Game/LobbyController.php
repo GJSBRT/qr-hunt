@@ -25,6 +25,7 @@ class LobbyController extends Controller
 
         return Inertia::render('Game/Lobby', [
             'gameState' => $gameState->toArray(),
+            'teamPlayers' => $gameState->game->team_players()->with(['team'])->get()
         ]);
     }
 
@@ -39,6 +40,12 @@ class LobbyController extends Controller
         if (!$game) {
             throw ValidationException::withMessages([
                 'code' => 'Ongeldige spel code'
+            ]);
+        }
+
+        if ($game->status == Game::STATUS_DRAFT) {
+            throw ValidationException::withMessages([
+                'code' => 'Dit spel kan nog niet gespeeld worden.'
             ]);
         }
 

@@ -1,5 +1,7 @@
 import { GameStatePlaying } from "@/types/game";
 import { IonChip, IonContent, IonHeader, IonItem, IonLabel, IonList, IonTitle, IonToolbar } from "@ionic/react";
+import moment from "moment";
+import Countdown from "react-countdown";
 
 export default function Overview({ gameState }: { gameState: GameStatePlaying }) {
     return (
@@ -10,8 +12,8 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
                 </IonToolbar>
             </IonHeader>
 
-            <IonContent className="ion-padding">
-                <IonList>
+            <IonContent>
+                <IonList lines='full'>
                     <IonItem>
                         <IonLabel>Jouw naam</IonLabel>
                         <IonLabel slot='end'>{gameState.teamPlayer.name}</IonLabel>
@@ -27,7 +29,7 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
                         <IonLabel slot='end'>
                             {(gameState.game.status == 'draft') && <IonChip>Spel is nog in schets</IonChip>}
                             {(gameState.game.status == 'not_started') && <IonChip color='secondary'>Nog niet begonnen</IonChip>}
-                            {(gameState.game.status == 'started') && 'TODO:'}
+                            {(gameState.game.status == 'started') && <Countdown date={moment(gameState.game.started_at).add(gameState.game.play_duration, 'seconds').toDate()} />}
                             {(gameState.game.status == 'ended') && <IonChip color='danger'>Afgelopen</IonChip>}
                         </IonLabel>
                     </IonItem>

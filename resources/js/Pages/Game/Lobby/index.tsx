@@ -3,15 +3,20 @@ import { IonChip, IonContent, IonHeader, IonItem, IonLabel, IonList, IonListHead
 
 import { GameState } from "@/types/game";
 import GameLayout from "@/Layouts/GameLayout";
+import { Team, TeamPlayer } from "@/types/team";
 
 import CreateTeamButton from "./Partials/CreateTeamButton";
 import SwitchToTeamButton from "./Partials/SwitchToTeamButton";
+import PlayerList from "./Partials/PlayerList";
 
 interface Props {
     gameState: GameState;
+    teamPlayers: Array<TeamPlayer & {
+        team: Team;
+    }>;
 }
 
-export default function Lobby({ gameState }: Props) {
+export default function Lobby({ gameState, teamPlayers }: Props) {
     const handleRefresh = function (event: CustomEvent<RefresherEventDetail>) {
         router.reload({
             onFinish: () => event.detail.complete(),
@@ -19,7 +24,7 @@ export default function Lobby({ gameState }: Props) {
     }
 
     return (
-        <GameLayout title='Lobby'>
+        <GameLayout title='Lobby' game={gameState.game}>
             <IonPage>
                 <IonHeader>
                     <IonToolbar>
@@ -27,25 +32,32 @@ export default function Lobby({ gameState }: Props) {
                     </IonToolbar>
                 </IonHeader>
 
-                <IonContent className="ion-padding">
+                <IonContent>
                     <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
                         <IonRefresherContent></IonRefresherContent>
                     </IonRefresher>
 
-                    <IonItem>
-                        <IonLabel>
-                            <IonText>
-                                Welkom{gameState.teamPlayer && ` ${gameState.teamPlayer.name}`} in de lobby.
-                                {(gameState.game.status == 'not_started' && ' Het spel is nog niet begonnen. ')}
-                                {(gameState.game.status == 'started' && ' Het spel is al begonnen. ')}
-                                Selecteer een team om aan mee toe doen.
-                            </IonText>
-                            <br/><br/>
-                            <IonText>Spel code: {gameState.game.code}</IonText>
-                        </IonLabel>
-                    </IonItem>
+                    <IonList lines='full'>
+                        <IonItem>
+                            <IonLabel>
+                                <IonText>
+                                    Welkom{gameState.teamPlayer && ` ${gameState.teamPlayer.name}`} in de lobby.
+                                    {(gameState.game.status == 'not_started' && ' Het spel is nog niet begonnen. ')}
+                                    {(gameState.game.status == 'started' && ' Het spel is al begonnen. ')}
+                                    {' '}Selecteer een team om aan mee toe doen.
+                                </IonText>
+                            </IonLabel>
+                        </IonItem>
 
-                    <IonList>
+                        <IonItem>
+                            <IonLabel>Spel code</IonLabel>
+                            <IonLabel slot='end'>{gameState.game.code}</IonLabel>
+                        </IonItem>
+
+                        <PlayerList teamPlayers={teamPlayers} />
+                    </IonList>
+
+                    <IonList lines="full">
                         <IonListHeader>
                             <IonLabel>Teams</IonLabel>
                             <CreateTeamButton gameState={gameState} />
@@ -54,7 +66,7 @@ export default function Lobby({ gameState }: Props) {
                         {gameState.teams.map(team => (
                             <IonItem key={team.id}>
                                 <IonLabel>
-                                    {team.name} {(gameState.teamPlayer && (team.id == gameState.teamPlayer.team_id)) && <IonChip color="success">Jouw team</IonChip>}
+                                    {team.name} ({team.player_count} spelers) {(gameState.teamPlayer && (team.id == gameState.teamPlayer.team_id)) && <IonChip style={{ marginTop: '-0.25rem', marginBottom: '-0.25rem' }} color="success">Jouw team</IonChip>}
                                 </IonLabel>
 
                                 {(!gameState.teamPlayer || (gameState.teamPlayer && (team.id != gameState.teamPlayer.team_id))) && <SwitchToTeamButton team={team} gameState={gameState} />}

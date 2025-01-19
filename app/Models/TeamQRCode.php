@@ -13,6 +13,7 @@ class TeamQRCode extends Model
         'team_id',
         'team_player_id',
         'power_used_at',
+        'transferred_from_team_id',
     ];
 
     public $casts = [
@@ -21,6 +22,10 @@ class TeamQRCode extends Model
 
     public function team() {
         return $this->hasOne(Team::class, 'id', 'team_id');
+    }
+
+    public function transferred_from_team() {
+        return $this->hasOne(Team::class, 'id', 'transferred_from_team_id');
     }
 
     public function team_player() {

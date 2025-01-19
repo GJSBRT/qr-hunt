@@ -9,6 +9,7 @@ import { router } from "@inertiajs/react";
 import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonRefresher, IonRefresherContent, IonText, IonTitle, IonToolbar, RefresherEventDetail } from "@ionic/react";
 import moment from "moment";
 import { useState } from "react";
+import TransferQRCodeToTeam from "./TransferQRCodeToTeam";
 
 interface Props {
     gameState: GameStatePlaying;
@@ -86,6 +87,13 @@ export default function QRCodeRow({ gameState, teamQrCode }: Props) {
                             <IonText slot='end'>{moment(teamQrCode.created_at).fromNow()}</IonText>
                         </IonItem>
 
+                        {teamQrCode.transferred_from_team &&
+                            <IonItem>
+                                <IonText>Overgenomen van team</IonText>
+                                <IonText slot='end'>{teamQrCode.transferred_from_team.name}</IonText>
+                            </IonItem>
+                        }
+
                         {teamQrCode.quartet &&
                             <IonItem>
                                 <IonText>Kwartet stuk</IonText>
@@ -93,9 +101,7 @@ export default function QRCodeRow({ gameState, teamQrCode }: Props) {
                             </IonItem>
                         }
 
-                        <IonItem detail>
-                            Overdragen aan ander team
-                        </IonItem>
+                        <TransferQRCodeToTeam gameState={gameState} teamQrCode={teamQrCode} />
                     </IonList>
                 </IonContent>
             </IonModal>

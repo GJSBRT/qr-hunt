@@ -39,9 +39,12 @@
         "@popperjs/core": "^2.11.8",
         "bootstrap": "^5.3.3",
         "formik": "^2.4.6",
+        "laravel-echo": "^1.18.0",
         "moment": "^2.30.1",
+        "pusher-js": "^8.4.0-rc2",
         "react-bootstrap": "^2.10.7",
         "react-bs-datatable": "^3.15.0",
+        "react-countdown": "^2.3.6",
         "react-hot-toast": "^2.5.1",
         "yup": "^1.6.1",
         "yup-locales": "^1.2.28"

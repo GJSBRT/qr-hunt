@@ -11,6 +11,7 @@ class Game extends Model
 
     const STATUS_DRAFT          = 'draft';
     const STATUS_NOT_STARTED    = 'not_started';
+    const STATUS_STARTING       = 'starting';
     const STATUS_STARTED        = 'started';
     const STATUS_ENDED          = 'ended';
 
@@ -50,8 +51,10 @@ class Game extends Model
     ];
 
     public $casts = [
-        'start_lat' => 'float',
-        'start_lng' => 'float',
+        'started_at'    => 'datetime',
+        'ended_at'      => 'datetime',
+        'start_lat'     => 'float',
+        'start_lng'     => 'float',
     ];
 
     public function user() {
@@ -60,6 +63,10 @@ class Game extends Model
 
     public function teams() {
         return $this->hasMany(Team::class, 'game_id', 'id');
+    }
+
+    public function team_players() {
+        return $this->hasManyThrough(TeamPlayer::class, Team::class, 'game_id', 'team_id', 'id', 'id');
     }
 
     public function qr_codes() {

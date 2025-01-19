@@ -39,6 +39,14 @@ class GameSession
             return Redirect::route('welcome');
         }
 
+        // If team player exists and the game has started, then there is no reason to be in the lobby.
+        if ($gameState->teamPlayer != null && 
+            $gameState->game->status == Game::STATUS_STARTED &&
+            str_contains($request->route()->action['as'], 'game.lobby')
+        ) {
+            return Redirect::route('game.index');
+        }
+
         // Make sure team players exists when in game
         if (!str_contains($request->route()->action['as'], 'game.lobby') && $gameState->teamPlayer == null) {
             return Redirect::route('game.lobby.index');

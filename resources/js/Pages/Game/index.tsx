@@ -27,7 +27,7 @@ export default function Game({ gameState }: { gameState: GameStatePlaying }) {
     }
 
     return (
-        <GameLayout title="Spel">
+        <GameLayout title="Spel" game={gameState.game}>
             <ScanQRCode gameState={gameState}/>
 
             <IonTabs>

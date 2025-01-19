@@ -5,3 +5,4 @@ By scanning a QR code a team can claim a quartet piece. There are also special Q
 ## Requirements
 Requirements other than the normal Laravel 11 requirements.
 - php8.3-imagick
+- [Soketi](https://docs.soketi.app/)

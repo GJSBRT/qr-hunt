@@ -1,4 +1,5 @@
 import { DatabaseObject } from ".";
+import { Team } from "./team";
 
 export interface QRCode extends Omit<DatabaseObject, 'id'> {
     uuid: string;
@@ -16,4 +17,5 @@ export interface TeamQRCode extends DatabaseObject {
     team_id: number;
     team_player_id: number|null;
     power_used_at: string|null;
+    transferred_from_team: Team|null;
 };
