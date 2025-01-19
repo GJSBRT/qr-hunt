@@ -2,8 +2,15 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { setupIonicReact } from '@ionic/react';
+import { setLocale } from 'yup';
+import moment from 'moment';
+import 'moment/dist/locale/nl';
+import { nl } from 'yup-locales';
 
 setupIonicReact();
+
+setLocale(nl);
+moment().locale('nl');
 
 createInertiaApp({
     title: (title) => `${title} - QR Hunt`,
