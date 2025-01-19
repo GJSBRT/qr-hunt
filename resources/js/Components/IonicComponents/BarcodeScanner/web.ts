@@ -13,7 +13,7 @@ import type {
     CapacitorBarcodeScannerOptions,
     CapacitorBarcodeScannerScanResult,
 } from "@capacitor/barcode-scanner";
-import { CapacitorBarcodeScannerScanOrientation } from "@capacitor/barcode-scanner";
+import { CapacitorBarcodeScannerCameraDirection, CapacitorBarcodeScannerScanOrientation } from "@capacitor/barcode-scanner";
 
 /**
  * Implements OSBarcodePlugin to provide web functionality for barcode scanning.
@@ -117,7 +117,7 @@ export class CapacitorBarcodeScannerWeb
         )!.style.display = "block";
         return new Promise((resolve, reject) => {
             const param = {
-                facingMode: options.cameraDirection === 1 ? "environment" : "user",
+                facingMode: options.cameraDirection == CapacitorBarcodeScannerCameraDirection.BACK ? "environment" : "user",
                 hasScannerButton: false,
                 scanButton:
                     options.scanButton === undefined ? false : options.scanButton,

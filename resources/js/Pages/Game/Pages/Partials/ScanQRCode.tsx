@@ -7,7 +7,7 @@ import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, Ion
 import axios from "axios";
 import { useState } from "react";
 import QRSpinningImg from '../../../../../assets/qr-spinning.gif';
-import { CapacitorBarcodeScannerTypeHint } from "@capacitor/barcode-scanner";
+import { CapacitorBarcodeScannerCameraDirection, CapacitorBarcodeScannerScanOrientation, CapacitorBarcodeScannerTypeHint } from "@capacitor/barcode-scanner";
 import { CapacitorBarcodeScannerPatchWeb } from "@/Components/IonicComponents/BarcodeScanner";
 
 interface Props {
@@ -21,7 +21,9 @@ export default function ScanQRCode({ }: Props) {
 
     const takePhoto = async () => {
         const result = await CapacitorBarcodeScannerPatchWeb.scanBarcode({
-            hint: CapacitorBarcodeScannerTypeHint.QR_CODE
+            hint: CapacitorBarcodeScannerTypeHint.QR_CODE,
+            cameraDirection: CapacitorBarcodeScannerCameraDirection.BACK,
+            scanOrientation: CapacitorBarcodeScannerScanOrientation.PORTRAIT,
         });
 
         presentLoading({
