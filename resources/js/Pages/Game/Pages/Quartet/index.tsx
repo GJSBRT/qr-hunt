@@ -1,6 +1,9 @@
-import { GameStatePlaying } from "@/types/game";
 import { router } from "@inertiajs/react";
-import { IonContent, IonHeader, IonItem, IonLabel, IonList, IonRefresher, IonRefresherContent, IonRow, IonText, IonTitle, IonToolbar, RefresherEventDetail } from "@ionic/react";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IonContent, IonHeader, IonItem, IonLabel, IonList, IonRefresher, IonRefresherContent, IonTitle, IonToolbar, RefresherEventDetail } from "@ionic/react";
+
+import { GameStatePlaying } from "@/types/game";
 
 export default function Quartet({ gameState }: { gameState: GameStatePlaying }) {
     const handleRefresh = function (event: CustomEvent<RefresherEventDetail>) {
@@ -23,14 +26,20 @@ export default function Quartet({ gameState }: { gameState: GameStatePlaying }) 
                 </IonRefresher>
 
                 <IonList lines="full">
-                    <IonItem>
-                        <p>Hier zijn je team's kwartet setjes.</p>
-                    </IonItem>
+                    {(Object.values(gameState.quartets).length > 0) ?
+                        <IonItem>
+                            <p>Hier zijn je team's kwartet setjes. Alle setjes met een vinkje erbij zijn compleet. Er zijn {gameState.game.quartet_categories} setjes te vinden met allemaal {gameState.game.quartet_values} kaartjes.</p>
+                        </IonItem>
+                    :
+                        <IonItem>
+                            <p>Hier komen de kwartet setjes van je team terecht. Vind en scan eerst wat QR codes en misschien dat je een kwartet kaartje vindt.</p>
+                        </IonItem>
+                    }
 
                     {Object.entries(gameState.quartets).map(([category, quartet]) => (
                         <IonItem key={category}>
                             <IonLabel>
-                                {quartet.label}
+                                {quartet.label} {(quartet.cards.length == gameState.game.quartet_values) && <FontAwesomeIcon icon={faCheck} style={{marginLeft: '0.25rem'}} />}
                             </IonLabel>
 
                             <IonLabel>

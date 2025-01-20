@@ -15,7 +15,7 @@ export default function FormikCheckbox({ form, ...props }: Props) {
                 <Form.Check
                     id={props.id ?? props.name}
                     onChange={form.handleChange}
-                    value={form.values[props.name]}
+                    checked={form.values[props.name]}
                     isValid={form.touched[props.name] && !form.errors[props.name]}
                     isInvalid={!!form.errors[props.name]}
                     {...props}

@@ -8,7 +8,7 @@ export interface Game extends DatabaseObject {
     user_id: number;
     name: string;
     code: string;
-    status: 'draft' | 'not_started' | 'started' | 'ended';
+    status: 'draft' | 'not_started' | 'starting' | 'started' | 'ended';
     started_at: string | null;
     ended_at: string | null;
     play_duration: number | null;
@@ -20,12 +20,13 @@ export interface Game extends DatabaseObject {
     show_results: boolean;
 };
 
-export type NewGame = Omit<Game, 'user_id' | 'status' | 'started_at' | 'ended_at' | keyof DatabaseObject>;
+export type NewGame = Omit<Game, 'user_id' | 'status' | 'starting' | 'started_at' | 'ended_at' | keyof DatabaseObject>;
 
 export const GAME_STATUS_LANGUAGE = {
     'draft': "Schets",
     'not_started': "Nog niet gestart",
-    'started': "Begonnned",
+    'starting': "Spel begint",
+    'started': "Begonnen",
     'ended': "Afgelopen",
 };
 

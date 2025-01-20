@@ -19,7 +19,7 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
                         <IonLabel slot='end'>{gameState.teamPlayer.name}</IonLabel>
                     </IonItem>
 
-                    <IonItem detail={true}>
+                    <IonItem>
                         <IonLabel>Team</IonLabel>
                         <IonLabel slot='end'>{gameState.team.name}</IonLabel>
                     </IonItem>
@@ -36,7 +36,7 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
 
                     <IonItem>
                         <IonLabel>Spel code</IonLabel>
-                        <IonLabel slot='end'>{gameState.game.code}</IonLabel>
+                        <IonLabel slot='end' style={{fontVariantNumeric: 'tabular-nums'}}>{gameState.game.code}</IonLabel>
                     </IonItem>
                 </IonList>
             </IonContent>

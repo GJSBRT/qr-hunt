@@ -12,8 +12,7 @@ Requirements other than the normal Laravel 11 requirements.
 - QR locatie. Makkelijk kunnen scannen en de huidige locatie van apperaat gebruiken voor locatie.
 - Kaart met speelveld.
 - Vervang Google Maps met leaflet.
-- Game master start spel knop.
-- Game settings op dashboard.
+- Reload page on game join to reload CSS. Need to remove tailwindcss css reset.
 - Power up/downs.
     - Joker (UP).
     - QR code krijgen van een ander team naar keuze (UP).
@@ -30,3 +29,6 @@ Requirements other than the normal Laravel 11 requirements.
 - Makkelijk point modifiers toevoegen voor de game master.
 - Haptics? (@capacitor/haptics)
 - Notificaties? (@capacitor/local-notifications)
+- 'Ongelezen' QR codes. Mocht je een QR code krijgen zonder dat je het door hebt.
+- Pagina met info / regels.
+- Grafiekjes op dashboard over spel verloop.

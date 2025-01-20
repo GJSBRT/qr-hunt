@@ -1,10 +1,12 @@
 import * as Yup from 'yup';
-import { Game } from "@/types/game";
+import { Game, GAME_STATUS_LANGUAGE } from "@/types/game";
 import { router } from "@inertiajs/react";
 import { Form, Formik, FormikHelpers } from "formik";
 import { Button, Card, CardProps, Col, Row } from "react-bootstrap";
 import toast from "react-hot-toast";
 import FormikField from '@/Components/DashboardComponentes/FormikField';
+import FormikCheckbox from '@/Components/DashboardComponentes/FormikCheckbox';
+import FormikSelect from '@/Components/DashboardComponentes/FormikSelect';
 
 interface Props extends CardProps {
     game: Game;
@@ -17,12 +19,12 @@ const schema = Yup.object({
     cooldown_duration: Yup.number().min(5).max(3600).nullable().label('QR scan afkoel tijd'),
     quartet_categories: Yup.number().min(1).max(30).required().label('Kwartet categorien'),
     quartet_values: Yup.number().min(1).max(5).required().label('Kwartet kaarten'),
+    show_results: Yup.boolean().required().label('Laat eind resultaat zien'),
 });
 
 export default function UpdateGameCard({ game, ...props }: Props) {
-
     const submit = function (formData: Game, { setSubmitting }: FormikHelpers<Game>) {
-        router.post(route('dashboard.games.powers.create', game.id), {
+        router.post(route('dashboard.games.update', game.id), {
             ...formData
         }, {
             onFinish: () => {
@@ -122,6 +124,26 @@ export default function UpdateGameCard({ game, ...props }: Props) {
                                             type='number'
                                             placeholder="Min 1, max 5"
                                         />
+                                    </Col>
+                                </Row>
+
+                                <Row>
+                                    <Col>
+                                        <FormikCheckbox
+                                            form={form}
+                                            name='show_results'
+                                            label="Laat het eind resultaat zien als het spel voorbij is."
+                                        />
+                                    </Col>
+
+                                    <Col>
+                                        <FormikSelect
+                                            form={form}
+                                            name='status'
+                                            label="Status"
+                                        >
+                                            {Object.entries(GAME_STATUS_LANGUAGE).map(([status, label]) => <option key={status} value={status}>{label}</option>)}
+                                        </FormikSelect>
                                     </Col>
                                 </Row>
                             </Card.Body>

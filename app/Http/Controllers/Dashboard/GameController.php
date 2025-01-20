@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Class\QuartetSettings;
+use App\Events\TeamWonEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Game;
 use App\Models\QRCode;
 use App\Models\Quartet;
+use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\Request;
@@ -46,6 +48,7 @@ class GameController extends Controller
             'cooldown_duration'     => 'nullable|numeric|min:5|max:3600', // max 1 hour
             'quartet_categories'    => 'required|numeric|min:1|max:30',
             'quartet_values'        => 'required|numeric|min:1|max:5',
+            'show_results'          => 'required|boolean',
         ]);
 
         $game = Game::create([
@@ -77,11 +80,10 @@ class GameController extends Controller
 
         return Inertia::render('Dashboard/Games/View', [
             'game'      => $game,
-            'qrCodes'   => $game->qr_codes()->orderBy('created_at', 'desc')->take(5)->get(),
-            'powers'    => $game->powers()->orderBy('created_at', 'desc')->take(5)->get(),
             'stats'     => [
                 'qrCodes'   => $game->qr_codes()->count(),
                 'powers'    => $game->powers()->count(),
+                'teams'     => $game->teams()->count(),
             ]
         ]);
     }
@@ -94,6 +96,8 @@ class GameController extends Controller
             'cooldown_duration'     => 'nullable|numeric|min:5|max:3600', // max 1 hour
             'quartet_categories'    => 'required|numeric|min:1|max:30',
             'quartet_values'        => 'required|numeric|min:1|max:5',
+            'show_results'          => 'required|boolean',
+            'status'                => 'required|string|in:draft,not_started,starting,started,ended',
         ]);
 
         $user = $request->user();
@@ -101,6 +105,22 @@ class GameController extends Controller
 
         $game->fill($body);
         $game->save();
+
+        switch ($body['status']) {
+            case Game::STATUS_DRAFT:
+                // Reset game if set to draft
+                $game->teams()->delete();
+                break;
+            case Game::STATUS_ENDED:
+                $game->ended_at = Carbon::now();
+                $game->save();
+
+                if (count($game->getResults()) > 0) {
+                    TeamWonEvent::dispatch($game, $game->getResults()[0]['team']);
+                }
+
+                break;
+        }
 
         return Redirect::route('dashboard.games.view', $id);
     }

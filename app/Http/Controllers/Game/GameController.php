@@ -86,7 +86,8 @@ class GameController extends Controller
         ]);
 
         return response()->json([
-            'power' => $qrCode->power()->first()
+            'quartet' => $qrCode->quartet()->first(),
+            'power' => $qrCode->power()->first(),
         ]);
     }
 }

@@ -1,25 +1,21 @@
+import { Link } from "@inertiajs/react";
 import { Badge, Card, CardBody, CardHeader, Col, Container, Row } from "react-bootstrap";
 
 import { Game } from "@/types/game";
-import { Power } from "@/types/power";
-import { QRCode } from "@/types/qr_code";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 
-import PowerWidget from "./Partials/PowerWidget";
-import QRCodeWidget from "./Partials/QRCodeWidget";
 import UpdateGameCard from "../Partials/UpdateGameCard";
 
 interface Props {
     game: Game,
-    qrCodes: QRCode[];
-    powers: Power[];
     stats: {
         qrCodes: number,
         powers: number,
+        teams: number,
     }
 }
 
-export default function View({ game, qrCodes, powers, stats }: Props) {
+export default function View({ game, stats }: Props) {
     return (
         <DashboardLayout 
             title={`Spellen - ${game.name}`}
@@ -62,7 +58,7 @@ export default function View({ game, qrCodes, powers, stats }: Props) {
                     </Col>
 
                     <Col lg={3}>
-                        <Card>
+                        <Card as={Link} href={route('dashboard.games.qr-codes.index', game.id)}>
                             <CardHeader as='h5'>
                                 QR Codes
                             </CardHeader>
@@ -76,7 +72,37 @@ export default function View({ game, qrCodes, powers, stats }: Props) {
                     </Col>
 
                     <Col lg={3}>
-                        <Card>
+                        <Card as={Link} href={route('dashboard.games.powers.index', game.id)}>
+                            <CardHeader as='h5'>
+                                Powers
+                            </CardHeader>
+
+                            <CardBody>
+                                <h4>
+                                    {stats.powers}
+                                </h4>
+                            </CardBody>
+                        </Card>
+                    </Col>
+                </Row>
+
+                <Row className="mb-8">
+                    <Col lg={3}>
+                        <Card as={Link} href={route('dashboard.games.teams.index', game.id)}>
+                            <CardHeader as='h5'>
+                                Teams
+                            </CardHeader>
+
+                            <CardBody>
+                                <h4>
+                                    {stats.teams}
+                                </h4>
+                            </CardBody>
+                        </Card>
+                    </Col>
+
+                    <Col lg={3}>
+                        <Card as={Link} href={route('dashboard.games.powers.index', game.id)}>
                             <CardHeader as='h5'>
                                 Powers
                             </CardHeader>
@@ -93,16 +119,6 @@ export default function View({ game, qrCodes, powers, stats }: Props) {
                 <Row className="mb-8">
                     <Col>
                         <UpdateGameCard game={game}/>
-                    </Col>
-                </Row>
-
-                <Row>
-                    <Col lg={6}>
-                        <QRCodeWidget game={game} qrCodes={qrCodes} />
-                    </Col>
-
-                    <Col lg={6}>
-                        <PowerWidget game={game} powers={powers} />
                     </Col>
                 </Row>
             </Container>

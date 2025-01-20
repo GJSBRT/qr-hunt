@@ -10,3 +10,11 @@ export interface TeamPlayer extends DatabaseObject {
     team_id: number;
     name:    string;
 };
+
+export interface TeamPointsModifier extends DatabaseObject {
+    team_id: number;
+    type: 'add' | 'remove';
+    amount: number
+};
+
+export type NewTeamPointsModifier = Omit<TeamPointsModifier, 'team_id' | keyof DatabaseObject>;
