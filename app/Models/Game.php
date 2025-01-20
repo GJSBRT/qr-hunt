@@ -30,6 +30,7 @@ class Game extends Model
         'start_lng',
         'quartet_categories',
         'quartet_values',
+        'show_results',
     ];
 
     public $searchable = [
@@ -55,6 +56,7 @@ class Game extends Model
         'ended_at'      => 'datetime',
         'start_lat'     => 'float',
         'start_lng'     => 'float',
+        'show_results'  => 'boolean',
     ];
 
     public function user() {
@@ -75,5 +77,44 @@ class Game extends Model
 
     public function powers() {
         return $this->hasMany(Power::class, 'game_id', 'id');
+    }
+
+    public function getResults(): array {
+        $teamPoints = [];
+        foreach($this->teams()->get() as $team) {
+            $points = 0;
+
+            $sets = [];
+            foreach($team->team_qr_codes()->with(['qr_code' => ['power', 'quartet']])->get() as $teamQRcode) {
+                if (!$teamQRcode->qr_code->quartet) continue;
+
+                $points++;
+                if (isset($sets[$teamQRcode->qr_code->quartet->category])) {
+                    $sets[$teamQRcode->qr_code->quartet->category]++;
+                } else {
+                    $sets[$teamQRcode->qr_code->quartet->category] = 1;
+                }
+            }
+
+            // Add bonus points for each completed set.
+            foreach($sets as $set) {
+                if ($set != $this->quartet_values) continue;
+                $points += 2;
+            }
+
+            $pointsModifiers = $team->team_points_modifiers()->get();
+            foreach($pointsModifiers as $pointsModifier) {
+                $points = $pointsModifier->modifyPoints($points);
+            }
+
+            $teamPoints[$points] = [
+                'team'      => $team,
+                'points'    => $points
+            ];
+        }
+
+        krsort($teamPoints);
+
+        return $teamPoints;
     }
 }

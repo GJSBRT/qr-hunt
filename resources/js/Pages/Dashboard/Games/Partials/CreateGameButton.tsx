@@ -6,6 +6,7 @@ import { Form, Formik, FormikHelpers } from "formik";
 import { useState } from "react";
 import { Button, ButtonProps, Modal } from "react-bootstrap";
 import toast from "react-hot-toast";
+import FormikCheckbox from '@/Components/DashboardComponentes/FormikCheckbox';
 
 interface Props extends ButtonProps { }
 
@@ -18,6 +19,7 @@ const initialValues: NewGame = {
     start_lng: null,
     quartet_categories: 5,
     quartet_values: 5,
+    show_results: true,
 };
 
 const schema = Yup.object({
@@ -27,6 +29,7 @@ const schema = Yup.object({
     cooldown_duration: Yup.number().min(5).max(3600).nullable().label('QR scan afkoel tijd'),
     quartet_categories: Yup.number().min(1).max(30).required().label('Kwartet categorien'),
     quartet_values: Yup.number().min(1).max(5).required().label('Kwartet kaarten'),
+    show_results: Yup.boolean().required().label('Laat eind resultaat zien'),
 });
 
 export default function CreateGameButton({ ...props }: Props) {
@@ -123,6 +126,12 @@ export default function CreateGameButton({ ...props }: Props) {
                                     label="Hoeveel kaarten per kwartet set"
                                     type='number'
                                     placeholder="Min 1, max 5"
+                                />
+
+                                <FormikCheckbox
+                                    form={form}
+                                    name='show_results'
+                                    label="Laat het eind resultaat zien als het spel voorbij is."
                                 />
                             </Modal.Body>
 

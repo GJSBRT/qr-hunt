@@ -44,6 +44,7 @@
         "pusher-js": "^8.4.0-rc2",
         "react-bootstrap": "^2.10.7",
         "react-bs-datatable": "^3.15.0",
+        "react-confetti": "^6.2.2",
         "react-countdown": "^2.3.6",
         "react-hot-toast": "^2.5.1",
         "yup": "^1.6.1",

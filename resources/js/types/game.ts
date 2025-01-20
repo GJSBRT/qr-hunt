@@ -17,6 +17,7 @@ export interface Game extends DatabaseObject {
     start_lng: number | null;
     quartet_categories: number;
     quartet_values: number;
+    show_results: boolean;
 };
 
 export type NewGame = Omit<Game, 'user_id' | 'status' | 'started_at' | 'ended_at' | keyof DatabaseObject>;

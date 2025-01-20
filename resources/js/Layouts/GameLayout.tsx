@@ -20,8 +20,9 @@ import '@ionic/react/css/display.css';
 import { createContext, useEffect, useState } from "react";
 import Echo from "laravel-echo";
 import { Game } from "@/types/game";
-import { GameStartedEvent } from "@/types/events";
+import { GameStartedEvent, TeamWonEvent } from "@/types/events";
 import Pusher from "pusher-js";
+import GameOverScreen from "./Partials/GameOverScreen";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     title: string;
@@ -65,7 +66,8 @@ export default function GameLayout({ title, description, children, game, ...prop
 
             setEcho(e);
 
-            e.private(`game.${game.id}`).listen('GameStartedEvent', (e: GameStartedEvent) => {
+            const gameChannel = e.private(`game.${game.id}`);
+            gameChannel.listen('GameStartedEvent', (e: GameStartedEvent) => {
                 router.visit(route('game.index'));
 
                 presentToast({
@@ -91,6 +93,8 @@ export default function GameLayout({ title, description, children, game, ...prop
             <Head title={title} />
             <IonApp>
                 <SocketContext.Provider value={echo}>
+                    <GameOverScreen game={game} />
+
                     <div {...props}>
                         {children}
                     </div>
