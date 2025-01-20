@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Events\GameEndedEvent;
 use App\Events\GameStartedEvent;
 use App\Events\TeamWonEvent;
 use App\Models\Game;
@@ -47,11 +46,12 @@ class GameTickCommand extends Command
                 return;
             case Game::STATUS_STARTED:
                 // Has game timer expired?
-                if ($game->play_duration && Carbon::parse($game->started_at)->addSeconds($game->play_duration)->isAfter(Carbon::now())) {
+                if ($game->play_duration && $game->started_at->addSeconds($game->play_duration)->isBefore(Carbon::now())) {
                     $game->status = Game::STATUS_ENDED;
                     $game->ended_at = Carbon::now();
                     $game->save();
-                    GameEndedEvent::dispatch($game);
+
+                    TeamWonEvent::dispatch($game, $game->getResults()[0]['team']);
                     return;
                 }
 
@@ -76,12 +76,12 @@ class GameTickCommand extends Command
                     }
 
                     if (count($categoryCount) < $game->quartet_categories) {
-                        return;
+                        continue;
                     }
 
                     foreach($categoryCount as $count) {
                         if ($count < $game->quartet_values) {
-                            return;
+                            break;
                         }
                     }
 
@@ -89,7 +89,11 @@ class GameTickCommand extends Command
                 }
 
                 if (count($teamsWon) > 0) {
-                    $teamsWonPoints = [];
+                    $winningTeam = [
+                        'points'    => 0,
+                        'team'      => null,
+                    ];
+
                     foreach($teamsWon as $team) {
                         // Add a point for each card and add two points for each completed set.
                         $points = ($game->quartet_categories * $game->quartet_values) + ($game->quartet_categories * 2);
@@ -99,18 +103,20 @@ class GameTickCommand extends Command
                             $points = $pointsModifier->modifyPoints($points);
                         }
 
-                        $teamsWonPoints[$points] = [
+                        if ($points <= $winningTeam['points']) {
+                            continue;
+                        }
+
+                        $winningTeam = [
+                            'points'    => $points,
                             'team'      => $team,
-                            'points'    => $points
                         ];
                     }
 
-                    ksort($teamsWonPoints);
-
-                    $winningTeam = $teamsWonPoints[0];
                     $game->status = Game::STATUS_ENDED;
                     $game->ended_at = Carbon::now();
-                    TeamWonEvent::dispatch($winningTeam);
+                    $game->save();
+                    TeamWonEvent::dispatch($game, $winningTeam['team']);
                     return;
                 }
 

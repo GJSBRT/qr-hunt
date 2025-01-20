@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Events\LobbyUpdatedEvent;
 use App\Events\TeamWonEvent;
 use App\Models\Game;
 use App\Models\Team;
@@ -28,6 +29,6 @@ class SendEventCommand extends Command
      */
     public function handle()
     {
-        TeamWonEvent::dispatch(Game::first(), Team::first());
+        LobbyUpdatedEvent::dispatch(Game::where('id', 2)->first());
     }
 }

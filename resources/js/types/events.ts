@@ -12,8 +12,10 @@ export interface TeamQRCodeTransferredEvent {
 
 export interface TeamWonEvent {
     winningTeam: Team;
-    results: null | {[key: number]: {
+    results: null | Array<{
         team: Team;
         points: number;
-    }};
+    }>;
 };
+
+export interface LobbyUpdatedEvent {}

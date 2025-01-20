@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Game;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use App\Class\GameState;
+use App\Events\LobbyUpdatedEvent;
 use App\Exceptions\InvalidGameState;
 use App\Http\Controllers\Controller;
 use App\Models\Team;
@@ -66,6 +67,8 @@ class TeamController extends Controller
 
         $gameState->setTeamPlayer($teamPlayer ?? $gameState->teamPlayer);
 
+        LobbyUpdatedEvent::dispatch($gameState->game);
+
         return Redirect::route('game.lobby.index');
     }
 
@@ -111,6 +114,8 @@ class TeamController extends Controller
         }
 
         $gameState->setTeamPlayer($teamPlayer ?? $gameState->teamPlayer);
+
+        LobbyUpdatedEvent::dispatch($gameState->game);
 
         return Redirect::route('game.lobby.index');
     }

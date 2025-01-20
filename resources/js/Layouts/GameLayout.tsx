@@ -19,20 +19,20 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import { createContext, useEffect, useState } from "react";
 import Echo from "laravel-echo";
-import { Game } from "@/types/game";
-import { GameStartedEvent, TeamWonEvent } from "@/types/events";
+import { GameState } from "@/types/game";
+import { GameStartedEvent, LobbyUpdatedEvent, TeamQRCodeTransferredEvent, TeamWonEvent } from "@/types/events";
 import Pusher from "pusher-js";
 import GameOverScreen from "./Partials/GameOverScreen";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     title: string;
     description?: string;
-    game: Game;
+    gameState: GameState;
 }
 
 export const SocketContext = createContext<Echo<"pusher"> | null>(null);
 
-export default function GameLayout({ title, description, children, game, ...props }: Props) {
+export default function GameLayout({ title, description, children, gameState, ...props }: Props) {
     defineCustomElements(window);
     const [presentToast] = useIonToast();
 
@@ -66,7 +66,7 @@ export default function GameLayout({ title, description, children, game, ...prop
 
             setEcho(e);
 
-            const gameChannel = e.private(`game.${game.id}`);
+            const gameChannel = e.private(`game.${gameState.game.id}`);
             gameChannel.listen('GameStartedEvent', (e: GameStartedEvent) => {
                 router.visit(route('game.index'));
 
@@ -77,6 +77,24 @@ export default function GameLayout({ title, description, children, game, ...prop
                     color: 'success',
                 });
             });
+
+            gameChannel.listen('LobbyUpdatedEvent', (e: LobbyUpdatedEvent) => {
+                if (!route().current('game.lobby.*')) return;
+                router.reload();
+            });
+
+            gameChannel.listen('TeamQRCodeTransferredEvent', (e: TeamQRCodeTransferredEvent) => {
+                if (!gameState.team || !route().current('game.lobby.*')) return;
+
+                presentToast({
+                    message: (e.from_team_id == gameState.team.id) ? 'Jouw team heeft een QR code weggegeven.' : 'Je team heeft een QR code ontvangen!',
+                    duration: 5000,
+                    position: 'bottom',
+                    color: (e.from_team_id == gameState.team.id) ? 'warning' : 'success',
+                });
+
+                router.reload();
+            });
         } else {
             //@ts-ignore
             setEcho(window.Echo);
@@ -84,7 +102,7 @@ export default function GameLayout({ title, description, children, game, ...prop
 
         return () => {
             //@ts-ignore
-            window.Echo.leave(`game.${game.id}`);
+            window.Echo.leave(`game.${gameState.game.id}`);
         };
     }, []);
 
@@ -93,7 +111,7 @@ export default function GameLayout({ title, description, children, game, ...prop
             <Head title={title} />
             <IonApp>
                 <SocketContext.Provider value={echo}>
-                    <GameOverScreen game={game} />
+                    <GameOverScreen game={gameState.game} />
 
                     <div {...props}>
                         {children}

@@ -86,20 +86,21 @@ class Game extends Model
 
             $sets = [];
             foreach($team->team_qr_codes()->with(['qr_code' => ['power', 'quartet']])->get() as $teamQRcode) {
-                if (!$teamQRcode->qr_code->quartet) continue;
-
-                $points++;
-                if (isset($sets[$teamQRcode->qr_code->quartet->category])) {
-                    $sets[$teamQRcode->qr_code->quartet->category]++;
-                } else {
-                    $sets[$teamQRcode->qr_code->quartet->category] = 1;
-                }
+                if ($teamQRcode->qr_code->quartet) {
+                    $points++;
+                    if (isset($sets[$teamQRcode->qr_code->quartet->category])) {
+                        $sets[$teamQRcode->qr_code->quartet->category]++;
+                    } else {
+                        $sets[$teamQRcode->qr_code->quartet->category] = 1;
+                    }
+                };
             }
 
             // Add bonus points for each completed set.
             foreach($sets as $set) {
-                if ($set != $this->quartet_values) continue;
-                $points += 2;
+                if ($set == $this->quartet_values) {
+                    $points += 2;
+                };
             }
 
             $pointsModifiers = $team->team_points_modifiers()->get();
@@ -107,13 +108,11 @@ class Game extends Model
                 $points = $pointsModifier->modifyPoints($points);
             }
 
-            $teamPoints[$points] = [
+            $teamPoints[] = [
                 'team'      => $team,
                 'points'    => $points
             ];
         }
-
-        krsort($teamPoints);
 
         return $teamPoints;
     }

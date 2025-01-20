@@ -28,3 +28,5 @@ Requirements other than the normal Laravel 11 requirements.
 - Een paar hints over waar een QR code bevindt. Voor elke hint is x aantal punten aftrek.
 - Push notificaties
 - Makkelijk point modifiers toevoegen voor de game master.
+- Haptics? (@capacitor/haptics)
+- Notificaties? (@capacitor/local-notifications)

@@ -21,10 +21,10 @@ export default function Lobby({ gameState, teamPlayers }: Props) {
         router.reload({
             onFinish: () => event.detail.complete(),
         });
-    }
+    };
 
     return (
-        <GameLayout title='Lobby' game={gameState.game}>
+        <GameLayout title='Lobby' gameState={gameState}>
             <IonPage>
                 <IonHeader>
                     <IonToolbar>

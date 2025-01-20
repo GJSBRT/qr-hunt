@@ -11,6 +11,10 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    public $singletons = [
+        \Illuminate\Contracts\Console\Kernel::class => \App\Console\Kernel::class
+    ];
+
     /**
      * Register any application services.
      */

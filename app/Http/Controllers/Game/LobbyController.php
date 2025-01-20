@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Game;
 
 use App\Class\GameState;
+use App\Events\LobbyUpdatedEvent;
 use App\Exceptions\InvalidGameState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -48,6 +49,8 @@ class LobbyController extends Controller
                 'code' => 'Dit spel kan nog niet gespeeld worden.'
             ]);
         }
+
+        GameState::clearGameStateFromRequest($request);
 
         $gameState = new GameState($request);
         $gameState->createNewGameStateFromSession($game);
