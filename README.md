@@ -32,3 +32,6 @@ Requirements other than the normal Laravel 11 requirements.
 - 'Ongelezen' QR codes. Mocht je een QR code krijgen zonder dat je het door hebt.
 - Pagina met info / regels.
 - Grafiekjes op dashboard over spel verloop.
+
+## Also
+This project is made with a very tight deadline. So don't expect quality ;p.
