@@ -24,7 +24,7 @@ const schema = Yup.object({
 
 export default function UpdateGameCard({ game, ...props }: Props) {
     const submit = function (formData: Game, { setSubmitting }: FormikHelpers<Game>) {
-        router.post(route('dashboard.games.update', game.id), {
+        router.put(route('dashboard.games.update', game.id), {
             ...formData
         }, {
             onFinish: () => {
