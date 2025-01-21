@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('team_scan_freeze', function (Blueprint $table) {
             $table->id();
             $table->foreignId('team_id')->constrained('team')->cascadeOnDelete();
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->timestamp('starts_at')->nullable();
+            $table->timestamp('ends_at')->nullable();
             $table->timestamps();
         });
     }
