@@ -6,18 +6,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CapacitorBarcodeScannerCameraDirection, CapacitorBarcodeScannerScanOrientation, CapacitorBarcodeScannerTypeHint } from "@capacitor/barcode-scanner";
 import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonModal, IonText, IonToolbar, useIonLoading, useIonToast } from "@ionic/react";
 
-import { Power } from "@/types/power";
+import { Power, POWER_TYPE_LANGUAGE } from "@/types/power";
 import { Quartet } from "@/types/quartet";
 import { GameStatePlaying } from "@/types/game";
 import { CapacitorBarcodeScannerPatchWeb } from "@/Components/IonicComponents/BarcodeScanner";
 
 import QRSpinningImg from '../../../../../assets/qr-spinning.gif';
+import moment from "moment";
 
 interface Props {
     gameState: GameStatePlaying;
 };
 
-export default function ScanQRCode({ }: Props) {
+export default function ScanQRCode({ gameState }: Props) {
     const [presentToast] = useIonToast();
     const [presentLoading, dismissLoading] = useIonLoading();
     const [data, setData] = useState<{ quartet: Quartet; power: Power } | null>(null);
@@ -70,7 +71,7 @@ export default function ScanQRCode({ }: Props) {
 
             presentToast({
                 message: errors,
-                duration: 5000,
+                duration: 15000,
                 position: 'bottom',
                 color: 'danger',
             });
@@ -115,9 +116,9 @@ export default function ScanQRCode({ }: Props) {
 
                             <IonText>
                                 <p>
-                                    Gefeliciflapstaart, je hebt een nieuwe{data.quartet ? ` ${data.quartet.category_label} - ${data.quartet.value}`
+                                    Gefeliciflapstaart, je hebt een nieuw{data.quartet ? ` ${data.quartet.category_label} - ${data.quartet.value} kaart`
                                         :
-                                        data.power ? ` ${data.power.description}` : ''
+                                        data.power ? ` ${data.power.description ?? POWER_TYPE_LANGUAGE[data.power.type] ?? 'Onbekende power'}` : 'e'
                                     } QR code gevonden!
                                 </p>
                             </IonText>
@@ -125,6 +126,12 @@ export default function ScanQRCode({ }: Props) {
                             {data.quartet &&
                                 <IonText>
                                     <p><b>Dus check je kwartet setjes!</b></p>
+                                </IonText>
+                            }
+
+                            {data.power &&
+                                <IonText>
+                                    <p><b>Dus check je QR codes om deze power te gebruiken.</b></p>
                                 </IonText>
                             }
                         </div>

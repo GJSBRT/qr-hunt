@@ -8,6 +8,7 @@ use App\Exceptions\InvalidTeamPlayer;
 use App\Models\Game;
 use App\Models\Team;
 use App\Models\TeamPlayer;
+use Carbon\Carbon;
 
 class GameState {
     const SESSION_KEY_GAME_ID           = "game_id";
@@ -86,12 +87,14 @@ class GameState {
         }
 
         $array = [
-            'game'          => $this->game,
-            'team'          => $team,
-            'teamPlayer'    => $this->teamPlayer,
-            'teams'         => $this->game->teams()->get(),
-            'teamQrCodes'   => $teamQrCodes,
-            'quartets'      => $quartets,
+            'game'                      => $this->game,
+            'team'                      => $team,
+            'teamPlayer'                => $this->teamPlayer,
+            'teams'                     => $this->game->teams()->get(),
+            'teamQrCodes'               => $teamQrCodes,
+            'quartets'                  => $quartets,
+            'scanFreeze'                => $team ? $team->team_scan_freezes()->where('starts_at', '<', Carbon::now())->where('ends_at', '>', Carbon::now())->get() : null,
+            'powerAppliedTeamQRCodes'   => $team ? $team->power_applied_team_qr_codes()->where('power_completed_at', null)->with(['power'])->get() : null,
         ];
 
         return $array;

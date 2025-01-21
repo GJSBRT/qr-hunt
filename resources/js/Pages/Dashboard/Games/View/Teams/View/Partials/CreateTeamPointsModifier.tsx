@@ -39,7 +39,6 @@ export default function CreateTeamPointsModifier({ game, team, ...props }: Props
             },
             onSuccess: () => {
                 toast.success('Punten modificator aangemaakt!');
-                router.reload();
                 setShow(false);
             },
             onError: (error) => {

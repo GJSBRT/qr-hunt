@@ -59,6 +59,13 @@ class GameController extends Controller
 
         $team = $gameState->teamPlayer->team()->first();
 
+        $reason = $team->blockScanReason();
+        if ($reason) {
+            throw ValidationException::withMessages([
+                'may_scan' => 'Jouw team mag nog niet scannen wegens: '.$reason
+            ]);
+        }
+
         // Already scanned?
         $teamQrCodeCount = $team->team_qr_codes()->where('qr_code_uuid', $body['uuid'])->count();
         if ($teamQrCodeCount > 0) {

@@ -11,7 +11,8 @@ import FormikSelect from '@/Components/DashboardComponentes/FormikSelect';
 import FormikCheckbox from '@/Components/DashboardComponentes/FormikCheckbox';
 
 interface Props extends ButtonProps { 
-    game: Game
+    game: Game;
+    types: {[key: string]: string}
 }
 
 const initialValues: NewPower = {
@@ -29,7 +30,7 @@ const schema = Yup.object({
     type: Yup.string().required().label('Type'),
 });
 
-export default function CreatePowerButton({ game, ...props }: Props) {
+export default function CreatePowerButton({ game, types, ...props }: Props) {
     const [show, setShow] = useState(false);
 
     const submit = function (formData: NewPower, { setSubmitting }: FormikHelpers<NewPower>) {
@@ -82,7 +83,7 @@ export default function CreatePowerButton({ game, ...props }: Props) {
                                 <FormikField
                                     form={form}
                                     name='description'
-                                    label="Beschrijving (Optioneel, als je durft)"
+                                    label="Beschrijving (ook zichtbaar voor spelers)"
                                     placeholder="Iets van een geheugensteuntje."
                                 />
 
@@ -103,8 +104,27 @@ export default function CreatePowerButton({ game, ...props }: Props) {
                                     name='type'
                                     label="Type"
                                 >
-                                    <option value='message'>Bericht</option>
+                                    {Object.entries(types).map(([type, label]) => (<option key={type} value={type}>{label}</option>))}
                                 </FormikSelect>
+
+                                {(form.values.type == 'message') && (
+                                    <FormikField
+                                        form={form}
+                                        name='extra_fields.message'
+                                        label="Bericht"
+                                        placeholder='Het bericht wat je wilt tonen.'
+                                    />
+                                )}
+
+                                {(form.values.type == 'scan_freeze') && (
+                                    <FormikField
+                                        form={form}
+                                        name='extra_fields.duration'
+                                        label="Duratie"
+                                        placeholder='Hoelang duurt de scan freeze in seconden?'
+                                        type='number'
+                                    />
+                                )}
                             </Modal.Body>
 
                             <Modal.Footer>

@@ -8,7 +8,7 @@ import { Container } from "react-bootstrap";
 import { TableColumnType } from "react-bs-datatable";
 import CreateQRCodeButton from "./Partials/CreateQRCodeButton";
 import { Quartet } from "@/types/quartet";
-import { Power } from "@/types/power";
+import { Power, POWER_TYPE_LANGUAGE } from "@/types/power";
 
 type rowType = QRCode & {
     quartet: Quartet;
@@ -26,7 +26,7 @@ const headers: TableColumnType<rowType>[] = [
         title: "QR Code",
         cell: (row) => {
             if (row.power) {
-                return `${row.power.type} - ${row.power.description}`
+                return POWER_TYPE_LANGUAGE[row.power.type] ?? 'Onbekende power'
             }
 
             if (row.quartet) {

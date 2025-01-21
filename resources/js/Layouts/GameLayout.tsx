@@ -23,6 +23,7 @@ import { GameState } from "@/types/game";
 import { GameStartedEvent, LobbyUpdatedEvent, TeamQRCodeTransferredEvent, TeamWonEvent } from "@/types/events";
 import Pusher from "pusher-js";
 import GameOverScreen from "./Partials/GameOverScreen";
+import PowerActivatedScreen from "./Partials/PowerActivatedScreen";
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     title: string;
@@ -112,6 +113,7 @@ export default function GameLayout({ title, description, children, gameState, ..
             <IonApp>
                 <SocketContext.Provider value={echo}>
                     <GameOverScreen game={gameState.game} />
+                    {gameState.team && <PowerActivatedScreen team={gameState.team} />}
 
                     <div {...props}>
                         {children}

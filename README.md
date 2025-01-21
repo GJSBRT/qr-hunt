@@ -13,6 +13,7 @@ Requirements other than the normal Laravel 11 requirements.
 - Kaart met speelveld.
 - Vervang Google Maps met leaflet.
 - Reload page on game join to reload CSS. Need to remove tailwindcss css reset.
+- Implement wildcard in scoring.
 - Power up/downs.
     - Joker (UP).
     - QR code krijgen van een ander team naar keuze (UP).
@@ -32,6 +33,8 @@ Requirements other than the normal Laravel 11 requirements.
 - 'Ongelezen' QR codes. Mocht je een QR code krijgen zonder dat je het door hebt.
 - Pagina met info / regels.
 - Grafiekjes op dashboard over spel verloop.
+- Keertje de breadcrumbs fixen in dashboard.
+- Verander qr received van toast naar modal zoals scanned qr.
 
 ## Also
-This project is made with a very tight deadline. So don't expect quality ;p.
+This project is made with a very tight deadline. So don't expect quality ;p. Shortcuts and mistakes were made.

@@ -1,5 +1,5 @@
 import { GameStatePlaying } from "@/types/game";
-import { Power } from "@/types/power";
+import { Power, POWER_TYPE_LANGUAGE } from "@/types/power";
 import { QRCode, TeamQRCode } from "@/types/qr_code";
 import { Quartet } from "@/types/quartet";
 import { TeamPlayer } from "@/types/team";
@@ -10,13 +10,14 @@ import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonLis
 import moment from "moment";
 import { useState } from "react";
 import TransferQRCodeToTeam from "./TransferQRCodeToTeam";
+import UsePowerUp from "./UsePowerUp";
 
 interface Props {
     gameState: GameStatePlaying;
     teamQrCode: TeamQRCode & {
         qr_code: QRCode;
-        power: Power;
-        quartet: Quartet;
+        power: Power|null;
+        quartet: Quartet|null;
         team_player: TeamPlayer | null;
     }
 };
@@ -41,12 +42,13 @@ export default function QRCodeRow({ gameState, teamQrCode }: Props) {
                 }
 
                 <IonLabel>
-                    {teamQrCode.qr_code.description ??
+                    {teamQrCode.qr_code.description ?? (
                         teamQrCode.quartet ? `${teamQrCode.quartet.category_label} - ${teamQrCode.quartet.value}`
                         :
-                        teamQrCode.power ? `${teamQrCode.power.description}`
+                        teamQrCode.power ? `${teamQrCode.power.description ?? POWER_TYPE_LANGUAGE[teamQrCode.power.type] ?? 'Onbekende power'}`
                             :
                             teamQrCode.qr_code.uuid
+                        )
                     }
                     <p>{moment(teamQrCode.created_at).fromNow()}</p>
                 </IonLabel>
@@ -55,13 +57,13 @@ export default function QRCodeRow({ gameState, teamQrCode }: Props) {
             <IonModal isOpen={showModal}>
                 <IonHeader>
                     <IonToolbar>
-                        <IonTitle>QR Code - {teamQrCode.qr_code.description ??
+                        <IonTitle>QR Code - {teamQrCode.qr_code.description ?? (
                             teamQrCode.quartet ? `${teamQrCode.quartet.category_label} - ${teamQrCode.quartet.value}`
                             :
-                            teamQrCode.power ? `${teamQrCode.power.description}`
+                            teamQrCode.power ? `${teamQrCode.power.description ?? POWER_TYPE_LANGUAGE[teamQrCode.power.type] ?? 'Onbekende power'}`
                                 :
                                 teamQrCode.qr_code.uuid
-                        }</IonTitle>
+                        )}</IonTitle>
 
                         <IonButtons slot="end">
                             <IonButton onClick={() => setShowModal(false)}>
@@ -102,6 +104,8 @@ export default function QRCodeRow({ gameState, teamQrCode }: Props) {
                         }
 
                         <TransferQRCodeToTeam gameState={gameState} teamQrCode={teamQrCode} />
+
+                        {teamQrCode.power && <UsePowerUp gameState={gameState} teamQrCode={teamQrCode} power={teamQrCode.power} />}
                     </IonList>
                 </IonContent>
             </IonModal>

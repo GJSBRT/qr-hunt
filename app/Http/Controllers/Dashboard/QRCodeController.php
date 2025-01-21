@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Class\QuartetSettings;
 use App\Http\Controllers\Controller;
 use App\Models\Game;
 use App\Models\QRCode;
@@ -61,12 +62,22 @@ class QRCodeController extends Controller
         $user = $request->user();
         $game = Game::where('user_id', $user->id)->where('id', $id)->firstOrFail();
 
-        $qrCode = $game->qr_codes()->where('uuid', $qrCodeUuid)->firstOrFail();
+        $qrCode = $game->qr_codes()->where('uuid', $qrCodeUuid)->with(['quartet', 'power'])->firstOrFail();
+
+        $quartetCategories = [];
+        foreach(QuartetSettings::CATEGORIES_AND_LABELS as $category => $label) {
+            $quartetCategories[$category] = [
+                'label' => $label,
+                'color' => QuartetSettings::CATEGORIES_AND_COLORS[$category]
+            ];
+        }
 
         return Inertia::render('Dashboard/Games/View/QRCodes/View', [
-            'game'      => $game,
-            'qrCode'    => $qrCode,
-            'image'     => base64_encode($qrCode->generateImage()),
+            'game'              => $game,
+            'qrCode'            => $qrCode,
+            'image'             => base64_encode($qrCode->generateImage()),
+            'quartetCategories' => $quartetCategories,
+            'powers'            => $game->powers()->get()
         ]);
     }
 

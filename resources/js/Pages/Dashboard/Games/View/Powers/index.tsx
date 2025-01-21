@@ -7,11 +7,12 @@ import { router } from "@inertiajs/react";
 import { Container } from "react-bootstrap";
 import { TableColumnType } from "react-bs-datatable";
 import CreateQRCodeButton from "./Partials/CreatePowerButton";
-import { Power } from "@/types/power";
+import { Power, POWER_TYPE_LANGUAGE } from "@/types/power";
 
 interface Props {
     game: Game
     powers: PaginatedData<Power>;
+    powerTypes: {[key: string]: string};
 };
 
 const headers: TableColumnType<Power>[] = [
@@ -32,17 +33,12 @@ const headers: TableColumnType<Power>[] = [
     {
         prop: "related_to_other_team",
         title: "Gerelateerd aan andere teams",
-        cell: (row) => row.power_up ? 'Ja' : 'Nee'
+        cell: (row) => row.related_to_other_team ? 'Ja' : 'Nee'
     },
     {
         prop: "type",
         title: "Type",
-        cell: (row) => {
-            switch (row.type) {
-                case 'message':
-                    return 'Bericht';
-            }
-        }
+        cell: (row) => POWER_TYPE_LANGUAGE[row.type]
     },
     {
         prop: "created_at",
@@ -51,11 +47,11 @@ const headers: TableColumnType<Power>[] = [
     },
 ];
 
-export default function Powers({game, powers}: Props) {
+export default function Powers({game, powers, powerTypes}: Props) {
     return (
         <DashboardLayout 
             title={`${game.name} - Powers`} 
-            headerSlot={<CreateQRCodeButton game={game}/>}
+            headerSlot={<CreateQRCodeButton types={powerTypes} game={game}/>}
             breadcrumbs={[
                 { label: 'Spellen', href: route('dashboard.games.index') },
                 { label: game.name, href: route('dashboard.games.view', game.id) },

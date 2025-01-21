@@ -14,10 +14,13 @@ class TeamQRCode extends Model
         'team_player_id',
         'power_used_at',
         'transferred_from_team_id',
+        'power_completed_at',
+        'power_applied_to_team_id',
     ];
 
     public $casts = [
-        'power_used_at' => 'datetime',
+        'power_used_at'         => 'datetime',
+        'power_completed_at'    => 'datetime',
     ];
 
     public function team() {
@@ -37,7 +40,7 @@ class TeamQRCode extends Model
     }
 
     public function power() {
-        return $this->hasOneThrough(Power::class, QRCode::class, 'uuid', 'id', 'qr_code_uuid', 'uuid');
+        return $this->hasOneThrough(Power::class, QRCode::class, 'uuid', 'id', 'qr_code_uuid', 'power_id');
     }
 
     public function quartet() {

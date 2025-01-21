@@ -3,6 +3,8 @@
 use App\Http\Controllers\Dashboard\GameController;
 use App\Http\Controllers\Dashboard\PowerController;
 use App\Http\Controllers\Dashboard\QRCodeController;
+use App\Http\Controllers\Dashboard\QRCodePowerController;
+use App\Http\Controllers\Dashboard\QRCodeQuartetController;
 use App\Http\Controllers\Dashboard\TeamController;
 use App\Http\Controllers\Dashboard\TeamPointModifierController;
 use Illuminate\Support\Facades\Redirect;
@@ -25,9 +27,18 @@ Route::prefix('/dashboard')->middleware(['auth', 'verified'])->group(function() 
             Route::prefix('/qr-codes')->group(function() {
                 Route::get('/', [QRCodeController::class, 'index'])->name('dashboard.games.qr-codes.index');
                 Route::post('/', [QRCodeController::class, 'create'])->name('dashboard.games.qr-codes.create');
-                Route::get('/{qrCodeUuid}', [QRCodeController::class, 'view'])->name('dashboard.games.qr-codes.view');
-                Route::put('/{qrCodeUuid}', [QRCodeController::class, 'update'])->name('dashboard.games.qr-codes.update');
-                Route::delete('/{qrCodeUuid}', [QRCodeController::class, 'delete'])->name('dashboard.games.qr-codes.delete');
+
+                Route::prefix('/{qrCodeUuid}')->group(function() {
+                    Route::get('/', [QRCodeController::class, 'view'])->name('dashboard.games.qr-codes.view');
+                    Route::put('/', [QRCodeController::class, 'update'])->name('dashboard.games.qr-codes.update');
+                    Route::delete('/', [QRCodeController::class, 'delete'])->name('dashboard.games.qr-codes.delete');
+
+                    Route::prefix('/quartet')->group(function() {
+                        Route::post('/', [QRCodeQuartetController::class, 'create'])->name('dashboard.games.qr-codes.quartets.create');
+                        Route::put('/{quartetId}', [QRCodeQuartetController::class, 'update'])->name('dashboard.games.qr-codes.quartets.update');
+                        Route::delete('/{quartetId}', [QRCodeQuartetController::class, 'delete'])->name('dashboard.games.qr-codes.quartets.delete');
+                    });
+                });
             });
 
             Route::prefix('/powers')->group(function() {

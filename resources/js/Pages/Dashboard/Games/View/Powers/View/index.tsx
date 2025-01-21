@@ -8,18 +8,23 @@ import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import toast from "react-hot-toast";
 import { Power } from '@/types/power';
 import DeletePowerButton from '../Partials/DeletePowerButton';
+import FormikCheckbox from '@/Components/DashboardComponentes/FormikCheckbox';
+import FormikSelect from '@/Components/DashboardComponentes/FormikSelect';
 
 interface Props {
     game: Game
     power: Power
+    types: {[key: string]: string}
 };
 
 const schema = Yup.object({
+    power_up: Yup.bool().label('Power up'),
+    related_to_other_team: Yup.bool().label('Gerelateerd aan andere teams'),
     description: Yup.string().min(1).max(255).nullable().label('Beschrijving'),
-    max_scans: Yup.number().min(1).max(255).nullable().label('Maximale scans'),
+    type: Yup.string().required().label('Type'),
 });
 
-export default function View({ game, power }: Props) {
+export default function View({ game, power, types }: Props) {
     const submit = function (formData: Power, { setSubmitting }: FormikHelpers<Power>) {
         router.put(route('dashboard.games.powers.update', {
             id: game.id,
@@ -78,17 +83,48 @@ export default function View({ game, power }: Props) {
                                             <FormikField
                                                 form={form}
                                                 name='description'
-                                                label="Beschrijving (Optioneel, als je durft)"
+                                                label="Beschrijving (ook zichtbaar voor spelers)"
                                                 placeholder="Iets van een geheugensteuntje."
                                             />
 
-                                            <FormikField
+                                            <FormikCheckbox
                                                 form={form}
-                                                name='max_scans'
-                                                label="Maximale scans (Optioneel)"
-                                                type='number'
-                                                placeholder="Maximaal aantal scans? Altijd 1 per team."
+                                                name='power_up'
+                                                label="Is dit een power up? (anders power down)"
                                             />
+
+                                            <FormikCheckbox
+                                                form={form}
+                                                name='related_to_other_team'
+                                                label="Is deze power gerelateerd aan andere teams?"
+                                            />
+
+                                            <FormikSelect
+                                                form={form}
+                                                name='type'
+                                                label="Type"
+                                            >
+                                                {Object.entries(types).map(([type, label]) => (<option key={type} value={type}>{label}</option>))}
+                                            </FormikSelect>
+
+                                            {(form.values.type == 'message') && (
+                                                <FormikField
+                                                    form={form}
+                                                    name='extra_fields.message'
+                                                    label="Bericht"
+                                                    placeholder='Het bericht wat je wilt tonen.'
+                                                />
+                                            )}
+
+                                            {(form.values.type == 'scan_freeze') && (
+                                                <FormikField
+                                                    form={form}
+                                                    name='extra_fields.duration'
+                                                    label="Duratie"
+                                                    placeholder='Hoelang duurt de scan freeze in seconden?'
+                                                    type='number'
+                                                />
+                                            )}
                                         </Card.Body>
 
                                         <Card.Footer>

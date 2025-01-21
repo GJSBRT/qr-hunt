@@ -32,8 +32,9 @@ class PowerController extends Controller
         $powersQuery = QueryBuilder::for($powers)->defaultSort('-created_at')->allowedSorts((new Power)->sortable);
 
         return Inertia::render('Dashboard/Games/View/Powers', [
-            'game'      => $game,
-            'powers'    => $powersQuery->paginate($size),
+            'game'          => $game,
+            'powers'        => $powersQuery->paginate($size),
+            'powerTypes'    => Power::TYPES_AND_LABELS,
         ]);
     }
 
@@ -45,7 +46,7 @@ class PowerController extends Controller
             'power_up'              => 'required|boolean',
             'related_to_other_team' => 'required|boolean',
             'description'           => 'nullable|string|min:1|max:255',
-            'type'                  => 'required|string|in:message',
+            'type'                  => 'required|string|in:message,wildcard,qr_location_hint,scan_freeze,return_to_start,give_qr_to_another_team',
             'extra_fields'          => 'nullable|array',
         ]);
 
@@ -69,6 +70,7 @@ class PowerController extends Controller
         return Inertia::render('Dashboard/Games/View/Powers/View', [
             'game'  => $game,
             'power' => $power,
+            'types' => Power::TYPES_AND_LABELS,
         ]);
     }
 

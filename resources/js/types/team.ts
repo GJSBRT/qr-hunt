@@ -18,3 +18,9 @@ export interface TeamPointsModifier extends DatabaseObject {
 };
 
 export type NewTeamPointsModifier = Omit<TeamPointsModifier, 'team_id' | keyof DatabaseObject>;
+
+export interface TeamScanFreeze extends DatabaseObject {
+    team_id: number;
+    starts_at: string;
+    ends_at: string;
+};

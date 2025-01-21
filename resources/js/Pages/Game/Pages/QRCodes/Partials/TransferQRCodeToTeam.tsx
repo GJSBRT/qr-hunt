@@ -1,5 +1,5 @@
 import { GameStatePlaying } from "@/types/game";
-import { Power } from "@/types/power";
+import { Power, POWER_TYPE_LANGUAGE } from "@/types/power";
 import { QRCode, TeamQRCode } from "@/types/qr_code";
 import { Quartet } from "@/types/quartet";
 import { Team, TeamPlayer } from "@/types/team";
@@ -11,8 +11,8 @@ interface Props {
     gameState: GameStatePlaying;
     teamQrCode: TeamQRCode & {
         qr_code: QRCode;
-        power: Power;
-        quartet: Quartet;
+        power: Power|null;
+        quartet: Quartet|null;
         team_player: TeamPlayer | null;
     }
 };
@@ -111,13 +111,13 @@ export default function TransferQRCodeToTeam({ gameState, teamQrCode }: Props) {
                     <IonList lines="full">
                         <IonItem>
                             <IonText>
-                                <p>Hier kan je de QR code '{teamQrCode.qr_code.description ??
+                                <p>Hier kan je de QR code '{teamQrCode.qr_code.description ?? (
                                     teamQrCode.quartet ? `${teamQrCode.quartet.category_label} - ${teamQrCode.quartet.value}`
                                     :
-                                    teamQrCode.power ? `${teamQrCode.power.description}`
+                                    teamQrCode.power ? `${teamQrCode.power.description ?? POWER_TYPE_LANGUAGE[teamQrCode.power.type] ?? 'Onbekende power'}`
                                         :
                                         teamQrCode.qr_code.uuid
-                                }' overdragen aan een ander team. Selecteer hieronder het team. P.S. van ruilen komt huilen ;)</p>
+                                )}' overdragen aan een ander team. Selecteer hieronder het team. P.S. van ruilen komt huilen ;)</p>
                             </IonText>
                         </IonItem>
 

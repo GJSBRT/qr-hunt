@@ -60,7 +60,7 @@ export default function CreateTeamButton({ gameState }: { gameState: GameState }
                 });
             },
         });
-    }
+    };
 
     return (
         <>

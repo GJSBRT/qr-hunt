@@ -8,19 +8,34 @@ import { Form, Formik, FormikHelpers } from "formik";
 import { Button, Card, Col, Container, Row } from "react-bootstrap";
 import toast from "react-hot-toast";
 import DeleteQRCodeButton from '../Partials/DeleteQRCodeButton';
+import { Quartet } from '@/types/quartet';
+import { Power, POWER_TYPE_LANGUAGE } from '@/types/power';
+import UpdateQuartetCard from './Partials/UpdateQuartetCard';
+import FormikSelect from '@/Components/DashboardComponentes/FormikSelect';
 
 interface Props {
     game: Game
-    qrCode: QRCode
+    qrCode: QRCode & {
+        quartet: Quartet | null;
+        power: Power | null;
+    }
     image: string;
+    quartetCategories: {
+        [key: string]: {
+            label: string;
+            color: string;
+        }
+    }
+    powers: Power[];
 };
 
 const schema = Yup.object({
     description: Yup.string().min(1).max(255).nullable().label('Beschrijving'),
     max_scans: Yup.number().min(1).max(255).nullable().label('Maximale scans'),
+    power_id: Yup.number().min(1).max(255).required().label('Power'),
 });
 
-export default function QRCodes({ game, qrCode, image }: Props) {
+export default function QRCodes({ game, qrCode, image, quartetCategories, powers }: Props) {
     const submit = function (formData: QRCode, { setSubmitting }: FormikHelpers<QRCode>) {
         router.put(route('dashboard.games.qr-codes.update', {
             id: game.id,
@@ -79,7 +94,7 @@ export default function QRCodes({ game, qrCode, image }: Props) {
                             <Card.Header>Gegevens wijzigen</Card.Header>
                             <Formik
                                 validationSchema={schema}
-                                initialValues={qrCode}
+                                initialValues={qrCode as QRCode}
                                 onSubmit={submit}
                             >
                                 {(form) => (
@@ -88,7 +103,7 @@ export default function QRCodes({ game, qrCode, image }: Props) {
                                             <FormikField
                                                 form={form}
                                                 name='description'
-                                                label="Beschrijving (Optioneel, als je durft)"
+                                                label="Beschrijving (zichtbaar voor spelers)"
                                                 placeholder="Iets van een geheugensteuntje."
                                             />
 
@@ -99,6 +114,15 @@ export default function QRCodes({ game, qrCode, image }: Props) {
                                                 type='number'
                                                 placeholder="Maximaal aantal scans? Altijd 1 per team."
                                             />
+
+                                            <FormikSelect
+                                                form={form}
+                                                name='power_id'
+                                                label="Power"
+                                            >
+                                                <option value=''>Geen power</option>
+                                                {powers.map((power) => <option key={power.id} value={power.id}>{power.description ?? POWER_TYPE_LANGUAGE[power.type] ?? 'Onbekende power'}</option>)}
+                                            </FormikSelect>
                                         </Card.Body>
 
                                         <Card.Footer>
@@ -112,6 +136,21 @@ export default function QRCodes({ game, qrCode, image }: Props) {
                         </Card>
                     </Col>
                 </Row>
+
+                {(qrCode.quartet && !qrCode.power) && (
+                    <>
+                        <div className='mt-8'>
+                            <h2>Kwartet</h2>
+                            <p>Hier kan je de kwartet instellingen van deze QR code wijzigen.</p>
+                        </div>
+
+                        <Row>
+                            <Col>
+                                <UpdateQuartetCard game={game} qrCode={qrCode} quartet={qrCode.quartet} categories={quartetCategories} />
+                            </Col>
+                        </Row>
+                    </>
+                )}
             </Container>
         </DashboardLayout>
     );

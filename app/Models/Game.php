@@ -71,6 +71,10 @@ class Game extends Model
         return $this->hasManyThrough(TeamPlayer::class, Team::class, 'game_id', 'team_id', 'id', 'id');
     }
 
+    public function quartets() {
+        return $this->hasManyThrough(Quartet::class, QRCode::class, 'game_id', 'qr_code_uuid', 'id', 'uuid');
+    }
+
     public function qr_codes() {
         return $this->hasMany(QRCode::class, 'game_id', 'id');
     }

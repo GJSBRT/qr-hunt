@@ -2,7 +2,7 @@ import { DatabaseObject } from ".";
 import { Power } from "./power";
 import { QRCode, TeamQRCode } from "./qr_code";
 import { Quartet } from "./quartet";
-import { Team, TeamPlayer } from "./team";
+import { Team, TeamPlayer, TeamScanFreeze } from "./team";
 
 export interface Game extends DatabaseObject {
     user_id: number;
@@ -35,6 +35,10 @@ export interface GameState {
     team: Team | null;
     teamPlayer: TeamPlayer | null;
     teams: Team[];
+    scanFreeze: TeamScanFreeze[] | null;
+    powerAppliedTeamQRCodes: Array<TeamQRCode & {
+        power: Power;
+    }> | null;
 };
 
 export interface GameStatePlaying extends GameState {
@@ -42,8 +46,8 @@ export interface GameStatePlaying extends GameState {
     teamPlayer: TeamPlayer;
     teamQrCodes: Array<TeamQRCode & {
         qr_code: QRCode;
-        power: Power;
-        quartet: Quartet;
+        power: Power | null;
+        quartet: Quartet | null;
         team_player: TeamPlayer | null;
     }>;
     quartets: {
@@ -52,5 +56,9 @@ export interface GameStatePlaying extends GameState {
             label: string;
             cards: number[];
         }
-    }
+    };
+    scanFreeze: TeamScanFreeze[];
+    powerAppliedTeamQRCodes: Array<TeamQRCode & {
+        power: Power;
+    }>
 };
