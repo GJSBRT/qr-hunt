@@ -53,12 +53,12 @@ export default function GameLayout({ title, description, children, gameState, ..
             const e = new Echo({
                 broadcaster: 'pusher',
                 key: import.meta.env.VITE_PUSHER_APP_KEY,
-                cluster: 'ws',
+                cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
                 wsHost: import.meta.env.VITE_PUSHER_HOST,
-                wsPort: import.meta.env.VITE_PUSHER_PORT,
+                wsPort: import.meta.env.VITE_PUSHER_PORT == '443' ? '80': import.meta.env.VITE_PUSHER_PORT,
                 wssPort: import.meta.env.VITE_PUSHER_PORT,
-                forceTLS: false,
-                encrypted: secure,
+                forceTLS: secure,
+                encrypted: true,
                 enabledTransports: secure ? ['wss'] : ['ws'],
             });
 
