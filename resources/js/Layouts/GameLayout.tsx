@@ -46,31 +46,36 @@ export default function GameLayout({ title, description, children, gameState, ..
             window.Pusher = Pusher;
         }
 
-        const secure = import.meta.env.VITE_PUSHER_SCHEME == 'https';
-
-        const e = new Echo({
-            broadcaster: 'pusher',
-            key: import.meta.env.VITE_PUSHER_APP_KEY,
-            cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
-            wsHost: import.meta.env.VITE_PUSHER_HOST,
-            wsPort: !secure && import.meta.env.VITE_PUSHER_PORT,
-            wssPort: secure && import.meta.env.VITE_PUSHER_PORT,
-            forceTLS: secure,
-            encrypted: true,
-            enabledTransports: ['ws', 'wss'],
-        });
-
-        e.connect();
-        console.info("Connnected to pusher")
-
-        setEcho(e);
-
         // @ts-ignore
-        window.Echo = e;
+        if (!window.Echo) {
+            const secure = import.meta.env.VITE_PUSHER_SCHEME == 'https';
 
-        console.info("Set echo", e);
+            const e = new Echo({
+                broadcaster: 'pusher',
+                key: import.meta.env.VITE_PUSHER_APP_KEY,
+                cluster: 'ws',
+                wsHost: import.meta.env.VITE_PUSHER_HOST,
+                wsPort: !secure ? import.meta.env.VITE_PUSHER_PORT : undefined,
+                wssPort: secure ? import.meta.env.VITE_PUSHER_PORT : undefined,
+                forceTLS: secure,
+                encrypted: true,
+                enabledTransports: ['ws', 'wss'],
+            });
 
-        const gameChannel = e.private(`game.${gameState.game.id}`);
+            // @ts-ignore
+            window.Echo = e;
+
+            setEcho(e);
+        } else {
+            //@ts-ignore
+            setEcho(window.Echo);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!echo) return;
+
+        const gameChannel = echo.private(`game.${gameState.game.id}`);
         gameChannel.listen('GameStartedEvent', (e: GameStartedEvent) => {
             router.visit(route('game.index'));
 
@@ -101,11 +106,9 @@ export default function GameLayout({ title, description, children, gameState, ..
         });
 
         return () => {
-            console.info('Removed echo');
-            e.leaveAllChannels();
-            e.disconnect();
+            echo.leave(`game.${gameState.game.id}`);
         };
-    }, []);
+    }, [echo])
 
     return (
         <>
