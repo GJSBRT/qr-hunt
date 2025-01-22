@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+    build: {
+        sourcemap: true,
+    },
     plugins: [
         laravel({
             input: 'resources/js/app.tsx',
