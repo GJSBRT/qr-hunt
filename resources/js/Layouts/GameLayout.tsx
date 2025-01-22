@@ -55,9 +55,9 @@ export default function GameLayout({ title, description, children, gameState, ..
                 key: import.meta.env.VITE_PUSHER_APP_KEY,
                 cluster: 'ws',
                 wsHost: import.meta.env.VITE_PUSHER_HOST,
-                wsPort: !secure ? import.meta.env.VITE_PUSHER_PORT : undefined,
-                wssPort: secure ? import.meta.env.VITE_PUSHER_PORT : undefined,
-                forceTLS: secure,
+                wsPort: import.meta.env.VITE_PUSHER_PORT,
+                wssPort: import.meta.env.VITE_PUSHER_PORT,
+                forceTLS: false,
                 encrypted: secure,
                 enabledTransports: secure ? ['wss'] : ['ws'],
             });
@@ -66,46 +66,49 @@ export default function GameLayout({ title, description, children, gameState, ..
             window.Echo = e;
 
             setEcho(e);
-
-            const gameChannel = e.private(`game.${gameState.game.id}`);
-            gameChannel.listen('GameStartedEvent', (e: GameStartedEvent) => {
-                router.visit(route('game.index'));
-
-                presentToast({
-                    message: 'Het spel is gestart!',
-                    duration: 5000,
-                    position: 'bottom',
-                    color: 'success',
-                });
-            });
-
-            gameChannel.listen('LobbyUpdatedEvent', (e: LobbyUpdatedEvent) => {
-                if (!route().current('game.lobby.*')) return;
-                router.reload();
-            });
-
-            gameChannel.listen('TeamQRCodeTransferredEvent', (e: TeamQRCodeTransferredEvent) => {
-                if (!gameState.team || !route().current('game.lobby.*')) return;
-
-                presentToast({
-                    message: (e.from_team_id == gameState.team.id) ? 'Jouw team heeft een QR code weggegeven.' : 'Je team heeft een QR code ontvangen!',
-                    duration: 5000,
-                    position: 'bottom',
-                    color: (e.from_team_id == gameState.team.id) ? 'warning' : 'success',
-                });
-
-                router.reload();
-            });
         } else {
             //@ts-ignore
             setEcho(window.Echo);
         }
+    }, []);
+
+    useEffect(() => {
+        if (!echo) return;
+
+        const gameChannel = echo.private(`game.${gameState.game.id}`);
+        gameChannel.listen('GameStartedEvent', (e: GameStartedEvent) => {
+            router.visit(route('game.index'));
+
+            presentToast({
+                message: 'Het spel is gestart!',
+                duration: 5000,
+                position: 'bottom',
+                color: 'success',
+            });
+        });
+
+        gameChannel.listen('LobbyUpdatedEvent', (e: LobbyUpdatedEvent) => {
+            if (!route().current('game.lobby.*')) return;
+            router.reload();
+        });
+
+        gameChannel.listen('TeamQRCodeTransferredEvent', (e: TeamQRCodeTransferredEvent) => {
+            if (!gameState.team || !route().current('game.lobby.*')) return;
+
+            presentToast({
+                message: (e.from_team_id == gameState.team.id) ? 'Jouw team heeft een QR code weggegeven.' : 'Je team heeft een QR code ontvangen!',
+                duration: 5000,
+                position: 'bottom',
+                color: (e.from_team_id == gameState.team.id) ? 'warning' : 'success',
+            });
+
+            router.reload();
+        });
 
         return () => {
-            //@ts-ignore
-            window.Echo.leave(`game.${gameState.game.id}`);
+            echo.leave(`game.${gameState.game.id}`);
         };
-    }, []);
+    }, [echo])
 
     return (
         <>

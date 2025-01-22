@@ -95,7 +95,7 @@ export default function SwitchToTeamButton({ gameState, team }: { gameState: Gam
                             <IonHeader>
                                 <IonToolbar>
                                     <IonButtons slot="start">
-                                        <IonButton onClick={() => modal.current?.dismiss()}>Annuleer</IonButton>
+                                        <IonButton onClick={() => setShowModal(false)}>Annuleer</IonButton>
                                     </IonButtons>
 
                                     <IonTitle>Mee doen aan '{team.name}'</IonTitle>
