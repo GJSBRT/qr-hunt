@@ -20,7 +20,7 @@ import '@ionic/react/css/display.css';
 import { createContext, useEffect, useState } from "react";
 import Echo from "laravel-echo";
 import { GameState } from "@/types/game";
-import { GameStartedEvent, LobbyUpdatedEvent, TeamQRCodeTransferredEvent, TeamWonEvent } from "@/types/events";
+import { GameStartedEvent, LobbyUpdatedEvent, TeamQRCodeTransferredEvent } from "@/types/events";
 import Pusher from "pusher-js";
 import GameOverScreen from "./Partials/GameOverScreen";
 import PowerActivatedScreen from "./Partials/PowerActivatedScreen";
@@ -40,13 +40,10 @@ export default function GameLayout({ title, description, children, gameState, ..
     const [echo, setEcho] = useState<Echo<"pusher"> | null>(null);
 
     useEffect(() => {
-        //@ts-ignore
         if (!window.Pusher) {
-            //@ts-ignore
             window.Pusher = Pusher;
         }
 
-        // @ts-ignore
         if (!window.Echo) {
             const secure = import.meta.env.VITE_PUSHER_SCHEME == 'https';
 
@@ -55,19 +52,17 @@ export default function GameLayout({ title, description, children, gameState, ..
                 key: import.meta.env.VITE_PUSHER_APP_KEY,
                 cluster: 'ws',
                 wsHost: import.meta.env.VITE_PUSHER_HOST,
-                wsPort: !secure ? import.meta.env.VITE_PUSHER_PORT : undefined,
-                wssPort: secure ? import.meta.env.VITE_PUSHER_PORT : undefined,
+                wsPort: import.meta.env.VITE_PUSHER_PORT,
+                wssPort: import.meta.env.VITE_PUSHER_PORT,
                 forceTLS: secure,
                 encrypted: true,
                 enabledTransports: ['ws', 'wss'],
             });
 
-            // @ts-ignore
             window.Echo = e;
 
             setEcho(e);
         } else {
-            //@ts-ignore
             setEcho(window.Echo);
         }
     }, []);

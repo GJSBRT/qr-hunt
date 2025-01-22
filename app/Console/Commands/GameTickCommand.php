@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Events\GameStartedEvent;
 use App\Events\TeamWonEvent;
 use App\Models\Game;
+use App\Models\Power;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -58,7 +59,14 @@ class GameTickCommand extends Command
                 // Check if a team has won
                 $teamsWon = [];
                 foreach($game->teams()->get() as $team) {
-                    $teamQrCodes = $team->team_qr_codes()->get();
+                    $teamQrCodes = $team->team_qr_codes()->with(['power'])->get();
+
+                    $wildCards = 0;
+                    foreach ($teamQrCodes as $teamQrCode) {
+                        if ($teamQrCode->type == Power::TYPE_WILDCARD) {
+                            $wildCards++;
+                        }
+                    }
 
                     $categoryCount = [];
                     foreach($teamQrCodes as $teamQrCode) {
@@ -75,17 +83,31 @@ class GameTickCommand extends Command
                         }
                     }
 
-                    if (count($categoryCount) < $game->quartet_categories) {
+                    if (count($categoryCount) != $game->quartet_categories) {
                         continue;
                     }
 
+                    // Apply wildcards
+                    foreach($categoryCount as $k => $count) {
+                        if (($game->quartet_values - $count) <= $wildCards) {
+                            $cardsNeeded = $game->quartet_values - $count;
+
+                            $categoryCount[$k] += $cardsNeeded;
+                            $wildCards -= $cardsNeeded;
+                        }
+                    }
+
+                    $ok = true;
                     foreach($categoryCount as $count) {
-                        if ($count < $game->quartet_values) {
+                        if ($count != $game->quartet_values) {
+                            $ok = false;
                             break;
                         }
                     }
 
-                    $teamsWon[] = $team;
+                    if ($ok) {
+                        $teamsWon[] = $team;
+                    }
                 }
 
                 if (count($teamsWon) > 0) {
@@ -116,7 +138,9 @@ class GameTickCommand extends Command
                     $game->status = Game::STATUS_ENDED;
                     $game->ended_at = Carbon::now();
                     $game->save();
+
                     TeamWonEvent::dispatch($game, $winningTeam['team']);
+
                     return;
                 }
 

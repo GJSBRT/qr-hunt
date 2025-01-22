@@ -12,15 +12,9 @@ Requirements other than the normal Laravel 11 requirements.
 - QR locatie. Makkelijk kunnen scannen en de huidige locatie van apperaat gebruiken voor locatie.
 - Kaart met speelveld.
 - Vervang Google Maps met leaflet.
-- Reload page on game join to reload CSS. Need to remove tailwindcss css reset.
-- Implement wildcard in scoring.
-- Power up/downs.
-    - Joker (UP).
-    - QR code krijgen van een ander team naar keuze (UP).
-    - QR locatie hint (UP).
-    - 5 minuten scan freeze (DOWN).
-    - Terug naar start lopen (DOWN).
-    - Geef een kaart aan een ander team (DOWN).
+- Exporteer alle QR codes in een pdfjes of printbare manier.
+- Power up/downs testen.
+- Scoreboard voor game master
 
 ### Leuk voor erbij
 - Scan cooldown.
