@@ -70,17 +70,7 @@ export default function GameLayout({ title, description, children, gameState, ..
 
         console.info("Set echo", e);
 
-        return () => {
-            console.info('Removed echo');
-            e.leaveAllChannels();
-            e.disconnect();
-        };
-    }, []);
-
-    useEffect(() => {
-        if (!echo) return;
-
-        const gameChannel = echo.private(`game.${gameState.game.id}`);
+        const gameChannel = e.private(`game.${gameState.game.id}`);
         gameChannel.listen('GameStartedEvent', (e: GameStartedEvent) => {
             router.visit(route('game.index'));
 
@@ -111,9 +101,11 @@ export default function GameLayout({ title, description, children, gameState, ..
         });
 
         return () => {
-            echo.leave(`game.${gameState.game.id}`);
+            console.info('Removed echo');
+            e.leaveAllChannels();
+            e.disconnect();
         };
-    }, [echo])
+    }, []);
 
     return (
         <>
