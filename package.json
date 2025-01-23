@@ -9,6 +9,7 @@
         "@headlessui/react": "^2.0.0",
         "@inertiajs/react": "^2.0.0",
         "@tailwindcss/forms": "^0.5.3",
+        "@types/leaflet": "^1.9.16",
         "@types/node": "^18.13.0",
         "@types/react": "^18.0.28",
         "@types/react-dom": "^18.0.10",
@@ -29,7 +30,6 @@
     "dependencies": {
         "@capacitor/barcode-scanner": "^1.0.4",
         "@capacitor/camera": "^6.1.2",
-        "@capacitor/google-maps": "^6.0.1",
         "@fortawesome/fontawesome-svg-core": "^6.7.2",
         "@fortawesome/free-solid-svg-icons": "^6.7.2",
         "@fortawesome/react-fontawesome": "^0.2.2",
@@ -40,6 +40,7 @@
         "bootstrap": "^5.3.3",
         "formik": "^2.4.6",
         "laravel-echo": "^1.18.0",
+        "leaflet": "^1.9.4",
         "moment": "^2.30.1",
         "pusher-js": "^8.4.0-rc2",
         "react-bootstrap": "^2.10.7",
@@ -47,6 +48,7 @@
         "react-confetti": "^6.2.2",
         "react-countdown": "^2.3.6",
         "react-hot-toast": "^2.5.1",
+        "react-leaflet": "^4.2.1",
         "yup": "^1.6.1",
         "yup-locales": "^1.2.28"
     }

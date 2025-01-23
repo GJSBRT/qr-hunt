@@ -36,7 +36,7 @@ class LobbyController extends Controller
             'code' => 'required|string'
         ]);
 
-        $game = Game::where('code', $body['code'])->first();
+        $game = Game::where('code', $body['code'])->with('game_map_area_points')->first();
 
         if (!$game) {
             throw ValidationException::withMessages([

@@ -10,8 +10,6 @@ Requirements other than the normal Laravel 11 requirements.
 ## Todo
 ### MVP
 - QR locatie. Makkelijk kunnen scannen en de huidige locatie van apperaat gebruiken voor locatie.
-- Kaart met speelveld.
-- Vervang Google Maps met leaflet.
 - Exporteer alle QR codes in een pdfjes of printbare manier.
 - Power up/downs testen.
 - Scoreboard voor game master

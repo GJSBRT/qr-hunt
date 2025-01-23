@@ -67,6 +67,10 @@ class Game extends Model
         return $this->hasMany(Team::class, 'game_id', 'id');
     }
 
+    public function game_map_area_points() {
+        return $this->hasMany(GameMapAreaPoint::class, 'game_id', 'id');
+    }
+
     public function team_players() {
         return $this->hasManyThrough(TeamPlayer::class, Team::class, 'game_id', 'team_id', 'id', 'id');
     }

@@ -79,8 +79,9 @@ class GameController extends Controller
         $game = $user->games()->where('id', $id)->firstOrFail();
 
         return Inertia::render('Dashboard/Games/View', [
-            'game'      => $game,
-            'stats'     => [
+            'game'              => $game,
+            'gameMapAreaPoints' => $game->game_map_area_points()->get(),
+            'stats'             => [
                 'qrCodes'   => $game->qr_codes()->count(),
                 'powers'    => $game->powers()->count(),
                 'teams'     => $game->teams()->count(),

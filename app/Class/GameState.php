@@ -35,7 +35,7 @@ class GameState {
             throw new InvalidGameState("No game id for request");
         }
 
-        $this->game = Game::where("id", $gameId)->first();
+        $this->game = Game::where("id", $gameId)->with(['game_map_area_points'])->first();
         if (!$this->game) {
             self::clearGameStateFromRequest($this->request);
             throw new InvalidGameState("No game for request");

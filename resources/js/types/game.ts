@@ -30,8 +30,18 @@ export const GAME_STATUS_LANGUAGE = {
     'ended': "Afgelopen",
 };
 
+export interface GameMapAreaPoint extends DatabaseObject {
+    game_id: number;
+    lat: number;
+    lng: number;
+};
+
+export type NewGameMapAreaPoint = Omit<GameMapAreaPoint, 'game_id' | keyof DatabaseObject>;
+
 export interface GameState {
-    game: Game;
+    game: Game & {
+        game_map_area_points: GameMapAreaPoint[];
+    };
     team: Team | null;
     teamPlayer: TeamPlayer | null;
     teams: Team[];

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Dashboard\GameController;
+use App\Http\Controllers\Dashboard\MapAreaPointController;
 use App\Http\Controllers\Dashboard\PowerController;
 use App\Http\Controllers\Dashboard\QRCodeController;
 use App\Http\Controllers\Dashboard\QRCodePowerController;
@@ -47,6 +48,11 @@ Route::prefix('/dashboard')->middleware(['auth', 'verified'])->group(function() 
                 Route::get('/{powerId}', [PowerController::class, 'view'])->name('dashboard.games.powers.view');
                 Route::put('/{powerId}', [PowerController::class, 'update'])->name('dashboard.games.powers.update');
                 Route::delete('/{powerId}', [PowerController::class, 'delete'])->name('dashboard.games.powers.delete');
+            });
+
+            Route::prefix('/map-area-points')->group(function() {
+                Route::post('/', [MapAreaPointController::class, 'create'])->name('dashboard.games.map-area-points.create');
+                Route::delete('/{pointId}', [MapAreaPointController::class, 'delete'])->name('dashboard.games.map-area-points.delete');
             });
 
             Route::prefix('/teams')->group(function() {
