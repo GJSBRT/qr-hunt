@@ -27,25 +27,27 @@ export default function DashboardLayout({ title, description, headerSlot, childr
             />
 
             <div {...props}>
-                <Navbar expand="lg" data-bs-theme='dark' bg='dark'>
-                    <Container>
-                        <Navbar.Brand href={route('dashboard')} as={Link}>
-                            QR Hunt
-                        </Navbar.Brand>
+                <div className='print:hidden'>
+                    <Navbar expand="lg" data-bs-theme='dark' bg='dark'>
+                        <Container>
+                            <Navbar.Brand href={route('dashboard')} as={Link}>
+                                QR Hunt
+                            </Navbar.Brand>
 
-                        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                            <Navbar.Toggle aria-controls="basic-navbar-nav" />
 
-                        <Navbar.Collapse id="basic-navbar-nav">
-                            <Nav className="me-auto">
-                                <Nav.Link active={route().current('dashboard')} href={route('dashboard')} as={Link}>Home</Nav.Link>
-                                <Nav.Link active={route().current('dashboard.games.*')} href={route('dashboard.games.index')} as={Link}>Spellen</Nav.Link>
-                            </Nav>
-                        </Navbar.Collapse>
-                    </Container>
-                </Navbar>
+                            <Navbar.Collapse id="basic-navbar-nav">
+                                <Nav className="me-auto">
+                                    <Nav.Link active={route().current('dashboard')} href={route('dashboard')} as={Link}>Home</Nav.Link>
+                                    <Nav.Link active={route().current('dashboard.games.*')} href={route('dashboard.games.index')} as={Link}>Spellen</Nav.Link>
+                                </Nav>
+                            </Navbar.Collapse>
+                        </Container>
+                    </Navbar>
+                </div>
 
                 <main className="mt-4">
-                    <Container>
+                    <Container className='print:hidden'>
                         <div className="mb-2 flex flex-row justify-between items-center">
                             <div>
                                 <h1>{title}</h1>

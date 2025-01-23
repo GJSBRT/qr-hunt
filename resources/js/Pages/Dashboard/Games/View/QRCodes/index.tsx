@@ -3,8 +3,8 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import { PaginatedData } from "@/types";
 import { Game } from "@/types/game";
 import { QRCode } from "@/types/qr_code";
-import { router } from "@inertiajs/react";
-import { Container } from "react-bootstrap";
+import { Link, router } from "@inertiajs/react";
+import { Button, Container, Row } from "react-bootstrap";
 import { TableColumnType } from "react-bs-datatable";
 import CreateQRCodeButton from "./Partials/CreateQRCodeButton";
 import { Quartet } from "@/types/quartet";
@@ -62,7 +62,14 @@ export default function QRCodes({ game, qrCodes }: Props) {
     return (
         <DashboardLayout
             title={`${game.name} - QR Codes`}
-            headerSlot={<CreateQRCodeButton game={game} />}
+            headerSlot={
+                <div className="flex gap-2">
+                    {/* 
+                    @ts-ignore */}
+                    <Button variant='secondary' as={Link} href={route('dashboard.games.qr-codes.print', game.id)}>Printen</Button>
+                    <CreateQRCodeButton game={game} />
+                </div>
+            }
             breadcrumbs={[
                 { label: 'Spellen', href: route('dashboard.games.index') },
                 { label: game.name, href: route('dashboard.games.view', game.id) },

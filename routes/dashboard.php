@@ -27,6 +27,7 @@ Route::prefix('/dashboard')->middleware(['auth', 'verified'])->group(function() 
 
             Route::prefix('/qr-codes')->group(function() {
                 Route::get('/', [QRCodeController::class, 'index'])->name('dashboard.games.qr-codes.index');
+                Route::get('/print', [QRCodeController::class, 'print'])->name('dashboard.games.qr-codes.print');
                 Route::post('/', [QRCodeController::class, 'create'])->name('dashboard.games.qr-codes.create');
 
                 Route::prefix('/{qrCodeUuid}')->group(function() {

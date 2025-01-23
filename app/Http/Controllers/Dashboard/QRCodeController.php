@@ -39,6 +39,41 @@ class QRCodeController extends Controller
         ]);
     }
 
+    public function print(Request $request, int $id): Response
+    {
+        $user = $request->user();
+        $game = Game::where('user_id', $user->id)->where('id', $id)->firstOrFail();
+
+
+        $qrCodes = $game->qr_codes()->with(['quartet', 'power'])->get();
+        $images = [];
+        foreach($qrCodes as $qrCode) {
+            $label = $qrCode->description;
+
+            if ($qrCode->quartet) {
+                $label = $qrCode->quartet->category_label . ' - ' . $qrCode->quartet->value;
+            }
+
+            if ($qrCode->power) {
+                $label = $qrCode->power->description ?? $qrCode->power->type;
+            }
+
+            if ($label == null || $label == '') {
+                $label = $qrCode->uuid;
+            }
+
+            $images[] = [
+                'image' => base64_encode($qrCode->generateImage()),
+                'label' => $label,
+            ];
+        }
+
+        return Inertia::render('Dashboard/Games/View/QRCodes/Print', [
+            'game'      => $game,
+            'images'    => $images,
+        ]);
+    }
+
     public function create(Request $request, int $id) {
         $user = $request->user();
         $game = Game::where('user_id', $user->id)->where('id', $id)->firstOrFail();

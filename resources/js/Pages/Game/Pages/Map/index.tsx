@@ -1,11 +1,12 @@
 import 'leaflet/dist/leaflet.css';
-import { GameStatePlaying } from "@/types/game";
-import { IonButton, IonContent, IonFabButton, IonHeader, IonItem, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
-import { useEffect, useLayoutEffect, useState } from "react";
-import { Circle, CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import L, { LatLngExpression } from 'leaflet';
+import { useEffect, useLayoutEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
+import { CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMapEvents } from "react-leaflet";
+import { IonContent, IonFabButton, IonHeader, IonItem, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
+
+import { GameStatePlaying } from "@/types/game";
 
 interface GeolocationPosition {
     lat: number
@@ -45,9 +46,9 @@ function UserLocationMarker({ location }: { location: GeolocationPosition }) {
         });
     }, [location])
 
-    // useEffect(() => {
-    //     map.flyTo([location.lat, location.lng]);
-    // }, [])
+    useEffect(() => {
+        map.flyTo([location.lat, location.lng]);
+    }, [])
 
     const flyToSelf = function () {
         map.flyTo([location.lat, location.lng]);
