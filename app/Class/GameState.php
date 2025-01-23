@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Exceptions\InvalidGameState;
 use App\Exceptions\InvalidTeamPlayer;
 use App\Models\Game;
+use App\Models\Power;
 use App\Models\Team;
 use App\Models\TeamPlayer;
 use Carbon\Carbon;
@@ -118,5 +119,77 @@ class GameState {
     static public function clearGameStateFromRequest(Request $request): void {
         $request->session()->forget(self::SESSION_KEY_GAME_ID);
         $request->session()->forget(self::SESSION_KEY_TEAM_PLAYER_ID);
+    }
+
+    static public function getScores(Game $game): array {
+        $teamScores = [];
+
+        foreach($game->teams()->get() as $team) {
+            $teamQrCodes = $team->team_qr_codes()->with(['power'])->get();
+
+            $wildCards = 0;
+            foreach ($teamQrCodes as $teamQrCode) {
+                if ($teamQrCode->type == Power::TYPE_WILDCARD) {
+                    $wildCards++;
+                }
+            }
+
+            $originalWildcardAmount = $wildCards;
+
+            $cardCount = 0;
+            $categoryCount = [];
+            foreach($teamQrCodes as $teamQrCode) {
+                $qrCode = $teamQrCode->qr_code()->first();
+                if (!$qrCode) continue;
+
+                $quartet = $qrCode->quartet()->first();
+                if (!$quartet) continue;
+
+                $cardCount++;
+
+                if (isset($categoryCount[$quartet->category])) {
+                    $categoryCount[$quartet->category]++;
+                } else {
+                    $categoryCount[$quartet->category] = 1;
+                }
+            }
+
+            $completedSets = 0;
+            foreach($categoryCount as $k => $count) {
+                if (($game->quartet_values - $count) <= $wildCards) {
+                    $cardsNeeded = $game->quartet_values - $count;
+
+                    $categoryCount[$k] += $cardsNeeded;
+                    $wildCards -= $cardsNeeded;
+                }
+
+                if ($categoryCount[$k] == $game->quartet_values) {
+                    $completedSets++;
+                }
+            }
+
+            $points = 0;
+            foreach($categoryCount as $count) {
+                if ($count == $game->quartet_values) {
+                    $points += $count + 2;
+                } else {
+                    $points += $count;
+                }
+            }
+
+            $teamScores[] = [
+                'name'      => $team->name,
+                'points'    => $points,
+                'wildcards' => $originalWildcardAmount,
+                'cards'     => $cardCount,
+                'sets'      => $completedSets
+            ];
+        }
+
+        usort($teamScores, function($a, $b) {
+            return $b['points'] <=> $a['points'];
+        });
+
+        return $teamScores;
     }
 }

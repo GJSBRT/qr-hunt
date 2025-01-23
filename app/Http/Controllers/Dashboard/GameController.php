@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Class\GameState;
 use App\Class\QuartetSettings;
 use App\Events\TeamWonEvent;
 use App\Http\Controllers\Controller;
@@ -81,6 +82,7 @@ class GameController extends Controller
         return Inertia::render('Dashboard/Games/View', [
             'game'              => $game,
             'gameMapAreaPoints' => $game->game_map_area_points()->get(),
+            'scores'            => GameState::getScores($game),
             'stats'             => [
                 'qrCodes'   => $game->qr_codes()->count(),
                 'powers'    => $game->powers()->count(),

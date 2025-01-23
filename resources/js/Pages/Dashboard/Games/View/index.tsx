@@ -11,6 +11,13 @@ import DeleteGameMapAreaPoint from "./Partials/DeleteGameMapAreaPoint";
 interface Props {
     game: Game,
     gameMapAreaPoints: GameMapAreaPoint[];
+    scores: Array<{
+        name: string;
+        points: number;
+        wildcards: number;
+        cards: number;
+        sets: number;
+    }>
     stats: {
         qrCodes: number,
         powers: number,
@@ -18,7 +25,7 @@ interface Props {
     }
 }
 
-export default function View({ game, gameMapAreaPoints, stats }: Props) {
+export default function View({ game, gameMapAreaPoints, scores, stats }: Props) {
     return (
         <DashboardLayout
             title={`Spellen - ${game.name}`}
@@ -160,6 +167,46 @@ export default function View({ game, gameMapAreaPoints, stats }: Props) {
                                         <td>
                                             <DeleteGameMapAreaPoint size='sm' game={game} gameMapAreaPoint={gameMapAreaPoint}/>
                                         </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </Col>
+                </Row>
+
+                <div className="flex justify-between mt-8">
+                    <h2>Scoreboard</h2>
+                </div>
+
+                <Row>
+                    <Col>
+                        <Table striped hover>
+                            <thead>
+                                <tr>
+                                    <th>Klassement</th>
+                                    <th>Team</th>
+                                    <th>Punten</th>
+                                    <th>Kaarten</th>
+                                    <th>Complete setjes</th>
+                                    <th>Jokers</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {(scores.length == 0) &&
+                                    <tr>
+                                        <td colSpan={6}>Nog geen teams</td>
+                                    </tr>
+                                }
+
+                                {scores.map((score, index) => (
+                                    <tr key={score.name}>
+                                        <td>#{index + 1}</td>
+                                        <td>{score.name}</td>
+                                        <td>{score.points}</td>
+                                        <td>{score.cards} / {game.quartet_categories * game.quartet_values}</td>
+                                        <td>{score.sets} / {game.quartet_categories}</td>
+                                        <td>{score.wildcards}</td>
                                     </tr>
                                 ))}
                             </tbody>
