@@ -43,6 +43,10 @@ class TeamQRCode extends Model
         return $this->hasOneThrough(Power::class, QRCode::class, 'uuid', 'id', 'qr_code_uuid', 'power_id');
     }
 
+    public function power_applied_to_team() {
+        return $this->hasOne(Team::class, 'id', 'power_applied_to_team_id');
+    }
+
     public function quartet() {
         return $this->hasOne(Quartet::class, 'qr_code_uuid', 'qr_code_uuid');
     }

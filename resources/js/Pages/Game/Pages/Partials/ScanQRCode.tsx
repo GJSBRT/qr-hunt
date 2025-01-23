@@ -71,7 +71,7 @@ export default function ScanQRCode({ gameState }: Props) {
 
             presentToast({
                 message: errors,
-                duration: 15000,
+                duration: 7500,
                 position: 'bottom',
                 color: 'danger',
             });

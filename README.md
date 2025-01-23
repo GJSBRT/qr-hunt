@@ -9,8 +9,8 @@ Requirements other than the normal Laravel 11 requirements.
 
 ## Todo
 ### MVP
-- QR locatie. Makkelijk kunnen scannen en de huidige locatie van apperaat gebruiken voor locatie.
 - Power up/downs testen.
+- Alles ff door testen
 
 ### Leuk voor erbij
 - Scan cooldown.

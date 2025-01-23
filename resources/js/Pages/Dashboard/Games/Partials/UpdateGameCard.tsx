@@ -20,6 +20,8 @@ const schema = Yup.object({
     quartet_categories: Yup.number().min(1).max(30).required().label('Kwartet categorien'),
     quartet_values: Yup.number().min(1).max(5).required().label('Kwartet kaarten'),
     show_results: Yup.boolean().required().label('Laat eind resultaat zien'),
+    start_lat: Yup.number().nullable().label('Start lat'),
+    start_lng: Yup.number().nullable().label('Start lng'),
 });
 
 export default function UpdateGameCard({ game, ...props }: Props) {
@@ -144,6 +146,26 @@ export default function UpdateGameCard({ game, ...props }: Props) {
                                         >
                                             {Object.entries(GAME_STATUS_LANGUAGE).map(([status, label]) => <option key={status} value={status}>{label}</option>)}
                                         </FormikSelect>
+                                    </Col>
+                                </Row>
+
+                                <Row>
+                                    <Col>
+                                        <FormikField
+                                            form={form}
+                                            name='start_lat'
+                                            label="Start latitude"
+                                            type='number'
+                                        />
+                                    </Col>
+
+                                    <Col>
+                                        <FormikField
+                                            form={form}
+                                            name='start_lng'
+                                            label="Start longitiude"
+                                            type='number'
+                                        />
                                     </Col>
                                 </Row>
                             </Card.Body>

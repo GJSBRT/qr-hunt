@@ -50,6 +50,8 @@ class GameController extends Controller
             'quartet_categories'    => 'required|numeric|min:1|max:30',
             'quartet_values'        => 'required|numeric|min:1|max:5',
             'show_results'          => 'required|boolean',
+            'start_lat'             => 'nullable|decimal:2,100',
+            'start_lng'             => 'nullable|decimal:2,100',
         ]);
 
         $game = Game::create([
@@ -101,6 +103,8 @@ class GameController extends Controller
             'quartet_values'        => 'required|numeric|min:1|max:5',
             'show_results'          => 'required|boolean',
             'status'                => 'required|string|in:draft,not_started,starting,started,ended',
+            'start_lat'             => 'nullable|decimal:2,100',
+            'start_lng'             => 'nullable|decimal:2,100',
         ]);
 
         $user = $request->user();

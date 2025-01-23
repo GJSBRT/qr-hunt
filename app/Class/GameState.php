@@ -67,7 +67,7 @@ class GameState {
 
     public function toArray(): array {
         $team = $this->teamPlayer ? $this->teamPlayer->team()->first() : null;
-        $teamQrCodes = $team ? $team->team_qr_codes()->with(['qr_code', 'power', 'quartet', 'team_player', 'transferred_from_team'])->get() : null;
+        $teamQrCodes = $team ? $team->team_qr_codes()->with(['qr_code', 'power', 'quartet', 'team_player', 'transferred_from_team', 'power_applied_to_team'])->get() : null;
 
         $quartets = [];
         if ($teamQrCodes) {

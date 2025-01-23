@@ -1,18 +1,21 @@
-import { GameStatePlaying } from "@/types/game";
-import { Power, POWER_TYPE_LANGUAGE } from "@/types/power";
-import { QRCode, TeamQRCode } from "@/types/qr_code";
-import { Quartet } from "@/types/quartet";
-import { Team, TeamPlayer } from "@/types/team";
-import { router } from "@inertiajs/react";
-import { IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonItem, IonItemDivider, IonItemGroup, IonLabel, IonList, IonModal, IonNote, IonRefresher, IonRefresherContent, IonText, IonTitle, IonToolbar, RefresherEventDetail, useIonLoading, useIonToast } from "@ionic/react";
 import moment from "moment";
 import { useState } from "react";
+import { router } from "@inertiajs/react";
+import { IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonItem, IonItemDivider, IonItemGroup, IonLabel, IonList, IonModal, IonNote, IonRefresher, IonRefresherContent, IonText, IonTitle, IonToolbar, RefresherEventDetail, useIonLoading, useIonToast } from "@ionic/react";
+
+import { Team } from "@/types/team";
+import { TeamQRCode } from "@/types/qr_code";
+import { GameStatePlaying } from "@/types/game";
+import { Power, POWER_TYPE_LANGUAGE } from "@/types/power";
 
 interface Props {
     gameState: GameStatePlaying;
-    teamQrCode: TeamQRCode;
+    teamQrCode: TeamQRCode & {
+        power_applied_to_team: Team | null;
+    };
     power: Power;
 };
+
 export default function UsePowerUp({ gameState, teamQrCode, power }: Props) {
     const [presentToast] = useIonToast();
     const [presentLoading, dismissLoading] = useIonLoading();
@@ -75,10 +78,12 @@ export default function UsePowerUp({ gameState, teamQrCode, power }: Props) {
             {teamQrCode.power_used_at ? 
                 <IonItem>
                     <IonLabel>
-                        <b>Power gebruikt op</b>
+                        Power gebruikt op team
+
+                        <p>{moment(teamQrCode.power_used_at).fromNow()}</p>
                     </IonLabel>
 
-                    <IonNote>{moment(teamQrCode.power_used_at).fromNow()}</IonNote>
+                    <IonText>{teamQrCode.power_applied_to_team?.name}</IonText>
                 </IonItem>
             :
                 <IonItem detail onClick={() => setShowModal(true)}>

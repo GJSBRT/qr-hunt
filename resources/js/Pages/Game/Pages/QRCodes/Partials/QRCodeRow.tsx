@@ -2,7 +2,7 @@ import { GameStatePlaying } from "@/types/game";
 import { Power, POWER_TYPE_LANGUAGE } from "@/types/power";
 import { QRCode, TeamQRCode } from "@/types/qr_code";
 import { Quartet } from "@/types/quartet";
-import { TeamPlayer } from "@/types/team";
+import { Team, TeamPlayer } from "@/types/team";
 import { faRocket, faShapes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { router } from "@inertiajs/react";
@@ -19,6 +19,7 @@ interface Props {
         power: Power|null;
         quartet: Quartet|null;
         team_player: TeamPlayer | null;
+        power_applied_to_team: Team | null;
     }
 };
 
@@ -105,7 +106,7 @@ export default function QRCodeRow({ gameState, teamQrCode }: Props) {
 
                         <TransferQRCodeToTeam gameState={gameState} teamQrCode={teamQrCode} />
 
-                        {teamQrCode.power && <UsePowerUp gameState={gameState} teamQrCode={teamQrCode} power={teamQrCode.power} />}
+                        {(teamQrCode.power && ['scan_freeze', 'return_to_start', 'give_qr_to_another_team'].includes(teamQrCode.power.type)) && <UsePowerUp gameState={gameState} teamQrCode={teamQrCode} power={teamQrCode.power} />}
                     </IonList>
                 </IonContent>
             </IonModal>

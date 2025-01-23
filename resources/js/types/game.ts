@@ -59,6 +59,7 @@ export interface GameStatePlaying extends GameState {
         power: Power | null;
         quartet: Quartet | null;
         team_player: TeamPlayer | null;
+        power_applied_to_team: Team | null;
     }>;
     quartets: {
         [key: string]: {
