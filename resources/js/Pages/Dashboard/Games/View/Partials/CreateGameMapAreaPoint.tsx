@@ -77,14 +77,14 @@ export default function CreateGameMapAreaPoint({ game, ...props }: Props) {
                                     form={form}
                                     name='lat'
                                     label="Latitude"
-                                    type='number'
+                                    type='decimal'
                                 />
 
                                 <FormikField
                                     form={form}
                                     name='lng'
                                     label="Longitude"
-                                    type='number'
+                                    type='decimal'
                                 />
                             </Modal.Body>
 

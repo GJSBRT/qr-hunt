@@ -155,7 +155,7 @@ export default function UpdateGameCard({ game, ...props }: Props) {
                                             form={form}
                                             name='start_lat'
                                             label="Start latitude"
-                                            type='number'
+                                            type='decimal'
                                         />
                                     </Col>
 
@@ -164,7 +164,7 @@ export default function UpdateGameCard({ game, ...props }: Props) {
                                             form={form}
                                             name='start_lng'
                                             label="Start longitiude"
-                                            type='number'
+                                            type='decimal'
                                         />
                                     </Col>
                                 </Row>
