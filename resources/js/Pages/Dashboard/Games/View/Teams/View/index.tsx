@@ -1,4 +1,4 @@
-import { Container, Row, Table } from "react-bootstrap";
+import { Card, CardBody, CardHeader, Col, Container, Row, Table } from "react-bootstrap";
 
 import { Game } from "@/types/game";
 import DashboardLayout from "@/Layouts/DashboardLayout";
@@ -7,15 +7,19 @@ import { TeamPointsModifier, Team } from '@/types/team';
 import DeletePowerButton from '../Partials/DeleteTeamButton';
 import DeleteTeamPointsModifier from "./Partials/DeleteTeamPointsModifier";
 import CreateTeamPointsModifier from "./Partials/CreateTeamPointsModifier";
+import { Link } from "@inertiajs/react";
 
 interface Props {
     game: Game
     team: Team
     teamPointsModifiers: TeamPointsModifier[];
+    stats: {
+        teamQRCodes: number;
+    }
 };
 
 
-export default function View({ game, team, teamPointsModifiers }: Props) {
+export default function View({ game, team, teamPointsModifiers, stats }: Props) {
     return (
         <DashboardLayout
             title={`${game.name} - ${team.name}`}
@@ -28,6 +32,25 @@ export default function View({ game, team, teamPointsModifiers }: Props) {
             ]}
         >
             <Container>
+                <Row className="mb-8">
+                    <Col lg={3}>
+                        <Card as={Link} href={route('dashboard.games.teams.qr-codes.index', {
+                            id: game.id,
+                            teamId: team.id,
+                        })}>
+                            <CardHeader as='h5'>
+                                QR Codes gevonden
+                            </CardHeader>
+
+                            <CardBody>
+                                <h4>
+                                    {stats.teamQRCodes}
+                                </h4>
+                            </CardBody>
+                        </Card>
+                    </Col>
+                </Row>
+
                 <div className="flex justify-between">
                     <h2>Punten modificators</h2>
 

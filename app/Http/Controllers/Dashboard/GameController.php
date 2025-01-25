@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Game;
 use App\Models\QRCode;
 use App\Models\Quartet;
+use App\Models\TeamQRCode;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -86,9 +87,10 @@ class GameController extends Controller
             'gameMapAreaPoints' => $game->game_map_area_points()->get(),
             'scores'            => GameState::getScores($game),
             'stats'             => [
-                'qrCodes'   => $game->qr_codes()->count(),
-                'powers'    => $game->powers()->count(),
-                'teams'     => $game->teams()->count(),
+                'qrCodes'       => $game->qr_codes()->count(),
+                'powers'        => $game->powers()->count(),
+                'teams'         => $game->teams()->count(),
+                'teamQRCodes'   => $game->team_qr_codes()->count(),
             ]
         ]);
     }
@@ -130,5 +132,28 @@ class GameController extends Controller
         }
 
         return Redirect::route('dashboard.games.view', $id);
+    }
+
+    public function team_qr_codes(Request $request, int $id): Response {
+        $user = $request->user();
+        $game = $user->games()->where('id', $id)->firstOrFail();
+
+        $size = $request->get('size', 50);
+        if (!in_array($size, [15, 25, 50, 100])) {
+            $size = 50;
+        }
+
+        $teamQRCodes = $game->team_qr_codes()->with(['power', 'team', 'quartet', 'qr_code', 'transferred_from_team', 'team_player']);
+
+        if ($request->query('search', null) != null) {
+            $teamQRCodes = $teamQRCodes->search($request->input('search', ''));
+        }
+
+        $teamQRCodesQuery = QueryBuilder::for($teamQRCodes)->defaultSort('-created_at')->allowedSorts((new TeamQRCode)->sortable);
+
+        return Inertia::render('Dashboard/Games/View/TeamQRCodes', [
+            'game'          => $game,
+            'teamQRCodes'   => $teamQRCodesQuery->paginate($size),
+        ]);
     }
 }

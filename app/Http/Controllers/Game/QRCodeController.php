@@ -46,6 +46,22 @@ class QRCodeController extends Controller
             ]);
         }
 
+        $qrCode = $teamQrCode->qr_code()->with('quartet')->firstOrFail();
+        if ($qrCode->quartet) {
+            $targetTeamTeamQrCodes = TeamQRCode::where('team_id', $body['team_id'])->with(['quartet'])->get();
+            foreach($targetTeamTeamQrCodes as $tQRc1) {
+                if (!$tQRc1->quartet) continue;
+
+                if ($tQRc1->quartet->category != $qrCode->quartet->category) continue;
+
+                if ($tQRc1->quartet->value != $qrCode->quartet->value) continue;
+
+                throw ValidationException::withMessages([
+                    'team_id' => 'Dit team heeft dit kwartet stukje al.'
+                ]);
+            }
+        }
+
         $teamQrCode->team_id                    = $body["team_id"];
         $teamQrCode->transferred_from_team_id   = $gameState->teamPlayer->team_id;
         $teamQrCode->save();

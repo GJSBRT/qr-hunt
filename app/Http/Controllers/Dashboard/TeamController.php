@@ -46,7 +46,10 @@ class TeamController extends Controller
         return Inertia::render('Dashboard/Games/View/Teams/View', [
             'game'                  => $game,
             'team'                  => $team,
-            'teamPointsModifiers'   => $team->team_points_modifiers()->get()
+            'teamPointsModifiers'   => $team->team_points_modifiers()->get(),
+            'stats'                 => [
+                'teamQRCodes' => $team->team_qr_codes()->count(),
+            ]
         ]);
     }
 

@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\QRCodePowerController;
 use App\Http\Controllers\Dashboard\QRCodeQuartetController;
 use App\Http\Controllers\Dashboard\TeamController;
 use App\Http\Controllers\Dashboard\TeamPointModifierController;
+use App\Http\Controllers\Dashboard\TeamQRCodeController;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -24,6 +25,7 @@ Route::prefix('/dashboard')->middleware(['auth', 'verified'])->group(function() 
         Route::prefix('/{id}')->group(function() {
             Route::get('/', [GameController::class, 'view'])->name('dashboard.games.view');
             Route::put('/', [GameController::class, 'update'])->name('dashboard.games.update');
+            Route::get('/team-qr-codes', [GameController::class, 'team_qr_codes'])->name('dashboard.games.team-qr-codes');
 
             Route::prefix('/qr-codes')->group(function() {
                 Route::get('/', [QRCodeController::class, 'index'])->name('dashboard.games.qr-codes.index');
@@ -67,6 +69,10 @@ Route::prefix('/dashboard')->middleware(['auth', 'verified'])->group(function() 
                         Route::post('/', [TeamPointModifierController::class, 'create'])->name('dashboard.games.teams.points-modifiers.create');
                         Route::put('/{modifierId}', [TeamPointModifierController::class, 'update'])->name('dashboard.games.teams.points-modifiers.update');
                         Route::delete('/{modifierId}', [TeamPointModifierController::class, 'delete'])->name('dashboard.games.teams.points-modifiers.delete');
+                    });
+
+                    Route::prefix('qr-codes')->group(function() {
+                        Route::get('/', [TeamQRCodeController::class, 'index'])->name('dashboard.games.teams.qr-codes.index');
                     });
                 });
             });

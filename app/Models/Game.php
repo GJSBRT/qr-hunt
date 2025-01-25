@@ -87,6 +87,10 @@ class Game extends Model
         return $this->hasMany(Power::class, 'game_id', 'id');
     }
 
+    public function team_qr_codes() {
+        return $this->hasManyThrough(TeamQRCode::class, Team::class, 'game_id', 'team_id', 'id', 'id');
+    }
+
     public function getResults(): array {
         $teamPoints = [];
         foreach($this->teams()->get() as $team) {

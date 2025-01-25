@@ -22,6 +22,7 @@ interface Props {
         qrCodes: number,
         powers: number,
         teams: number,
+        teamQRCodes: number,
     }
 }
 
@@ -120,6 +121,20 @@ export default function View({ game, gameMapAreaPoints, scores, stats }: Props) 
                             <CardBody>
                                 <h4>
                                     {stats.powers}
+                                </h4>
+                            </CardBody>
+                        </Card>
+                    </Col>
+
+                    <Col lg={3}>
+                        <Card as={Link} href={route('dashboard.games.team-qr-codes', game.id)}>
+                            <CardHeader as='h5'>
+                                Gevonden QR codes
+                            </CardHeader>
+
+                            <CardBody>
+                                <h4>
+                                    {stats.teamQRCodes}
                                 </h4>
                             </CardBody>
                         </Card>
