@@ -2,22 +2,20 @@
 
 namespace App\Class;
 
+use App\Class\GameModes\Territory;
 use Illuminate\Http\Request;
 use App\Exceptions\InvalidGameState;
 use App\Exceptions\InvalidTeamPlayer;
 use App\Models\Game;
-use App\Models\Power;
-use App\Models\Team;
 use App\Models\TeamPlayer;
-use Carbon\Carbon;
 
 class GameState {
     const SESSION_KEY_GAME_ID           = "game_id";
     const SESSION_KEY_TEAM_PLAYER_ID    = "team_player";
 
-    private bool $initialized = false;
     public Request $request;
     public Game $game;
+    protected ?GameMode $gameMode = null;
     public ?TeamPlayer $teamPlayer = null; 
 
     public function __construct(Request $request) {
@@ -33,16 +31,24 @@ class GameState {
         $gameId = $this->request->session()->get(self::SESSION_KEY_GAME_ID);
         if (!$gameId) {
             self::clearGameStateFromRequest($this->request);
-            throw new InvalidGameState("No game id for request");
+            throw new InvalidGameState("No game id for request.");
         }
 
-        $this->game = Game::where("id", $gameId)->with(['game_map_area_points'])->first();
+        $this->game = Game::where("id", $gameId)->first();
         if (!$this->game) {
             self::clearGameStateFromRequest($this->request);
-            throw new InvalidGameState("No game for request");
+            throw new InvalidGameState("No game for request.");
         }
 
-        $this->initialized = true;
+        switch ($this->game->game_mode) {
+            case Territory::GAME_MODE_TYPE:
+                $this->gameMode = new Territory($this->game->territory()->first());
+                break;
+        }
+
+        if (!$this->gameMode) {
+            throw new InvalidGameState("Game contains configuration error.");
+        }
 
         $teamPlayerId = $this->request->session()->get(self::SESSION_KEY_TEAM_PLAYER_ID);
         if (!$teamPlayerId) {
@@ -61,41 +67,17 @@ class GameState {
     public function createNewGameStateFromSession(Game $game) {
         $this->game = $game;
         $this->request->session()->put(GameState::SESSION_KEY_GAME_ID, $game->id);
-
-        $this->initialized = true;
     }
 
     public function toArray(): array {
         $team = $this->teamPlayer ? $this->teamPlayer->team()->first() : null;
-        $teamQrCodes = $team ? $team->team_qr_codes()->with(['qr_code', 'power', 'quartet', 'team_player', 'transferred_from_team', 'power_applied_to_team'])->get() : null;
-
-        $quartets = [];
-        if ($teamQrCodes) {
-            foreach($teamQrCodes as $teamQrCode) {
-                if (!$teamQrCode->quartet) continue;
-
-                if (!isset($quartets[$teamQrCode->quartet->category])) {
-                    $quartets[$teamQrCode->quartet->category] = [
-                        'color' => QuartetSettings::CATEGORIES_AND_COLORS[$teamQrCode->quartet->category],
-                        'label' => QuartetSettings::CATEGORIES_AND_LABELS[$teamQrCode->quartet->category],
-                        'cards' => [$teamQrCode->quartet->value]
-                    ];
-                } else {
-                    $quartets[$teamQrCode->quartet->category]['cards'] = [...$quartets[$teamQrCode->quartet->category]['cards'], $teamQrCode->quartet->value];
-                    sort($quartets[$teamQrCode->quartet->category]['cards']);
-                }
-            }
-        }
 
         $array = [
-            'game'                      => $this->game,
-            'team'                      => $team,
-            'teamPlayer'                => $this->teamPlayer,
-            'teams'                     => $this->game->teams()->get(),
-            'teamQrCodes'               => $teamQrCodes,
-            'quartets'                  => $quartets,
-            'scanFreeze'                => $team ? $team->team_scan_freezes()->where('starts_at', '<', Carbon::now())->where('ends_at', '>', Carbon::now())->get() : null,
-            'powerAppliedTeamQRCodes'   => $team ? $team->power_applied_team_qr_codes()->where('power_completed_at', null)->with(['power'])->get() : null,
+            'game'       => $this->game,
+            'gameMode'   => $this->gameMode->toArray(),
+            'teams'      => $this->game->teams()->get(),
+            'teamPlayer' => $this->teamPlayer,
+            'teamData'   => $team ? $this->gameMode->getTeamData($team) : null,
         ];
 
         return $array;
@@ -125,64 +107,9 @@ class GameState {
         $teamScores = [];
 
         foreach($game->teams()->get() as $team) {
-            $teamQrCodes = $team->team_qr_codes()->with(['power'])->get();
-
-            $wildCards = 0;
-            foreach ($teamQrCodes as $teamQrCode) {
-                if ($teamQrCode->type == Power::TYPE_WILDCARD) {
-                    $wildCards++;
-                }
-            }
-
-            $originalWildcardAmount = $wildCards;
-
-            $cardCount = 0;
-            $categoryCount = [];
-            foreach($teamQrCodes as $teamQrCode) {
-                $qrCode = $teamQrCode->qr_code()->first();
-                if (!$qrCode) continue;
-
-                $quartet = $qrCode->quartet()->first();
-                if (!$quartet) continue;
-
-                $cardCount++;
-
-                if (isset($categoryCount[$quartet->category])) {
-                    $categoryCount[$quartet->category]++;
-                } else {
-                    $categoryCount[$quartet->category] = 1;
-                }
-            }
-
-            $completedSets = 0;
-            foreach($categoryCount as $k => $count) {
-                if (($game->quartet_values - $count) <= $wildCards) {
-                    $cardsNeeded = $game->quartet_values - $count;
-
-                    $categoryCount[$k] += $cardsNeeded;
-                    $wildCards -= $cardsNeeded;
-                }
-
-                if ($categoryCount[$k] == $game->quartet_values) {
-                    $completedSets++;
-                }
-            }
-
-            $points = 0;
-            foreach($categoryCount as $count) {
-                if ($count == $game->quartet_values) {
-                    $points += $count + 2;
-                } else {
-                    $points += $count;
-                }
-            }
-
             $teamScores[] = [
                 'name'      => $team->name,
-                'points'    => $points,
-                'wildcards' => $originalWildcardAmount,
-                'cards'     => $cardCount,
-                'sets'      => $completedSets
+                'points'    => 0,
             ];
         }
 

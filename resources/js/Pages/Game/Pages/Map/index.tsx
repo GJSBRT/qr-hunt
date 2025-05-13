@@ -3,7 +3,7 @@ import L, { LatLngExpression } from 'leaflet';
 import { useEffect, useLayoutEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
-import { CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMapEvents } from "react-leaflet";
+import { Circle, CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMapEvents } from "react-leaflet";
 import { IonContent, IonFabButton, IonHeader, IonItem, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
 
 import { GameStatePlaying } from "@/types/game";
@@ -86,70 +86,64 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
     const [locationStatus, setLocationStatus] = useState<'accessed' | 'denied' | 'error' | null>(null);
     const [position, setPosition] = useState<GeolocationPosition | null>(null);
 
+    if (!gameState.gameMode.gameMap) return <></>;
+
     useLayoutEffect(() => {
         setTimeout(() => setRenderMap(true), 10);
     }, []);
 
     useEffect(() => {
-        let watchId: number | null = null
+        if (!('geolocation' in navigator)) {
+            return;
+        }
 
-        if ('geolocation' in navigator) {
-            watchId = navigator.geolocation.watchPosition((position) => {
-                setPosition({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                });
-                setLocationStatus('accessed');
-            }, (error) => {
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        setLocationStatus('denied');
-                        presentToast({
-                            message: 'Je hebt geen toegang tot je locatie gegeven. De kaart zal gelimiteerde functionaliteit hebben.',
-                            duration: 5000,
-                            position: 'bottom',
-                            color: 'danger',
-                        });
-                        break
-                    case error.POSITION_UNAVAILABLE:
-                        setLocationStatus(null);
-                        break
-                    case error.TIMEOUT:
-                        setLocationStatus('error');
-                        presentToast({
-                            message: 'Mislukt om je locatie te vinden!',
-                            duration: 5000,
-                            position: 'bottom',
-                            color: 'danger',
-                        });
-                        break
-                    default:
-                        setLocationStatus('error');
-                        presentToast({
-                            message: 'Mislukt om je locatie te vinden!',
-                            duration: 5000,
-                            position: 'bottom',
-                            color: 'danger',
-                        });
-                        break
-                }
+        let watchId = navigator.geolocation.watchPosition((position) => {
+            setPosition({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
             });
+            setLocationStatus('accessed');
+        }, (error) => {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    setLocationStatus('denied');
+                    presentToast({
+                        message: 'Je hebt geen toegang tot je locatie gegeven. De kaart zal gelimiteerde functionaliteit hebben.',
+                        duration: 5000,
+                        position: 'bottom',
+                        color: 'danger',
+                    });
+                    break
+                case error.POSITION_UNAVAILABLE:
+                    setLocationStatus(null);
+                    break
+                case error.TIMEOUT:
+                    setLocationStatus('error');
+                    presentToast({
+                        message: 'Mislukt om je locatie te vinden!',
+                        duration: 5000,
+                        position: 'bottom',
+                        color: 'danger',
+                    });
+                    break
+                default:
+                    setLocationStatus('error');
+                    presentToast({
+                        message: 'Mislukt om je locatie te vinden!',
+                        duration: 5000,
+                        position: 'bottom',
+                        color: 'danger',
+                    });
+                    break
+            }
+        });
 
-            return () => {
-                if (watchId) {
-                    navigator.geolocation.clearWatch(watchId);
-                }
+        return () => {
+            if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
             }
         }
     }, []);
-
-    let mapAreaPositions: LatLngExpression[] = [];
-    gameState.game.game_map_area_points.forEach((gameMapAreaPoint) => {
-        mapAreaPositions.push({
-            lat: gameMapAreaPoint.lat,
-            lng: gameMapAreaPoint.lng,
-        })
-    });
 
     return (
         <>
@@ -163,14 +157,22 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
                 {(locationStatus == 'accessed') ?
                     renderMap &&
                     <div style={{ width: '100%', height: '100%' }}>
-                        <MapContainer style={{ width: '100%', height: '100%' }} center={[gameState.game.start_lat ?? 0, gameState.game.start_lng ?? 0]} zoom={13} scrollWheelZoom={false}>
+                        <MapContainer style={{ width: '100%', height: '100%' }} center={gameState.gameMode.gameMap.startLocationMarker ?? undefined} zoom={13} scrollWheelZoom={false}>
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
 
-                            <Polygon pathOptions={{ color: 'purple', fillOpacity: 0.1 }} positions={mapAreaPositions} />
-                            {(gameState.game.start_lat && gameState.game.start_lng) && <StartLocationMarker location={{ lat: gameState.game.start_lat, lng: gameState.game.start_lng }} />}
+                            {gameState.gameMode.gameMap.areas.map((area) => {
+                                switch (area.type) {
+                                    case 'polygon':
+                                        return <Polygon pathOptions={{ color: area.color, fillOpacity: area.opacity }} positions={area.geoLocations} />;
+                                    case 'circle':
+                                        return <Circle pathOptions={{ color: area.color, fillOpacity: area.opacity }} center={area.geoLocations[0]} radius={area.radius} />;
+                                }
+                            })}
+
+                            {(gameState.gameMode.gameMap.startLocationMarker) && <StartLocationMarker location={gameState.gameMode.gameMap.startLocationMarker} />}
                             {(position && locationStatus == 'accessed') && <UserLocationMarker location={position} />}
                         </MapContainer>
                     </div>

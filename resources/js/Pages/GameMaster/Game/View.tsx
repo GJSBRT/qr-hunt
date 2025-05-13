@@ -1,14 +1,12 @@
-import { GameStatePlaying } from "@/types/game";
+import { Game } from "@/types/game";
 import { IonTab, IonTabBar, IonTabButton, IonTabs } from "@ionic/react";
-import Overview from "./Pages/Overview";
-import Map from "./Pages/Map";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBolt, faHome, faMap } from "@fortawesome/free-solid-svg-icons";
-import GameLayout from "@/Layouts/GameLayout";
+import { faBolt, faHome, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
-import Powers from "./Pages/Powers";
+import IonicAppLayout from "@/Layouts/IonicAppLayout";
+import Overview from "./Overview";
 
-export default function Game({ gameState }: { gameState: GameStatePlaying }) {
+export default function View({ game }: { game: Game }) {
     const urlParams = new URLSearchParams(window.location.search);
     const [page, setPage] = useState<string>(urlParams.get('page') ?? 'overview');
 
@@ -25,12 +23,12 @@ export default function Game({ gameState }: { gameState: GameStatePlaying }) {
     }
 
     return (
-        <GameLayout title="Spel" gameState={gameState}>
+        <IonicAppLayout title={game.name}>
             <IonTabs>
                 <IonTab tab="overview">
-                    {page == 'overview' && <Overview gameState={gameState} />}
-                    {page == 'map' && <Map gameState={gameState} />}
-                    {page == 'powers' && <Powers gameState={gameState} />}
+                    {page == 'overview' && <Overview game={game} />}
+                    {/* {page == 'map' && <Map gameState={gameState} />}
+                    {page == 'powers' && <Powers gameState={gameState} />} */}
                 </IonTab>
 
                 <IonTabBar translucent slot="bottom" selectedTab={page} onIonTabsWillChange={changePage}>
@@ -39,7 +37,17 @@ export default function Game({ gameState }: { gameState: GameStatePlaying }) {
                         Overzicht
                     </IonTabButton>
 
-                    {(gameState.gameMode.gameMap != null) && (
+                    <IonTabButton tab="overview" selected={page == 'overview'}>
+                        <FontAwesomeIcon size='xl' icon={faUsers} />
+                        Teams
+                    </IonTabButton>
+
+                    <IonTabButton tab="overview" selected={page == 'overview'}>
+                        <FontAwesomeIcon size='xl' icon={faBolt} />
+                        Powers
+                    </IonTabButton>
+
+                    {/* {(gameState.gameMode.gameMap != null) && (
                         <IonTabButton tab="map" selected={page == 'map'}>
                             <FontAwesomeIcon size='xl' icon={faMap} />
                             Kaart
@@ -51,9 +59,9 @@ export default function Game({ gameState }: { gameState: GameStatePlaying }) {
                             <FontAwesomeIcon size='xl' icon={faBolt} />
                             Powers
                         </IonTabButton>
-                    )}
+                    )} */}
                 </IonTabBar>
             </IonTabs>
-        </GameLayout>
+        </IonicAppLayout>
     );
 };

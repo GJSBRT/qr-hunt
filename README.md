@@ -8,11 +8,6 @@ Requirements other than the normal Laravel 11 requirements.
 - [Soketi](https://docs.soketi.app/)
 
 ## Todo
-### MVP
-- Power up/downs testen.
-- Alles ff door testen
-
-### Leuk voor erbij
 - Scan cooldown.
 - Opdrachten bij sommige QR codes.
 - Een paar hints over waar een QR code bevindt. Voor elke hint is x aantal punten aftrek.
@@ -28,3 +23,16 @@ Requirements other than the normal Laravel 11 requirements.
 
 ## Also
 This project is made with a very tight deadline. So don't expect quality ;p. Shortcuts and mistakes were made.
+
+## New TODO
+- Claimen van een area met een opdracht
+- Powers toevoegen
+- Tikker team
+- KOTH area
+- Move dashboard to mobile area
+- Add notifications (@capacitor/local-notifications)
+- Spel regel pagina
+### Game master
+- Add team management 
+- Add power management 
+- Add point management 

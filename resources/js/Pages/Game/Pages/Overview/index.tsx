@@ -1,18 +1,10 @@
+import PullToRefresh from "@/Components/IonicComponents/PullToRefresh";
 import { GameStatePlaying } from "@/types/game";
-import { POWER_TYPE_LANGUAGE } from "@/types/power";
-import { router } from "@inertiajs/react";
-import { IonChip, IonContent, IonHeader, IonItem, IonLabel, IonList, IonRefresher, IonRefresherContent, IonText, IonTitle, IonToolbar, RefresherEventDetail } from "@ionic/react";
+import { IonChip, IonContent, IonHeader, IonItem, IonLabel, IonList, IonTitle, IonToolbar } from "@ionic/react";
 import moment from "moment";
 import Countdown from "react-countdown";
-import PowerAppliedQRCode from "./Partials/PowerAppliedQRCode";
 
 export default function Overview({ gameState }: { gameState: GameStatePlaying }) {
-    const handleRefresh = function (event: CustomEvent<RefresherEventDetail>) {
-        router.reload({
-            onFinish: () => event.detail.complete(),
-        });
-    };
-
     return (
         <>
             <IonHeader>
@@ -22,9 +14,7 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
             </IonHeader>
 
             <IonContent>
-                <IonRefresher slot="fixed" onIonRefresh={handleRefresh}>
-                    <IonRefresherContent></IonRefresherContent>
-                </IonRefresher>
+                <PullToRefresh/>
 
                 <IonList lines='full'>
                     <IonItem>
@@ -34,7 +24,7 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
 
                     <IonItem>
                         <IonLabel>Team</IonLabel>
-                        <IonLabel slot='end'>{gameState.team.name}</IonLabel>
+                        <IonLabel slot='end'>{gameState.teamData.team.name}</IonLabel>
                     </IonItem>
 
                     <IonItem>
@@ -51,24 +41,9 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
                         <IonLabel>Spel code</IonLabel>
                         <IonLabel slot='end' style={{ fontVariantNumeric: 'tabular-nums' }}>{gameState.game.code}</IonLabel>
                     </IonItem>
-
-                    <IonItem>
-                        <IonText>
-                            <p>Hieronder staan je team's huidige toegepaste powers, scan freezes, etc.</p>
-                        </IonText>
-                    </IonItem>
-
-                    {gameState.scanFreeze.map((scanFreeze) => (
-                        <IonItem key={'scanFreeze' + scanFreeze.id}>
-                            <IonText>Scan freeze</IonText>
-                            <IonText slot='end'><Countdown onComplete={() => router.reload()} daysInHours date={moment(scanFreeze.ends_at).toDate()} /></IonText>
-                        </IonItem>
-                    ))}
-
-                    {gameState.powerAppliedTeamQRCodes.map((teamQRcode) => (
-                        <PowerAppliedQRCode game={gameState.game} teamQRcode={teamQRcode} key={'teamQRcode' + teamQRcode.id} />
-                    ))}
                 </IonList>
+
+                <div style={{ margin: '1rem', maxWidth: '75rem' }} dangerouslySetInnerHTML={{ __html: gameState.gameMode.gameDescriptionHtml}}></div>
             </IonContent>
         </>
     );

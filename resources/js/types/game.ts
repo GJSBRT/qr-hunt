@@ -1,3 +1,4 @@
+import { LatLngExpression, LatLngLiteral } from "leaflet";
 import { DatabaseObject } from ".";
 import { Power } from "./power";
 import { QRCode, TeamQRCode } from "./qr_code";
@@ -13,10 +14,6 @@ export interface Game extends DatabaseObject {
     ended_at: string | null;
     play_duration: number | null;
     cooldown_duration: number | null;
-    start_lat: number | null;
-    start_lng: number | null;
-    quartet_categories: number;
-    quartet_values: number;
     show_results: boolean;
 };
 
@@ -38,38 +35,57 @@ export interface GameMapAreaPoint extends DatabaseObject {
 
 export type NewGameMapAreaPoint = Omit<GameMapAreaPoint, 'game_id' | keyof DatabaseObject>;
 
+export interface GameMapArea {
+    geoLocations: LatLngLiteral[];
+    name: string;
+    displayName: boolean;
+    color: string;
+    type: 'polygon' | 'circle';
+    radius: number;
+    opacity: number;
+}
+
+export interface GameMap {
+    showPlayerLocation: boolean;
+    shareLocationDataToServer: boolean;
+    startLocationMarker: LatLngLiteral|null;
+    areas: GameMapArea[];
+}
+
+export interface GamePower {
+    id: number;
+    game_id: number;
+    owner_team_id: number|null;
+    used_on_team_id: number|null;
+    taken_from_team_id: number|null;
+    power_up: boolean;
+    description: string;
+    applies_to_other_team: 'no_action' | 'message' | 'give_power_to_another_team' | 'receive_power_from_team' | 'take_power_from_team' | 'return_to_start';
+    extra_fields: object;
+    claimed_at: string;
+    used_at: string;
+}
+
+export interface GameMode {
+    gameMode: string;
+    gameMap: GameMap|null;
+    gamePowers: GamePower[]|null;
+    gameDescriptionHtml: string;
+};
+
+export interface TeamData {
+    team: Team;
+    gamePowers: GamePower[]|null;
+}
+
 export interface GameState {
-    game: Game & {
-        game_map_area_points: GameMapAreaPoint[];
-    };
-    team: Team | null;
+    game: Game;
+    gameMode: GameMode;
     teamPlayer: TeamPlayer | null;
     teams: Team[];
-    scanFreeze: TeamScanFreeze[] | null;
-    powerAppliedTeamQRCodes: Array<TeamQRCode & {
-        power: Power;
-    }> | null;
 };
 
 export interface GameStatePlaying extends GameState {
-    team: Team;
     teamPlayer: TeamPlayer;
-    teamQrCodes: Array<TeamQRCode & {
-        qr_code: QRCode;
-        power: Power | null;
-        quartet: Quartet | null;
-        team_player: TeamPlayer | null;
-        power_applied_to_team: Team | null;
-    }>;
-    quartets: {
-        [key: string]: {
-            color: string;
-            label: string;
-            cards: number[];
-        }
-    };
-    scanFreeze: TeamScanFreeze[];
-    powerAppliedTeamQRCodes: Array<TeamQRCode & {
-        power: Power;
-    }>
+    teamData: TeamData;
 };

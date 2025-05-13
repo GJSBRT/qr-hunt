@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Game;
 
 use App\Class\GameState;
-use App\Events\LobbyUpdatedEvent;
 use App\Exceptions\InvalidGameState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -36,7 +35,7 @@ class LobbyController extends Controller
             'code' => 'required|string'
         ]);
 
-        $game = Game::where('code', $body['code'])->with('game_map_area_points')->first();
+        $game = Game::where('code', $body['code'])->first();
 
         if (!$game) {
             throw ValidationException::withMessages([

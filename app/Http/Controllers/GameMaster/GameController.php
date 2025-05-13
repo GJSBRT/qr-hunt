@@ -1,15 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Dashboard;
+namespace App\Http\Controllers\GameMaster;
 
 use App\Class\GameState;
-use App\Class\QuartetSettings;
 use App\Events\TeamWonEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Game;
-use App\Models\QRCode;
-use App\Models\Quartet;
-use App\Models\TeamQRCode;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,7 +31,7 @@ class GameController extends Controller
 
         $gamesQuery = QueryBuilder::for($games)->defaultSort('-id')->allowedSorts((new Game)->sortable);
 
-        return Inertia::render('Dashboard/Games', [
+        return Inertia::render('GameMaster', [
             'games' => $gamesQuery->paginate($size),
         ]);
     }
@@ -64,12 +60,8 @@ class GameController extends Controller
         $user = $request->user();
         $game = $user->games()->where('id', $id)->firstOrFail();
 
-        return Inertia::render('Dashboard/Games/View', [
+        return Inertia::render('GameMaster/Game/View', [
             'game'              => $game,
-            'scores'            => GameState::getScores($game),
-            'stats'             => [
-                'teams'         => $game->teams()->count(),
-            ]
         ]);
     }
 
@@ -79,12 +71,8 @@ class GameController extends Controller
             'code'                  => 'required|string|min:2|max:255',
             'play_duration'         => 'nullable|numeric|min:60|max:21600', // max 6 hours
             'cooldown_duration'     => 'nullable|numeric|min:5|max:3600', // max 1 hour
-            'quartet_categories'    => 'required|numeric|min:1|max:30',
-            'quartet_values'        => 'required|numeric|min:1|max:5',
             'show_results'          => 'required|boolean',
             'status'                => 'required|string|in:draft,not_started,starting,started,ended',
-            'start_lat'             => 'nullable|decimal:2,100',
-            'start_lng'             => 'nullable|decimal:2,100',
         ]);
 
         $user = $request->user();
@@ -110,28 +98,5 @@ class GameController extends Controller
         }
 
         return Redirect::route('dashboard.games.view', $id);
-    }
-
-    public function team_qr_codes(Request $request, int $id): Response {
-        $user = $request->user();
-        $game = $user->games()->where('id', $id)->firstOrFail();
-
-        $size = $request->get('size', 50);
-        if (!in_array($size, [15, 25, 50, 100])) {
-            $size = 50;
-        }
-
-        $teamQRCodes = $game->team_qr_codes()->with(['power', 'team', 'quartet', 'qr_code', 'transferred_from_team', 'team_player']);
-
-        if ($request->query('search', null) != null) {
-            $teamQRCodes = $teamQRCodes->search($request->input('search', ''));
-        }
-
-        $teamQRCodesQuery = QueryBuilder::for($teamQRCodes)->defaultSort('-created_at')->allowedSorts((new TeamQRCode)->sortable);
-
-        return Inertia::render('Dashboard/Games/View/TeamQRCodes', [
-            'game'          => $game,
-            'teamQRCodes'   => $teamQRCodesQuery->paginate($size),
-        ]);
     }
 }
