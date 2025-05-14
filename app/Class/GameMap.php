@@ -2,7 +2,9 @@
 
 namespace App\Class;
 
-// This class holds configuration information about the game map.
+/**
+ * This class holds configuration information about the game map.
+ */
 class GameMap {
     public function __construct(
         protected bool $showPlayerLocation = true,

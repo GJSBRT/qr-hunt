@@ -15,7 +15,7 @@ class GameState {
 
     public Request $request;
     public Game $game;
-    protected ?GameMode $gameMode = null;
+    public ?GameMode $gameMode = null;
     public ?TeamPlayer $teamPlayer = null; 
 
     public function __construct(Request $request) {

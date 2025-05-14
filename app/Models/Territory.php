@@ -27,4 +27,8 @@ class Territory extends Model
     public function territory_areas() {
         return $this->hasMany(TerritoryArea::class, 'territory_id', 'id');
     }
+
+    public function territory_koths() {
+        return $this->hasMany(TerritoryKoth::class, 'territory_id', 'id');
+    }
 }

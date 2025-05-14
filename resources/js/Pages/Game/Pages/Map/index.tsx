@@ -1,12 +1,14 @@
 import 'leaflet/dist/leaflet.css';
 import L, { LatLngExpression } from 'leaflet';
-import { useEffect, useLayoutEffect, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
 import { Circle, CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMapEvents } from "react-leaflet";
 import { IonContent, IonFabButton, IonHeader, IonItem, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
 
 import { GameStatePlaying } from "@/types/game";
+import GameModes from '@/GameModes/gamemodes';
+import { HaversineDistance, IsPointInPolygon } from '@/Utils/polygons';
 
 interface GeolocationPosition {
     lat: number
@@ -80,16 +82,23 @@ function UserLocationMarker({ location }: { location: GeolocationPosition }) {
     );
 }
 
-export default function Overview({ gameState }: { gameState: GameStatePlaying }) {
+export default function Map({ gameState }: { gameState: GameStatePlaying }) {
     const [presentToast] = useIonToast();
     const [renderMap, setRenderMap] = useState(false);
     const [locationStatus, setLocationStatus] = useState<'accessed' | 'denied' | 'error' | null>(null);
     const [position, setPosition] = useState<GeolocationPosition | null>(null);
+    const [actionElements, setActionElements] = useState<ReactNode[]>([]);
 
     if (!gameState.gameMode.gameMap) return <></>;
 
+    const gameMode = GameModes[gameState.gameMode.gameMode];
+    if (!gameMode) return <></>;
+    if (!gameMode.map) return <></>;
+
+    const gameModeMap = new (gameMode.map)();
+
     useLayoutEffect(() => {
-        setTimeout(() => setRenderMap(true), 10);
+        setTimeout(() => setRenderMap(true), 1);
     }, []);
 
     useEffect(() => {
@@ -98,10 +107,45 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
         }
 
         let watchId = navigator.geolocation.watchPosition((position) => {
+            let currentLat = position.coords.latitude;
+            let currentLng = position.coords.longitude;
+
+            if (import.meta.env.DEV) {
+                currentLat = import.meta.env.VITE_DEV_COORDS_LAT,
+                currentLng = import.meta.env.VITE_DEV_COORDS_LONG
+            }
+
             setPosition({
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
+                lat: currentLat,
+                lng: currentLng
             });
+
+            let showElements: ReactNode[] = [];
+            gameState.gameMode.gameMap?.areas.forEach((area) => {
+                let isWithinArea = false;
+
+                switch (area.type) {
+                    case 'polygon':
+                        isWithinArea = IsPointInPolygon([currentLng, currentLat], area.geoLocations.map((v) => [v.lat, v.lng]));
+                        break;
+                    case 'circle':
+                        let distance = HaversineDistance([currentLng, currentLat], [area.geoLocations[0].lng, area.geoLocations[0].lat])
+                        isWithinArea = (distance <= area.radius);
+                        break;
+                }
+
+                if (!isWithinArea) return;
+
+                gameModeMap.areaActions.forEach((areaAction) => {
+                    if (areaAction.type !== 'in_zone') return;
+                    let Element = areaAction.element
+                    //@ts-ignore
+                    showElements.push(<Element area={area} />);
+                });
+            });
+
+            setActionElements(showElements);
+
             setLocationStatus('accessed');
         }, (error) => {
             switch (error.code) {
@@ -156,7 +200,11 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
             <IonContent>
                 {(locationStatus == 'accessed') ?
                     renderMap &&
-                    <div style={{ width: '100%', height: '100%' }}>
+                    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                        <div style={{ position: 'absolute', zIndex: 99999, display: 'flex', flexDirection: 'column', justifyContent: 'end', alignItems: 'center', bottom: 5, left: 50, right: 50 }}>
+                            {actionElements.map((element) => <>{element}</>)}
+                        </div>
+
                         <MapContainer style={{ width: '100%', height: '100%' }} center={gameState.gameMode.gameMap.startLocationMarker ?? undefined} zoom={13} scrollWheelZoom={false}>
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -181,6 +229,7 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
                         <IonText>
                             <p>
                                 {(locationStatus == null) && 'Sta je locatie toegang toe om de kaart te gebruiken.'}
+                                {!('geolocation' in navigator) && 'Je browser ondersteunt geolocatie niet.'}
                             </p>
                         </IonText>
                     </IonItem>

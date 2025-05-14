@@ -43,6 +43,8 @@ export interface GameMapArea {
     type: 'polygon' | 'circle';
     radius: number;
     opacity: number;
+    gameType: string;
+    metadata: {[key: string]: any}
 }
 
 export interface GameMap {

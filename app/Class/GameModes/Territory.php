@@ -2,18 +2,23 @@
 
 namespace App\Class\GameModes;
 
+use App\Class\GameAction;
 use App\Class\GameMap;
 use App\Class\GameMapArea;
 use App\Class\GeoLocation;
 use App\Class\GameMode;
-use App\Class\GamePower;
+use App\Class\GameState;
 use App\Exceptions\GameModeException;
 use App\Models\Team;
+use App\Models\TeamPlayer;
 use App\Models\Territory as ModelsTerritory;
 
 class Territory extends GameMode {
     const GAME_MODE_TYPE = 'territory';
     const GAME_MODE_LABEL = 'Territory';
+
+    const GAME_MAP_AREA_TYPE_CHALLENGE = 'challenge';
+    const GAME_MAP_AREA_TYPE_KOTH = 'koth';
 
     public function __construct(
         ModelsTerritory $territory,
@@ -45,7 +50,8 @@ class Territory extends GameMode {
         HTML;
 
         $territory = ModelsTerritory::where('id', $territory->id)->with([
-            'territory_areas'
+            'territory_areas',
+            'territory_koths',
         ])->first();
         if (!$territory) {
             throw new GameModeException("Could not get territory from database.");
@@ -74,6 +80,18 @@ class Territory extends GameMode {
                 name: $territoryArea->name,
                 geoLocations: $geoLocations,
                 opacity: 0.2,
+                gameType: self::GAME_MAP_AREA_TYPE_CHALLENGE,
+            );
+        }
+
+        foreach($territory->territory_koths as $idx => $territoryKoth) {
+            $areas[] = new GameMapArea(
+                name: 'Koth #' . $idx + 1, // TODO: add in db
+                geoLocations: [(new GeoLocation($territoryKoth->lng, $territoryKoth->lat))],
+                radius: 10,
+                type: 'circle',
+                opacity: 0.2,
+                gameType: self::GAME_MAP_AREA_TYPE_KOTH,
             );
         }
 
@@ -85,10 +103,11 @@ class Territory extends GameMode {
             areas: $areas,
         );
 
-        // Set powers
-        // foreach($game->powers()->get() as $power) {
-        //     $this->gamePowers[] = new GamePower($power);
-        // }
+        $this->gameActions = [
+            "claim_koth" => new GameAction("claim_koth", function(GameState $gameState) {
+                dd($gameState);
+            }),
+        ];
     }
 
     public function getTeamData(Team $team): array {

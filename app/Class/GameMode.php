@@ -11,6 +11,8 @@ class GameMode {
     protected string $gameMode = '';
     protected string $gameDescriptionHtml = '';
     protected ?GameMap $gameMap = null; 
+    /** @var GameAction[] */
+    public array $gameActions = [];
 
     /**
      * Return game mode data, this contains generic data required for the game and should be thought of as public knowledge.
