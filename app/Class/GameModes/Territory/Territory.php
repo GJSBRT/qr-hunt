@@ -7,17 +7,22 @@ use App\Class\GameMap;
 use App\Class\GameMapArea;
 use App\Class\GeoLocation;
 use App\Class\GameMode;
+use App\Class\GameModes\Territory\Events\AreaClaimedEvent;
 use App\Class\GameModes\Territory\Events\KothClaimedEvent;
 use App\Class\GameState;
 use App\Exceptions\GameModeException;
 use App\Models\Team;
 use App\Models\Territory as ModelsTerritory;
+use App\Models\TerritoryArea;
 use App\Models\TerritoryKoth;
 use App\Models\TerritoryKothClaim;
+use App\Models\TerritoryMission;
+use App\Models\TerritoryMissionAnswer;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 
-class Territory extends GameMode {
+class Territory extends GameMode
+{
     const GAME_MODE_TYPE = 'territory';
     const GAME_MODE_LABEL = 'Territory';
 
@@ -74,24 +79,32 @@ class Territory extends GameMode {
 
         // Set map areas
         $areas = [];
-        foreach($territory->territory_areas as $territoryArea) {
+        foreach ($territory->territory_areas as $territoryArea) {
             $geoLocations = [];
-            foreach($territoryArea->territory_area_points()->get() as $point) {
+            foreach ($territoryArea->territory_area_points()->get() as $point) {
                 $geoLocations[] = new GeoLocation($point->lng, $point->lat);
             }
 
+            $claimedByTeam = $territoryArea->claim_team()->first();
+
             $areas[] = new GameMapArea(
-                id: 'territory:'.$territoryArea->id,
+                id: 'territory:' . $territoryArea->id,
                 name: $territoryArea->name,
                 geoLocations: $geoLocations,
                 opacity: 0.2,
+                displayName: true,
                 gameType: self::GAME_MAP_AREA_TYPE_CHALLENGE,
+                color: $claimedByTeam ? $this->stringToColorCode($claimedByTeam->name) :'gray',
+                metadata: [
+                    'claimed_by_team' => $claimedByTeam,
+                    'mission' => $territoryArea->territory_mission()->with(['multiple_choices'])->first(),
+                ]
             );
         }
 
-        foreach($territory->territory_koths as $idx => $territoryKoth) {
+        foreach ($territory->territory_koths as $idx => $territoryKoth) {
             $areas[] = new GameMapArea(
-                id: 'koth:'.$territoryArea->id,
+                id: 'koth:' . $territoryArea->id,
                 name: 'Koth #' . $idx + 1, // TODO: add in db
                 geoLocations: [(new GeoLocation($territoryKoth->lng, $territoryKoth->lat))],
                 radius: 10,
@@ -113,7 +126,7 @@ class Territory extends GameMode {
         );
 
         $this->gameActions = [
-            "claim_koth" => new GameAction("claim_koth", function(GameState $gameState, string $areaId) {
+            "claim_koth" => new GameAction("claim_koth", function (GameState $gameState, string $areaId) {
                 $dbKoth = TerritoryKoth::where('id', str_replace('koth:', '', $areaId))->first();
                 if (!$dbKoth) {
                     throw ValidationException::withMessages([
@@ -128,22 +141,105 @@ class Territory extends GameMode {
                     ]);
                 }
 
-                // TerritoryKothClaim::create([
-                //     'territory_koth_id' => $dbKoth->id,
-                //     'claim_team_id' => $gameState->teamPlayer->team_id,
-                //     'claimed_at' => Carbon::now(),
-                // ]);
+                TerritoryKothClaim::create([
+                    'territory_koth_id' => $dbKoth->id,
+                    'claim_team_id' => $gameState->teamPlayer->team_id,
+                    'claimed_at' => Carbon::now(),
+                ]);
 
                 KothClaimedEvent::dispatch($this->game, $gameState->team, $dbKoth);
 
                 return [];
             }),
+            "claim_area" => new GameAction("claim_area", function (GameState $gameState, string $areaId, int|null $multiple_choice_id, string|null $open_answer, string|null $photo) {
+                $dbArea = TerritoryArea::where('id', str_replace('territory:', '', $areaId))->first();
+                if (!$dbArea) {
+                    throw ValidationException::withMessages([
+                        'areaId' => 'Area does not exist.'
+                    ]);
+                }
+
+                if ($dbArea->team_id == $gameState->team->id) {
+                    throw ValidationException::withMessages([
+                        'areaId' => 'You already have claimed this area.'
+                    ]);
+                }
+
+                if ($dbArea->mission_id == null) {
+                    $dbArea->claim_team_id = $gameState->team->id;
+                    $dbArea->save();
+
+                    AreaClaimedEvent::dispatch($this->game, $gameState->team, $this->gameMap->getAreaById($areaId));
+                    return [];
+                }
+
+                if ($multiple_choice_id === null && $open_answer === null && $photo === null) {
+                    throw ValidationException::withMessages([
+                        'missing_answers' => 'Missing answer'
+                    ]);
+                }
+
+                $mission = $dbArea->territory_mission()->first();
+
+                // Check if team just entered a wrong answer
+                $lastAnswer = $mission->answers()->where('team_id', $gameState->team->id)->orderBy('created_at', 'desc')->first();
+                if ($lastAnswer && $lastAnswer->marked_correct === false && $dbArea->mission_id === $lastAnswer->territory_mission_id) {
+                    throw ValidationException::withMessages([
+                        'just_failed' => 'Je hebt hier zojuist een fout antwoord ingedient. Ga eerst door naar een ander gebied.'
+                    ]);
+                }
+
+                $correct = null;
+                if ($mission->answer_type == TerritoryMission::ANSWER_TYPE_MULTIPLE_CHOICE) {
+                    $multipleChoiceAnswer = $mission->multiple_choices()->where('id', $multiple_choice_id)->first();
+                    if (!$multipleChoiceAnswer) {
+                        throw ValidationException::withMessages([
+                            'multiple_choice_id' => 'Multiple choice answer given does not exist'
+                        ]);
+                    }
+
+                    $correct = $multipleChoiceAnswer->correct;
+                }
+
+                TerritoryMissionAnswer::create([
+                    'territory_mission_id' => $mission->id,
+                    'team_id' => $gameState->team->id,
+                    'multiple_choice_id' => $multiple_choice_id,
+                    'photo' => $photo,
+                    'open_answer' => $open_answer,
+                    'marked_correct' => $correct,
+                ]);
+
+                if ($correct === true) {
+                    $dbArea->claim_team_id = $gameState->team->id;
+                    $dbArea->save();
+                    AreaClaimedEvent::dispatch($this->game, $gameState->team, $this->gameMap->getAreaById($areaId));
+
+                    return [
+                        'correct' => $correct
+                    ];
+                }
+
+                // TODO: notify game masters of answer needing review
+
+                return [
+                    'correct' => $correct
+                ];
+            }),
         ];
     }
 
-    public function getTeamData(Team $team): array {
+    public function getTeamData(Team $team): array
+    {
         return [
             ...parent::getTeamData($team),
         ];
+    }
+
+    // from: https://stackoverflow.com/questions/3724111/how-can-i-convert-strings-to-an-html-color-code-hash
+    function stringToColorCode($str) {
+        $code = dechex(crc32($str));
+        $code = substr($code, 0, 6);
+        return "#".$code;
     }
 }

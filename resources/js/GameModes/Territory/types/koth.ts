@@ -1,6 +1,7 @@
 import { DatabaseObject } from "@/types";
 import { GameMapArea } from "@/types/game";
 import { Team } from "@/types/team";
+import { TerritoryMission, TerritoryMissionMultipleChoiceAnswer } from "./mission";
 
 export interface TerritoryKoth extends DatabaseObject {
     territory_id: number;
@@ -19,5 +20,14 @@ export interface TerritoryKothArea extends GameMapArea {
         claimed_by_team: TerritoryKothClaim & {
             team: Team;
         };
+    };
+}
+
+export interface TerritoryChallengeArea extends GameMapArea {
+    metadata: {
+        claimed_by_team: Team;
+        mission: null|(TerritoryMission & {
+            multiple_choices: TerritoryMissionMultipleChoiceAnswer[];
+        });
     };
 }

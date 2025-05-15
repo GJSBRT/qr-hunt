@@ -23,12 +23,14 @@ class GameAction {
         $functionReflection = new \ReflectionFunction($this->action);
 
         $validationRules = [];
+
+        // dd($functionReflection->getParameters());
         foreach ($functionReflection->getParameters() as $functionParameter) {
             $rule = [
                 $functionParameter->getType()->allowsNull() ? 'nullable' : 'required',
             ];
 
-            switch ($functionParameter->getType()->__toString()) {
+            switch ($functionParameter->getType()->getName()) {
                 case 'string':
                     $rule[] = 'string';
                     break;

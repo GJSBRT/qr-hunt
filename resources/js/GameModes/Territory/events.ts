@@ -1,7 +1,7 @@
 import { GameEvents } from "@/Class/GameMode/events";
 import { Game, GameStatePlaying } from "@/types/game";
 import { Team } from "@/types/team";
-import { TerritoryKoth } from "./types/koth";
+import { TerritoryChallengeArea, TerritoryKoth } from "./types/koth";
 import { UseIonToastResult } from "@ionic/react";
 
 export class TerritoryEvents extends GameEvents {
@@ -19,6 +19,20 @@ export class TerritoryEvents extends GameEvents {
 
                     present({
                         message: `${team.name} heeft een koth punt geclaimed!`,
+                        duration: 5000,
+                        position: 'top',    
+                        color: 'primary',
+                    });
+                }
+            },
+            {
+                name: 'AreaClaimedEvent',
+                channel: (gameState) => `game.${gameState.game.id}`,
+                action: (gameState: GameStatePlaying, game: Game, team: Team, area: TerritoryChallengeArea) => {
+                    if (gameState.teamData.team.id == team.id) return;
+
+                    present({
+                        message: `${team.name} heeft het gebied '${area.name}' geclaimed!`,
                         duration: 5000,
                         position: 'top',    
                         color: 'primary',

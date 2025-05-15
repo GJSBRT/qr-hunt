@@ -1,6 +1,6 @@
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
 import { Circle, CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMapEvents } from "react-leaflet";
@@ -132,7 +132,7 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
 
                 switch (area.type) {
                     case 'polygon':
-                        isWithinArea = IsPointInPolygon([currentLng, currentLat], area.geoLocations.map((v) => [v.lat, v.lng]));
+                        isWithinArea = IsPointInPolygon([currentLat, currentLng], area.geoLocations.map((v) => [v.lat, v.lng]));
                         break;
                     case 'circle':
                         let distance = HaversineDistance([currentLng, currentLat], [area.geoLocations[0].lng, area.geoLocations[0].lat])
@@ -215,7 +215,7 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                             {actionElements.map(({element: Element, props}) => <Element {...props}/>)}
                         </div>
 
-                        <MapContainer style={{ width: '100%', height: '100%' }} center={gameState.gameMode.gameMap.startLocationMarker ?? undefined} zoom={13} scrollWheelZoom={false}>
+                        <MapContainer style={{ width: '100%', height: '100%' }} center={gameState.gameMode.gameMap.startLocationMarker ?? undefined} zoom={15} scrollWheelZoom={false}>
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -224,9 +224,14 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                             {gameState.gameMode.gameMap.areas.map((area) => {
                                 switch (area.type) {
                                     case 'polygon':
-                                        return <Polygon key={area.id} pathOptions={{ color: area.color, fillOpacity: area.opacity }} positions={area.geoLocations} />;
+                                        return (
+                                            <>
+                                                <Polygon key={'polygon'+area.id} pathOptions={{ color: area.color, fillOpacity: area.opacity }} positions={area.geoLocations} />
+                                                <Marker icon={L.divIcon({html: area.name, className: 'marker-text'})} key={'marker'+area.id} position={[area.geoLocations.map((v) => v.lat).reduce((a,b) => (a + b)) / area.geoLocations.length, area.geoLocations.map((v) => v.lng).reduce((a,b) => (a + b)) / area.geoLocations.length]}/>
+                                            </>
+                                        );
                                     case 'circle':
-                                        return <Circle key={area.id} pathOptions={{ color: area.color, fillOpacity: area.opacity }} center={area.geoLocations[0]} radius={area.radius} />;
+                                        return <Circle key={'circle'+area.id} pathOptions={{ color: area.color, fillOpacity: area.opacity }} center={area.geoLocations[0]} radius={area.radius} />;
                                 }
                             })}
 
