@@ -121,11 +121,18 @@ class Territory extends GameMode {
                     ]);
                 }
 
-                TerritoryKothClaim::create([
-                    'territory_koth_id' => $dbKoth->id,
-                    'claim_team_id' => $gameState->teamPlayer->team_id,
-                    'claimed_at' => Carbon::now(),
-                ]);
+                $lastClaim = $dbKoth->claims()->orderBy('claimed_at', 'desc')->first();
+                if ($lastClaim) {
+                    throw ValidationException::withMessages([
+                        'areaId' => 'You already have claimed this koth area.'
+                    ]);
+                }
+
+                // TerritoryKothClaim::create([
+                //     'territory_koth_id' => $dbKoth->id,
+                //     'claim_team_id' => $gameState->teamPlayer->team_id,
+                //     'claimed_at' => Carbon::now(),
+                // ]);
 
                 KothClaimedEvent::dispatch($this->game, $gameState->team, $dbKoth);
 

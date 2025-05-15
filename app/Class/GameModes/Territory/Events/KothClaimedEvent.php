@@ -30,6 +30,10 @@ class KothClaimedEvent implements ShouldBroadcastNow
 
     public function broadcastWith(): array
     {
-        return [];
+        return [
+            'game' => $this->game,
+            'team' => $this->team,
+            'koth' => $this->koth,
+        ];
     }
 }

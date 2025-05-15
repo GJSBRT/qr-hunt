@@ -1,5 +1,5 @@
 import 'leaflet/dist/leaflet.css';
-import L, { LatLngExpression } from 'leaflet';
+import L from 'leaflet';
 import { ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
@@ -87,7 +87,10 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
     const [renderMap, setRenderMap] = useState(false);
     const [locationStatus, setLocationStatus] = useState<'accessed' | 'denied' | 'error' | null>(null);
     const [position, setPosition] = useState<GeolocationPosition | null>(null);
-    const [actionElements, setActionElements] = useState<ReactNode[]>([]);
+    const [actionElements, setActionElements] = useState<{
+        element: (...args: any) => JSX.Element
+        props: {[key: string]: any}
+    }[]>([]);
 
     if (!gameState.gameMode.gameMap) return <></>;
 
@@ -120,7 +123,10 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                 lng: currentLng
             });
 
-            let showElements: ReactNode[] = [];
+            let showElements: {
+                element: (...args: any) => JSX.Element
+                props: {[key: string]: any}
+            }[] = [];
             gameState.gameMode.gameMap?.areas.forEach((area) => {
                 let isWithinArea = false;
 
@@ -138,14 +144,17 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
 
                 gameModeMap.areaActions.forEach((areaAction) => {
                     if (areaAction.type !== 'in_zone') return;
-                    let Element = areaAction.element
-                    //@ts-ignore
-                    showElements.push(<Element area={area} gameState={gameState} />);
+                    showElements.push({
+                        element: areaAction.element,
+                        props: {
+                            area: area,
+                            gameState: gameState
+                        }
+                    });
                 });
             });
 
             setActionElements(showElements);
-
 
             setLocationStatus('accessed');
         }, (error) => {
@@ -188,7 +197,7 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                 navigator.geolocation.clearWatch(watchId);
             }
         }
-    }, []);
+    }, [gameState]);
 
     return (
         <>
@@ -203,7 +212,7 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                     renderMap &&
                     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
                         <div style={{ position: 'absolute', zIndex: 99999, display: 'flex', flexDirection: 'column', justifyContent: 'end', alignItems: 'center', bottom: 5, left: 50, right: 50 }}>
-                            {actionElements.map((element) => <>{element}</>)}
+                            {actionElements.map(({element: Element, props}) => <Element {...props}/>)}
                         </div>
 
                         <MapContainer style={{ width: '100%', height: '100%' }} center={gameState.gameMode.gameMap.startLocationMarker ?? undefined} zoom={13} scrollWheelZoom={false}>
@@ -215,9 +224,9 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                             {gameState.gameMode.gameMap.areas.map((area) => {
                                 switch (area.type) {
                                     case 'polygon':
-                                        return <Polygon pathOptions={{ color: area.color, fillOpacity: area.opacity }} positions={area.geoLocations} />;
+                                        return <Polygon key={area.id} pathOptions={{ color: area.color, fillOpacity: area.opacity }} positions={area.geoLocations} />;
                                     case 'circle':
-                                        return <Circle pathOptions={{ color: area.color, fillOpacity: area.opacity }} center={area.geoLocations[0]} radius={area.radius} />;
+                                        return <Circle key={area.id} pathOptions={{ color: area.color, fillOpacity: area.opacity }} center={area.geoLocations[0]} radius={area.radius} />;
                                 }
                             })}
 

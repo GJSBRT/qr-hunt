@@ -38,7 +38,7 @@ export class TerritoryMap extends GameMap {
                                 router.reload();
 
                                 present({
-                                    message: 'Je hebt dit punt geclaimed!',
+                                    message: 'Je hebt dit punt geclaimed! Andere teams zijn op de hoogte gebracht ;)',
                                     duration: 5000,
                                     position: 'bottom',
                                     color: 'success',
