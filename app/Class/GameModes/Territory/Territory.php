@@ -1,17 +1,21 @@
 <?php
 
-namespace App\Class\GameModes;
+namespace App\Class\GameModes\Territory;
 
 use App\Class\GameAction;
 use App\Class\GameMap;
 use App\Class\GameMapArea;
 use App\Class\GeoLocation;
 use App\Class\GameMode;
+use App\Class\GameModes\Territory\Events\KothClaimedEvent;
 use App\Class\GameState;
 use App\Exceptions\GameModeException;
 use App\Models\Team;
-use App\Models\TeamPlayer;
 use App\Models\Territory as ModelsTerritory;
+use App\Models\TerritoryKoth;
+use App\Models\TerritoryKothClaim;
+use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 class Territory extends GameMode {
     const GAME_MODE_TYPE = 'territory';
@@ -77,6 +81,7 @@ class Territory extends GameMode {
             }
 
             $areas[] = new GameMapArea(
+                id: 'territory:'.$territoryArea->id,
                 name: $territoryArea->name,
                 geoLocations: $geoLocations,
                 opacity: 0.2,
@@ -86,12 +91,16 @@ class Territory extends GameMode {
 
         foreach($territory->territory_koths as $idx => $territoryKoth) {
             $areas[] = new GameMapArea(
+                id: 'koth:'.$territoryArea->id,
                 name: 'Koth #' . $idx + 1, // TODO: add in db
                 geoLocations: [(new GeoLocation($territoryKoth->lng, $territoryKoth->lat))],
                 radius: 10,
                 type: 'circle',
                 opacity: 0.2,
                 gameType: self::GAME_MAP_AREA_TYPE_KOTH,
+                metadata: [
+                    'claimed_by_team' => $territoryKoth->claims()->orderBy('claimed_at', 'desc')->with('claim_team')->first()
+                ]
             );
         }
 
@@ -104,8 +113,23 @@ class Territory extends GameMode {
         );
 
         $this->gameActions = [
-            "claim_koth" => new GameAction("claim_koth", function(GameState $gameState) {
-                dd($gameState);
+            "claim_koth" => new GameAction("claim_koth", function(GameState $gameState, string $areaId) {
+                $dbKoth = TerritoryKoth::where('id', str_replace('koth:', '', $areaId))->first();
+                if (!$dbKoth) {
+                    throw ValidationException::withMessages([
+                        'areaId' => 'Area does not exist.'
+                    ]);
+                }
+
+                TerritoryKothClaim::create([
+                    'territory_koth_id' => $dbKoth->id,
+                    'claim_team_id' => $gameState->teamPlayer->team_id,
+                    'claimed_at' => Carbon::now(),
+                ]);
+
+                KothClaimedEvent::dispatch($this->game, $gameState->team, $dbKoth);
+
+                return [];
             }),
         ];
     }

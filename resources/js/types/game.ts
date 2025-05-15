@@ -36,6 +36,7 @@ export interface GameMapAreaPoint extends DatabaseObject {
 export type NewGameMapAreaPoint = Omit<GameMapAreaPoint, 'game_id' | keyof DatabaseObject>;
 
 export interface GameMapArea {
+    id: string;
     geoLocations: LatLngLiteral[];
     name: string;
     displayName: boolean;
@@ -44,7 +45,7 @@ export interface GameMapArea {
     radius: number;
     opacity: number;
     gameType: string;
-    metadata: {[key: string]: any}
+    metadata: any
 }
 
 export interface GameMap {

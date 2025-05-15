@@ -2,11 +2,12 @@
 
 namespace App\Class;
 
-use App\Class\GameModes\Territory;
+use App\Class\GameModes\Territory\Territory;
 use Illuminate\Http\Request;
 use App\Exceptions\InvalidGameState;
 use App\Exceptions\InvalidTeamPlayer;
 use App\Models\Game;
+use App\Models\Team;
 use App\Models\TeamPlayer;
 
 class GameState {
@@ -16,7 +17,8 @@ class GameState {
     public Request $request;
     public Game $game;
     public ?GameMode $gameMode = null;
-    public ?TeamPlayer $teamPlayer = null; 
+    public ?TeamPlayer $teamPlayer = null;
+    public ?Team $team = null;
 
     public function __construct(Request $request) {
         $this->request = $request;
@@ -59,6 +61,8 @@ class GameState {
         if (!$this->teamPlayer) {
             return;
         }
+
+        $this->team = $this->teamPlayer ? $this->teamPlayer->team()->first() : null;
     }
 
     /**
@@ -70,14 +74,13 @@ class GameState {
     }
 
     public function toArray(): array {
-        $team = $this->teamPlayer ? $this->teamPlayer->team()->first() : null;
 
         $array = [
             'game'       => $this->game,
             'gameMode'   => $this->gameMode->toArray(),
             'teams'      => $this->game->teams()->get(),
             'teamPlayer' => $this->teamPlayer,
-            'teamData'   => $team ? $this->gameMode->getTeamData($team) : null,
+            'teamData'   => $this->team ? $this->gameMode->getTeamData($this->team) : null,
         ];
 
         return $array;

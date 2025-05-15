@@ -7,6 +7,8 @@ namespace App\Class;
  */
 class GameMapArea {
     public function __construct(
+        /** A unique identifier for this area */
+        public string $id,
         public array $geoLocations = [],
         public string $name = '',
         public bool $displayName = false,
@@ -20,6 +22,7 @@ class GameMapArea {
 
     public function toArray() {
         return [
+            'id' => $this->id,
             'geoLocations' => $this->geoLocations,
             'name' => $this->name,
             'displayName' => $this->displayName,

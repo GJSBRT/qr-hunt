@@ -31,19 +31,21 @@ class GameAction {
             switch ($functionParameter->getType()->__toString()) {
                 case 'string':
                     $rule[] = 'string';
-                    continue;
+                    break;
                 case 'int':
                     $rule[] = 'numeric';
-                    continue;
+                    break;
                 case 'bool':
                     $rule[] = 'boolean';
-                    continue;
+                    break;
                 case 'array':
                     $rule[] = 'array';
-                    continue;
+                    break;
             }
 
-            $validationRules[] = $rule;
+            if (count(array_keys($rule)) == 1) continue;
+
+            $validationRules[$functionParameter->getName()] = $rule;
         }
 
         $body = $request->validate($validationRules);

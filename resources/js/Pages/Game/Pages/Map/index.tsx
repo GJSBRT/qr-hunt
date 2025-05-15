@@ -140,11 +140,12 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                     if (areaAction.type !== 'in_zone') return;
                     let Element = areaAction.element
                     //@ts-ignore
-                    showElements.push(<Element area={area} />);
+                    showElements.push(<Element area={area} gameState={gameState} />);
                 });
             });
 
             setActionElements(showElements);
+
 
             setLocationStatus('accessed');
         }, (error) => {

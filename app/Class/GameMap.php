@@ -26,4 +26,17 @@ class GameMap {
             'areas' => $this->areas,
         ];
     }
+
+    /**
+     * Get an area by it's unique id.
+     */
+    public function getAreaById(string $areaId): GameMapArea|null {
+        foreach($this->areas as $area) {
+            if ($area->id == $areaId) {
+                return $area;
+            }
+        }
+
+        return null;
+    }
 }

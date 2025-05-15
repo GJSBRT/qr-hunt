@@ -1,10 +1,15 @@
-import { GameMapArea } from "@/types/game";
+import { GameMapArea, GameStatePlaying } from "@/types/game";
 
-export interface GameMapAreaActions {
+export interface GameMapAreaActionElementProps {
+    area: GameMapArea;
+    gameState: GameStatePlaying;
+}
+
+export interface GameMapAreaAction {
     type: 'in_zone'
-    element: (zone: GameMapArea) => JSX.Element;
+    element: ({area, gameState}: GameMapAreaActionElementProps) => JSX.Element;
 }
 
 export class GameMap {
-    public areaActions: GameMapAreaActions[] = [];
+    public areaActions: GameMapAreaAction[] = [];
 }

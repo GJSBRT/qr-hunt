@@ -1,7 +1,9 @@
-import { GameMap, GameMapAreaActions } from "@/Class/GameMode/map";
+import { GameMap, GameMapAreaActionElementProps } from "@/Class/GameMode/map";
 import { router } from "@inertiajs/react";
 import { IonButton, useIonLoading, useIonToast } from "@ionic/react";
+import axios from "axios";
 import { useState } from "react";
+import { TerritoryKothArea } from "./types/koth";
 
 export class TerritoryMap extends GameMap {
     constructor() {
@@ -10,7 +12,7 @@ export class TerritoryMap extends GameMap {
         this.areaActions = [
             {
                 type: "in_zone",
-                element: (area) => {
+                element: ({area, gameState}: {area: TerritoryKothArea} & Omit<GameMapAreaActionElementProps, 'area'>) => {
                     if (area.gameType != 'koth') return <></>;
 
                     const [submitting, setSubmitting] = useState<boolean>(false);
@@ -25,33 +27,56 @@ export class TerritoryMap extends GameMap {
                             message: 'Punt aan het claimen...'
                         });
 
-                        router.put(route('game.gamemode.action', 'claim_koth'), {}, {
-                            onFinish: () => {
+                        axios.post(route('game.gamemode.action', 'claim_koth'), {
+                            areaId: area.id
+                        }, {})
+                            .finally(() => {
                                 dismissLoading();
                                 setSubmitting(false);
-                            },
-                            onSuccess: () => {
+                            })
+                            .then(() => {
                                 router.reload();
-                            },
-                            onError: (error) => {
-                                let errors = '';
-
-                                Object.values(error).forEach((error, index) => {
-                                    errors += error;
-
-                                    if (Object.values(error).length - 1 != index) {
-                                        errors + '\n\n';
-                                    }
-                                });
 
                                 present({
-                                    message: errors,
+                                    message: 'Je hebt dit punt geclaimed!',
                                     duration: 5000,
                                     position: 'bottom',
-                                    color: 'danger',
+                                    color: 'success',
                                 });
-                            },
-                        });
+                            })
+                            .catch((err) => {
+                                console.error(err);
+                                if (typeof err == 'string') {
+                                    present({
+                                        message: err,
+                                        duration: 5000,
+                                        position: 'bottom',
+                                        color: 'danger',
+                                    });
+                                } else if ('response' in (err as any) && (err as any).response.data?.message) {
+                                    present({
+                                        message: (err as any).response.data?.message,
+                                        duration: 5000,
+                                        position: 'bottom',
+                                        color: 'danger',
+                                    });
+                                } else {
+                                    present({
+                                        message: 'Er is een onbekende fout opgetreden. Probeer het nogmaals.',
+                                        duration: 5000,
+                                        position: 'bottom',
+                                        color: 'danger',
+                                    });
+                                }
+                            })
+                    }
+
+                    if (area.metadata.claimed_by_team && area.metadata.claimed_by_team.claim_team_id == gameState.teamData.team.id) {
+                        return (
+                            <IonButton disabled>
+                                Jouw team heeft dit punt geclaimed
+                            </IonButton>
+                        );
                     }
 
                     return (
