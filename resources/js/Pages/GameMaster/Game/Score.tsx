@@ -22,7 +22,7 @@ export default function Score({ results }: GameMasterProps) {
                     )}
 
                     {results.map((teamScore) => (
-                        <IonItem>
+                        <IonItem key={teamScore.team.id}>
                             <IonLabel>{teamScore.team.name}</IonLabel>
                             <IonLabel slot='end'>{teamScore.score} pnt</IonLabel>
                         </IonItem>

@@ -15,6 +15,7 @@ class TerritoryMissionAnswer extends Model
         'photo',
         'open_answer',
         'marked_correct',
+        'territory_area_id',
     ];
 
     public $casts = [
@@ -23,6 +24,10 @@ class TerritoryMissionAnswer extends Model
 
     public function territory_mission() {
         return $this->hasOne(TerritoryMission::class, 'id', 'territory_mission_id');
+    }
+
+    public function territory_area() {
+        return $this->hasOne(TerritoryArea::class, 'id', 'territory_area_id');
     }
 
     public function multiple_choice() {

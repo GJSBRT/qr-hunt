@@ -68,6 +68,7 @@ class GameController extends Controller
             'game' => $game,
             'gameMode' => $gameMode->toArray(),
             'results' => $gameMode->getResults(),
+            ...$gameMode->toGameMasterArray(),
         ]);
     }
 

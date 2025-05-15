@@ -28,6 +28,14 @@ class Territory extends Model
         return $this->hasMany(TerritoryArea::class, 'territory_id', 'id');
     }
 
+    public function territory_missions() {
+        return $this->hasMany(TerritoryMission::class, 'territory_id', 'id');
+    }
+
+    public function territory_mission_answers() {
+        return $this->hasManyThrough(TerritoryMissionAnswer::class, TerritoryMission::class, 'territory_id', 'territory_mission_id', 'id', 'id');
+    }
+
     public function territory_koths() {
         return $this->hasMany(TerritoryKoth::class, 'territory_id', 'id');
     }

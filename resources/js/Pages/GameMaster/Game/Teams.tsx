@@ -151,7 +151,7 @@ export default function Teams({ game }: GameMasterProps) {
                     )}
 
                     {game.teams.map((team) => (
-                        <IonItem onClick={() => setViewingTeam(team)} detail>
+                        <IonItem key={team.id} onClick={() => setViewingTeam(team)} detail>
                             <IonLabel>{team.name}</IonLabel>
                         </IonItem>
                     ))}

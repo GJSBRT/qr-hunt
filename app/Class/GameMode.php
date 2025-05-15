@@ -18,6 +18,8 @@ class GameMode {
     protected ?GameMap $gameMap = null;
     /** @var GameAction[] */
     public array $gameActions = [];
+    /** @var GameMasterAction[] */
+    public array $gameMasterActions = [];
 
     /**
      * Return game mode data, this contains generic data required for the game and should be thought of as public knowledge.
@@ -28,6 +30,13 @@ class GameMode {
             'gameMap' => $this->gameMap ? $this->gameMap->toArray() : null,
             'gameDescriptionHtml' => $this->gameDescriptionHtml,
         ];
+    }
+
+    /**
+     * Returns data used for the game master.
+     */
+    public function toGameMasterArray(): array {
+        return [];
     }
 
     /**

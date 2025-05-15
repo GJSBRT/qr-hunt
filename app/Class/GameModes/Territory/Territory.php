@@ -5,10 +5,12 @@ namespace App\Class\GameModes\Territory;
 use App\Class\GameAction;
 use App\Class\GameMap;
 use App\Class\GameMapArea;
+use App\Class\GameMasterAction;
 use App\Class\GeoLocation;
 use App\Class\GameMode;
 use App\Class\GameModes\Territory\Events\AreaClaimedEvent;
 use App\Class\GameModes\Territory\Events\KothClaimedEvent;
+use App\Class\GameModes\Territory\Events\MissionAnswerIncorrectEvent;
 use App\Class\GameState;
 use App\Class\TeamScore;
 use App\Exceptions\GameModeException;
@@ -151,6 +153,30 @@ class Territory extends GameMode
             areas: $areas,
         );
 
+        $this->gameMasterActions = [
+            "review_mission_answer" => new GameMasterAction("review_mission_answer", function (int $mission_answer_id, bool $correct) {
+                $missionAnswer = $this->territory->territory_mission_answers()->where('territory_mission_answer.id', $mission_answer_id)->firstOrFail();
+                $missionAnswer->marked_correct = $correct;
+                $missionAnswer->save();
+
+                $team = $missionAnswer->team()->first();
+
+                if (!$correct) {
+                    MissionAnswerIncorrectEvent::dispatch($team, $this->gameMap->getAreaById('territory:' . $missionAnswer->territory_area_id));
+                    return [];
+                }
+
+                $territoryArea = $missionAnswer->territory_area()->first();
+
+                $territoryArea->claim_team_id = $team->id;
+                $territoryArea->save();
+
+                AreaClaimedEvent::dispatch($this->game, $team, $this->gameMap->getAreaById('territory:' . $territoryArea->id));
+
+                return [];
+            }),
+        ];
+
         $this->gameActions = [
             "claim_koth" => new GameAction("claim_koth", function (GameState $gameState, string $areaId) {
                 $dbKoth = TerritoryKoth::where('id', str_replace('koth:', '', $areaId))->first();
@@ -208,10 +234,17 @@ class Territory extends GameMode
                 $mission = $dbArea->territory_mission()->first();
 
                 // Check if team just entered a wrong answer
-                $lastAnswer = $mission->answers()->where('team_id', $gameState->team->id)->orderBy('created_at', 'desc')->first();
+                $lastAnswer = $mission->answers()->where('territory_area_id', $dbArea->id)->where('team_id', $gameState->team->id)->orderBy('created_at', 'desc')->first();
                 if ($lastAnswer && $lastAnswer->marked_correct === false && $dbArea->mission_id === $lastAnswer->territory_mission_id) {
                     throw ValidationException::withMessages([
                         'just_failed' => 'Je hebt hier zojuist een fout antwoord ingedient. Ga eerst door naar een ander gebied.'
+                    ]);
+                }
+
+                $awaitingAnswers = $mission->answers()->where('territory_area_id', $dbArea->id)->where('team_id', $gameState->team->id)->where('marked_correct', null)->count();
+                if ($awaitingAnswers > 0) {
+                    throw ValidationException::withMessages([
+                        'awaiting_answers' => 'Je hebt al een antwoord ingedient. Deze wordt zsm door de spel leiders beoordeeld.'
                     ]);
                 }
 
@@ -234,6 +267,7 @@ class Territory extends GameMode
                     'photo' => $photo,
                     'open_answer' => $open_answer,
                     'marked_correct' => $correct,
+                    'territory_area_id' => $dbArea->id,
                 ]);
 
                 if ($correct === true) {
@@ -259,6 +293,12 @@ class Territory extends GameMode
     {
         return [
             ...parent::getTeamData($team),
+        ];
+    }
+
+    public function toGameMasterArray(): array {
+        return [
+            'missionAnswersToReview' => $this->territory->territory_mission_answers()->where('marked_correct', null)->with(['territory_mission', 'team'])->get()
         ];
     }
 

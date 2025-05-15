@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 /**
  * An action which can be called through different means.
  */
-class GameAction {
+class GameMasterAction {
     public function __construct(
         public string $name,
         public mixed $action,
@@ -19,7 +19,7 @@ class GameAction {
      * @throws \ReflectionException
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function doUsingRequest(Request $request, GameState $gameState): array {
+    public function doUsingRequest(Request $request): array {
         $functionReflection = new \ReflectionFunction($this->action);
 
         $validationRules = [];
@@ -52,7 +52,7 @@ class GameAction {
         $body = $request->validate($validationRules);
 
         $func = $this->action;
-        $result = $func($gameState, ...array_values($body));
+        $result = $func(...array_values($body));
 
         return $result;
     }

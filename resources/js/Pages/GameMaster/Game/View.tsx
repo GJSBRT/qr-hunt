@@ -7,6 +7,7 @@ import Overview from "./Overview";
 import { GameMasterProps } from "@/types/game_master";
 import Teams from "./Teams";
 import Score from "./Score";
+import GameModes from "@/GameModes/gamemodes";
 
 export default function View(props: GameMasterProps) {
     const urlParams = new URLSearchParams(window.location.search);
@@ -24,6 +25,12 @@ export default function View(props: GameMasterProps) {
         window.history.pushState({ path: newURL }, '', newURL);
     }
 
+    const gameMode = GameModes[props.game.game_mode];
+    if (!gameMode) return <></>;
+    if (!gameMode.game_master) return <></>;
+
+    const gameModeGameMaster = new (gameMode.game_master)();
+
     return (
         <IonicAppLayout title={props.game.name}>
             <IonTabs>
@@ -31,6 +38,7 @@ export default function View(props: GameMasterProps) {
                     {page == 'overview' && <Overview {...props} />}
                     {page == 'teams' && <Teams {...props} />}
                     {page == 'score' && <Score {...props} />}
+                    {gameModeGameMaster.pages.map(({name, element: Element}) => (page === name) && <Element {...props} />)}
                 </IonTab>
 
                 <IonTabBar translucent slot="bottom" selectedTab={page} onIonTabsWillChange={changePage}>
@@ -48,6 +56,13 @@ export default function View(props: GameMasterProps) {
                         <FontAwesomeIcon size='xl' icon={faTrophy} />
                         Score
                     </IonTabButton>
+
+                    {gameModeGameMaster.pages.map(({name, label, icon}) => (
+                        <IonTabButton tab={name} selected={page == name}>
+                            <FontAwesomeIcon size='xl' icon={icon} />
+                            {label}
+                        </IonTabButton>
+                    ))}
                 </IonTabBar>
             </IonTabs>
         </IonicAppLayout>
