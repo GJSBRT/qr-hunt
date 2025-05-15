@@ -1,12 +1,14 @@
-import { Game } from "@/types/game";
 import { IonTab, IonTabBar, IonTabButton, IonTabs } from "@ionic/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBolt, faHome, faUsers } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faTrophy, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import IonicAppLayout from "@/Layouts/IonicAppLayout";
 import Overview from "./Overview";
+import { GameMasterProps } from "@/types/game_master";
+import Teams from "./Teams";
+import Score from "./Score";
 
-export default function View({ game }: { game: Game }) {
+export default function View(props: GameMasterProps) {
     const urlParams = new URLSearchParams(window.location.search);
     const [page, setPage] = useState<string>(urlParams.get('page') ?? 'overview');
 
@@ -23,12 +25,12 @@ export default function View({ game }: { game: Game }) {
     }
 
     return (
-        <IonicAppLayout title={game.name}>
+        <IonicAppLayout title={props.game.name}>
             <IonTabs>
                 <IonTab tab="overview">
-                    {page == 'overview' && <Overview game={game} />}
-                    {/* {page == 'map' && <Map gameState={gameState} />}
-                    {page == 'powers' && <Powers gameState={gameState} />} */}
+                    {page == 'overview' && <Overview {...props} />}
+                    {page == 'teams' && <Teams {...props} />}
+                    {page == 'score' && <Score {...props} />}
                 </IonTab>
 
                 <IonTabBar translucent slot="bottom" selectedTab={page} onIonTabsWillChange={changePage}>
@@ -37,29 +39,15 @@ export default function View({ game }: { game: Game }) {
                         Overzicht
                     </IonTabButton>
 
-                    <IonTabButton tab="overview" selected={page == 'overview'}>
+                    <IonTabButton tab="teams" selected={page == 'teams'}>
                         <FontAwesomeIcon size='xl' icon={faUsers} />
                         Teams
                     </IonTabButton>
 
-                    <IonTabButton tab="overview" selected={page == 'overview'}>
-                        <FontAwesomeIcon size='xl' icon={faBolt} />
-                        Powers
+                    <IonTabButton tab="score" selected={page == 'score'}>
+                        <FontAwesomeIcon size='xl' icon={faTrophy} />
+                        Score
                     </IonTabButton>
-
-                    {/* {(gameState.gameMode.gameMap != null) && (
-                        <IonTabButton tab="map" selected={page == 'map'}>
-                            <FontAwesomeIcon size='xl' icon={faMap} />
-                            Kaart
-                        </IonTabButton>
-                    )}
-
-                    {(gameState.teamData.gamePowers != null) && (
-                        <IonTabButton tab="powers" selected={page == 'powers'}>
-                            <FontAwesomeIcon size='xl' icon={faBolt} />
-                            Powers
-                        </IonTabButton>
-                    )} */}
                 </IonTabBar>
             </IonTabs>
         </IonicAppLayout>

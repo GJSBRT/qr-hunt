@@ -9,7 +9,7 @@ interface Props {
     games: PaginatedData<Game>;
 }
 
-export default function GameMaster({games, ...props}: Props) {
+export default function GameMaster({games}: Props) {
     return (
         <IonicAppLayout title="Selecteer een spel">
             <IonHeader>

@@ -58,10 +58,16 @@ class GameController extends Controller
 
     public function view(Request $request, int $id): Response {
         $user = $request->user();
-        $game = $user->games()->where('id', $id)->firstOrFail();
+        $game = $user->games()->where('id', $id)->with([
+            'teams' => ['team_players']
+        ])->firstOrFail();
+
+        $gameMode = $game->getGameMode();
 
         return Inertia::render('GameMaster/Game/View', [
-            'game'              => $game,
+            'game' => $game,
+            'gameMode' => $gameMode->toArray(),
+            'results' => $gameMode->getResults(),
         ]);
     }
 

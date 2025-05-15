@@ -12,6 +12,7 @@ export interface Game extends DatabaseObject {
     status: 'draft' | 'not_started' | 'starting' | 'started' | 'ended';
     started_at: string | null;
     ended_at: string | null;
+    game_mode: string;
     play_duration: number | null;
     cooldown_duration: number | null;
     show_results: boolean;

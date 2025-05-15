@@ -7,32 +7,14 @@ Requirements other than the normal Laravel 11 requirements.
 - php8.3-imagick
 - [Soketi](https://docs.soketi.app/)
 
-## Todo
-- Scan cooldown.
-- Opdrachten bij sommige QR codes.
-- Een paar hints over waar een QR code bevindt. Voor elke hint is x aantal punten aftrek.
-- Push notificaties
-- Makkelijk point modifiers toevoegen voor de game master.
+## TODO
 - Haptics? (@capacitor/haptics)
-- Notificaties? (@capacitor/local-notifications)
-- 'Ongelezen' QR codes. Mocht je een QR code krijgen zonder dat je het door hebt.
-- Pagina met info / regels.
-- Grafiekjes op dashboard over spel verloop.
-- Keertje de breadcrumbs fixen in dashboard.
-- Verander qr received van toast naar modal zoals scanned qr.
-
-## Also
-This project is made with a very tight deadline. So don't expect quality ;p. Shortcuts and mistakes were made.
-
-## New TODO
-- Claimen van een area met een opdracht
 - Powers toevoegen
 - Tikker team
-- KOTH area
 - Move dashboard to mobile area
 - Add notifications (@capacitor/local-notifications)
-- Spel regel pagina
 ### Game master
-- Add team management 
+- Grafiekjes op dashboard over spel verloop.
 - Add power management 
 - Add point management 
+- Add review of mission answers
