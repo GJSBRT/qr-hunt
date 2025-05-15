@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Class\TeamScore;
 use App\Models\Game;
 use App\Models\Team;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -14,14 +15,12 @@ class TeamWonEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    private Game $game;
-    private Team $team;
-
-    public function __construct(Game $game, Team $team)
-    {
-        $this->game = $game;
-        $this->team = $team;
-    }
+    public function __construct(
+        private Game $game,
+        private TeamScore $winningTeamScore,
+        /** @var TeamScore[] */
+        private array $teamScores,
+    ) {}
 
     public function broadcastOn(): array
     {
@@ -33,8 +32,8 @@ class TeamWonEvent implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            'winningTeam'   => $this->team,
-            'results'       => $this->game->show_results ? $this->game->getResults() : null
+            'winningTeamScore' => $this->winningTeamScore,
+            'teamScores' => $this->teamScores,
         ];
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Class\GameMode;
+use App\Class\GameModes\Territory\Territory as TerritoryGameMode;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +29,7 @@ class Game extends Model
         'ended_at',
         'play_duration',
         'show_results',
+        'end_type',
     ];
 
     public $searchable = [
@@ -69,5 +72,17 @@ class Game extends Model
 
     public function team_players() {
         return $this->hasManyThrough(TeamPlayer::class, Team::class, 'game_id', 'team_id', 'id', 'id');
+    }
+
+    /**
+     * Get the game mode from the game model.
+     */
+    public function getGameMode(): ?GameMode {
+        switch ($this->game_mode) {
+            case TerritoryGameMode::GAME_MODE_TYPE:
+                return new TerritoryGameMode($this->territory()->first());
+        }
+
+        return null;
     }
 }

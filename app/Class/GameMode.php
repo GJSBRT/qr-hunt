@@ -7,10 +7,15 @@ use App\Models\Game;
 use App\Models\Team;
 
 class GameMode {
+    /** Let the game end when the time is up. */
+    const END_TYPE_DURATION = 'duration'; 
+    /** Ends the game when there is a winner. */
+    const END_TYPE_WINNER = 'winner';
+
     protected Game $game;
     protected string $gameMode = '';
     protected string $gameDescriptionHtml = '';
-    protected ?GameMap $gameMap = null; 
+    protected ?GameMap $gameMap = null;
     /** @var GameAction[] */
     public array $gameActions = [];
 
@@ -37,5 +42,20 @@ class GameMode {
             'team' => $team,
             'gamePowers' => $this->game->powers()->where('owner_team_id', $team->id)->get(),
         ];
+    }
+
+    /**
+     * Return a team when there is a winner
+     */
+    public function getWinner(): Team|null {
+        return null;
+    }
+
+    /**
+     * Return a team when there is a winner
+     * @return \App\Class\TeamScore[]|null
+     */
+    public function getResults(): array|null {
+        return null;
     }
 }

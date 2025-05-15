@@ -42,11 +42,7 @@ class GameState {
             throw new InvalidGameState("No game for request.");
         }
 
-        switch ($this->game->game_mode) {
-            case Territory::GAME_MODE_TYPE:
-                $this->gameMode = new Territory($this->game->territory()->first());
-                break;
-        }
+        $this->gameMode = $this->game->getGameMode();
 
         if (!$this->gameMode) {
             throw new InvalidGameState("Game contains configuration error.");

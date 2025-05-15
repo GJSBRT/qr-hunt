@@ -10,8 +10,10 @@ use App\Class\GameMode;
 use App\Class\GameModes\Territory\Events\AreaClaimedEvent;
 use App\Class\GameModes\Territory\Events\KothClaimedEvent;
 use App\Class\GameState;
+use App\Class\TeamScore;
 use App\Exceptions\GameModeException;
 use App\Models\Team;
+use App\Models\TeamPlayer;
 use App\Models\Territory as ModelsTerritory;
 use App\Models\TerritoryArea;
 use App\Models\TerritoryKoth;
@@ -20,6 +22,7 @@ use App\Models\TerritoryMission;
 use App\Models\TerritoryMissionAnswer;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 class Territory extends GameMode
 {
@@ -29,8 +32,18 @@ class Territory extends GameMode
     const GAME_MAP_AREA_TYPE_CHALLENGE = 'challenge';
     const GAME_MAP_AREA_TYPE_KOTH = 'koth';
 
+    private ModelsTerritory $territory;
+
+    /**
+     * The available end types for this game mode.
+     * @var string[]
+     */
+    const GAME_END_TYPES = [
+        GameMode::END_TYPE_DURATION,
+    ];
+
     public function __construct(
-        ModelsTerritory $territory,
+        ModelsTerritory $t,
     ) {
         $this->gameMode = self::GAME_MODE_TYPE;
         $this->gameDescriptionHtml = <<<HTML
@@ -58,28 +71,28 @@ class Territory extends GameMode
             </ul>
         HTML;
 
-        $territory = ModelsTerritory::where('id', $territory->id)->with([
+        $this->territory = ModelsTerritory::where('id', $t->id)->with([
             'territory_areas',
             'territory_koths',
         ])->first();
-        if (!$territory) {
+        if (!$this->territory) {
             throw new GameModeException("Could not get territory from database.");
         }
 
-        $this->game = $territory->game()->first();
+        $this->game = $this->territory->game()->first();
         if (!$this->game) {
             throw new GameModeException("Could not get game from database.");
         }
 
         // Set location marker
         $startLocationMarker = null;
-        if ($territory->start_lat && $territory->start_lng) {
-            $startLocationMarker = new GeoLocation($territory->start_lng, $territory->start_lat);
+        if ($this->territory->start_lat && $this->territory->start_lng) {
+            $startLocationMarker = new GeoLocation($this->territory->start_lng, $this->territory->start_lat);
         }
 
         // Set map areas
         $areas = [];
-        foreach ($territory->territory_areas as $territoryArea) {
+        foreach ($this->territory->territory_areas as $territoryArea) {
             $geoLocations = [];
             foreach ($territoryArea->territory_area_points()->get() as $point) {
                 $geoLocations[] = new GeoLocation($point->lng, $point->lat);
@@ -102,7 +115,7 @@ class Territory extends GameMode
             );
         }
 
-        foreach ($territory->territory_koths as $idx => $territoryKoth) {
+        foreach ($this->territory->territory_koths as $idx => $territoryKoth) {
             $areas[] = new GameMapArea(
                 id: 'koth:' . $territoryArea->id,
                 name: 'Koth #' . $idx + 1, // TODO: add in db
@@ -117,8 +130,21 @@ class Territory extends GameMode
             );
         }
 
+        $teamPlayer = null;
+        try {
+            $teamPlayerId = request()->session()->get(GameState::SESSION_KEY_TEAM_PLAYER_ID);
+            if (!$teamPlayerId) {
+                return;
+            }
+
+            $teamPlayer = TeamPlayer::where("id", $teamPlayerId)->first();
+        } catch (RuntimeException $e) {} catch (\Exception $e) {
+            throw $e;
+        }
+
         $this->gameMap = new GameMap(
             showPlayerLocation: true,
+            playerLocationColor: $teamPlayer ? $this->stringToColorCode($teamPlayer->team()->first()->name) : GameMap::DEFAULT_PLAYER_LOCATION_MARKER_COLOR,
             shareLocationDataToServer: true,
             playersWhichCanViewOthersLocations: [],
             startLocationMarker: $startLocationMarker,
@@ -236,8 +262,57 @@ class Territory extends GameMode
         ];
     }
 
+    public function getResults(): array|null {
+        $totalPointsPerTeam = [];
+
+        foreach ($this->territory->territory_koths() as $koth) {
+            $kothClaims = $koth->claims()->orderBy('territory_koth_id')->orderBy('claimed_at')->get()->groupBy('territory_koth_id');
+
+            foreach ($kothClaims as $kothClaim) {
+                for ($i = 0; $i < $kothClaim->count(); $i++) {
+                    $current = $kothClaim[$i];
+                    $next = $kothClaim[$i + 1] ?? null;
+
+                    $start = Carbon::parse($current->claimed_at);
+                    $end = $next ? Carbon::parse($next->claimed_at) : ($this->game->ended_at ?? now());
+
+                    $durationMinutes = $end->diffInMinutes($start);
+                    $points = floor($durationMinutes / 5);
+
+                    $teamId = $current->claim_team_id;
+
+                    if (!isset($totalPointsPerTeam[$teamId])) {
+                        $totalPointsPerTeam[$teamId] = 0;
+                    }
+
+                    $totalPointsPerTeam[$teamId] += $points;
+                }
+            }
+        }
+
+        $results = [];
+        foreach ($this->game->teams()->get() as $team) {
+            $score = 0;
+
+            // Points per claimed area.
+            $areasClaimed = $this->territory->territory_areas()->where('claim_team_id', $team->id)->count();
+            $score += $areasClaimed * $this->territory->points_per_claimed_area;
+
+            // Points for koth.
+            if (isset($totalPointsPerTeam[$team->id])) {
+                $score += $totalPointsPerTeam[$team->id];
+            }
+
+            $results[$score] = new TeamScore($team, $score);
+        }
+
+        krsort($results);
+
+        return array_values($results);
+    }
+
     // from: https://stackoverflow.com/questions/3724111/how-can-i-convert-strings-to-an-html-color-code-hash
-    function stringToColorCode($str) {
+    private function stringToColorCode($str) {
         $code = dechex(crc32($str));
         $code = substr($code, 0, 6);
         return "#".$code;

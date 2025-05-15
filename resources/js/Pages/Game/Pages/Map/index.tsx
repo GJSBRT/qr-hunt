@@ -34,7 +34,7 @@ function StartLocationMarker({ location }: { location: GeolocationPosition }) {
     );
 };
 
-function UserLocationMarker({ location }: { location: GeolocationPosition }) {
+function UserLocationMarker({ location, color }: { location: GeolocationPosition, color: string }) {
     const map = useMapEvents({});
     const [position, setPosition] = useState<GeolocationPosition>({
         lat: location.lat,
@@ -61,7 +61,7 @@ function UserLocationMarker({ location }: { location: GeolocationPosition }) {
             <CircleMarker
                 center={position}
                 pathOptions={{
-                    fillColor: '#2563eb',
+                    fillColor: color,
                     fillOpacity: 1,
                     opacity: 1,
                     weight: 5,
@@ -236,7 +236,7 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                             })}
 
                             {(gameState.gameMode.gameMap.startLocationMarker) && <StartLocationMarker location={gameState.gameMode.gameMap.startLocationMarker} />}
-                            {(position && locationStatus == 'accessed') && <UserLocationMarker location={position} />}
+                            {(position && locationStatus == 'accessed') && <UserLocationMarker color={gameState.gameMode.gameMap.playerLocationColor} location={position} />}
                         </MapContainer>
                     </div>
                     :

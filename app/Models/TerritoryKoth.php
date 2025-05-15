@@ -18,10 +18,6 @@ class TerritoryKoth extends Model
         return $this->hasOne(Territory::class, 'id', 'territory_id');
     }
 
-    public function claim_team() {
-        return $this->hasOne(Team::class, 'id', 'claim_team_id');
-    }
-
     public function claims() {
         return $this->hasMany(TerritoryKothClaim::class, 'territory_koth_id', 'id');
     }

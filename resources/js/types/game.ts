@@ -50,6 +50,7 @@ export interface GameMapArea {
 
 export interface GameMap {
     showPlayerLocation: boolean;
+    playerLocationColor: string;
     shareLocationDataToServer: boolean;
     startLocationMarker: LatLngLiteral|null;
     areas: GameMapArea[];
