@@ -1,4 +1,3 @@
-import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

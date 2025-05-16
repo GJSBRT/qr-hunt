@@ -54,23 +54,23 @@
 
 @media (prefers-color-scheme: dark) {
     .leaflet-layer {
-        filter: invert(1) hue-rotate(180deg) grayscale(0.7);
+        filter: invert(1) hue-rotate(180deg) grayscale(0.7) !important;
     }
 
     .leaflet-control-zoom {
-        filter: invert(1) hue-rotate(180deg) grayscale(0.7);
+        filter: invert(1) hue-rotate(180deg) grayscale(0.7) !important;
     }
 
     .leaflet-container {
-        background: #0d0d0d;
+        background: #0d0d0d !important;
     }
 
     .leaflet-container .leaflet-control-attribution a {
-        color: lightblue;
+        color: lightblue !important;
     }
 
     .leaflet-control-attribution {
         background: rgba(0, 0, 0, 0.8) !important;
-        color: white;
+        color: white !important;
     }
 }

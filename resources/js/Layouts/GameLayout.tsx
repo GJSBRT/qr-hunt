@@ -2,6 +2,7 @@ import { router } from "@inertiajs/react";
 import { IonFab, IonFabButton, IonFabList, useIonToast } from '@ionic/react';
 
 import NotificationSound from '../../assets/notification-sound.mp3';
+import 'leaflet/dist/leaflet.css';
 import '../../css/game.css';
 
 import { createContext, useEffect, useMemo, useState } from "react";

@@ -12,12 +12,10 @@ export default function FormikImage({ name, form }: Props) {
         const image = await Camera.getPhoto({
             quality: 90,
             allowEditing: true,
-            resultType: CameraResultType.Uri
+            resultType: CameraResultType.Base64
         });
 
-        var imageUrl = image.webPath;
-
-        form.setFieldValue(name, imageUrl)
+        form.setFieldValue(name, image.base64String)
     };
 
     return (

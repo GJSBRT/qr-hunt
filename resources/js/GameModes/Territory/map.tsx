@@ -124,6 +124,7 @@ export class TerritoryMap extends GameMap {
                             })
                             .then((response) => {
                                 router.reload();
+                                setShowModal(false);
 
                                 if (response.data.correct === undefined) {
                                     present({

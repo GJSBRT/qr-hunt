@@ -11,7 +11,12 @@ Requirements other than the normal Laravel 11 requirements.
 - Haptics? (@capacitor/haptics)
 - Powers toevoegen
 - Set random team as tagged when game starts 
+- Mission answer self confirm
+- Mission answer correct answer for open answer
+- Submit videos
 ### Game master
 - Grafiekjes op dashboard over spel verloop.
 - Add power management 
 - Add point management 
+
+
