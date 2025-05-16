@@ -311,6 +311,13 @@ class Territory extends GameMode
                     ]);
                 }
 
+                $previousTag = $this->territory->territory_tags()->orderBy('created_at', 'desc')->first();
+                if ($previousTag->team_id != $gameState->teamPlayer->team_id) {
+                    throw ValidationException::withMessages([
+                        'team_id' => 'You are not it'
+                    ]);
+                }
+
                 $tag = TerritoryTag::create([
                     'territory_id' => $this->territory->id,
                     'team_id' => $team_id,

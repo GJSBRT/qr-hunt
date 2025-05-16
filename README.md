@@ -16,3 +16,4 @@ Requirements other than the normal Laravel 11 requirements.
 - Add power management 
 - Add point management 
 - Start game via game master area.
+- Show map with player locations.

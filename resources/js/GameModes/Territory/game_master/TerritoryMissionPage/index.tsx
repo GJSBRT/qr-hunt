@@ -149,7 +149,7 @@ export default function TerritoryMissionPage({ game, missions }: TerritoryGameMa
                     <IonTitle>Opdrachten</IonTitle>
 
                     <IonButtons slot="end">
-                        <NewMissionButton game={game}/>
+                        <NewMissionButton game={game} />
                     </IonButtons>
                 </IonToolbar>
             </IonHeader>
@@ -193,22 +193,12 @@ export default function TerritoryMissionPage({ game, missions }: TerritoryGameMa
                             </IonToolbar>
                         </IonHeader>
 
-                        <IonContent>
+                        <IonContent className="ion-padding">
                             <PullToRefresh />
 
-                            {/* <IonList lines="full">
-                                {(viewingTeam.team_players.length == 0) && (
-                                    <IonItem>
-                                        Geen spelers in dit team.
-                                    </IonItem>
-                                )}
+                            <h1 style={{ marginTop: 0 }}>{viewingMission.title}</h1>
 
-                                {viewingTeam.team_players.map((player) => (
-                                    <IonItem key={player.id} onClick={() => setViewingTeamPlayer(player)} detail>
-                                        <IonLabel>{player.name}</IonLabel>
-                                    </IonItem>
-                                ))}
-                            </IonList> */}
+                            <p>{viewingMission.description}</p>
                         </IonContent>
                     </>
                 )}

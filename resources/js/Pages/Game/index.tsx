@@ -30,7 +30,7 @@ export default function Game({ gameState }: { gameState: GameStatePlaying }) {
                 <IonTab tab="overview">
                     {page == 'overview' && <Overview gameState={gameState} />}
                     {page == 'map' && <Map gameState={gameState} />}
-                    {page == 'powers' && <Powers gameState={gameState} />}
+                    {/* {page == 'powers' && <Powers gameState={gameState} />} */}
                 </IonTab>
 
                 <IonTabBar translucent slot="bottom" selectedTab={page} onIonTabsWillChange={changePage}>
@@ -46,12 +46,12 @@ export default function Game({ gameState }: { gameState: GameStatePlaying }) {
                         </IonTabButton>
                     )}
 
-                    {(gameState.teamData.gamePowers != null) && (
+                    {/* {(gameState.teamData.gamePowers != null) && (
                         <IonTabButton tab="powers" selected={page == 'powers'}>
                             <FontAwesomeIcon size='xl' icon={faBolt} />
                             Powers
                         </IonTabButton>
-                    )}
+                    )} */}
                 </IonTabBar>
             </IonTabs>
         </GameLayout>

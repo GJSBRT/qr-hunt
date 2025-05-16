@@ -103,6 +103,8 @@ export default function Teams({ game }: GameMasterProps) {
                     },
                     onSuccess: () => {
                         router.reload();
+                        setViewingTeam(null);
+                        setViewingTeamPlayer(null);
                     },
                     onError: (error) => {
                         let errors = '';
@@ -196,7 +198,7 @@ export default function Teams({ game }: GameMasterProps) {
 
                 <IonActionSheet
                     isOpen={showTeamActions}
-                    header="Actions"
+                    header="Team acties"
                     buttons={[
                         {
                             text: 'Verwijder team',
@@ -211,7 +213,7 @@ export default function Teams({ game }: GameMasterProps) {
 
                 <IonActionSheet
                     isOpen={viewingTeamPlayer !== null}
-                    header={viewingTeamPlayer ? viewingTeamPlayer.name : ''}
+                    header={viewingTeamPlayer ? viewingTeamPlayer.name + ' acties' : ''}
                     buttons={[
                         {
                             text: 'Verwijder speler',

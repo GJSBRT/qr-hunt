@@ -53,7 +53,7 @@ class GameController extends Controller
             'user_id'   => $user->id,
         ]);
 
-        return Redirect::route('dashboard.games.view', $game->id);
+        return Redirect::route('game-master.game.view', $game->id);
     }
 
     public function view(Request $request, int $id): Response {
@@ -104,6 +104,6 @@ class GameController extends Controller
                 break;
         }
 
-        return Redirect::route('dashboard.games.view', $id);
+        return Redirect::back();
     }
 }

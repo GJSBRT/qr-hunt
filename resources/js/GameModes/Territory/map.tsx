@@ -5,7 +5,6 @@ import axios from "axios";
 import { useState } from "react";
 import { TerritoryChallengeArea, TerritoryKothArea } from "./types/koth";
 import { Form, Formik, FormikHelpers } from "formik";
-import FormikField from "@/Components/IonicComponents/FormikField";
 import FormikRadio from "@/Components/IonicComponents/FormikRadio";
 import FormikTextArea from "@/Components/IonicComponents/FormikTextArea";
 import FormikImage from "@/Components/IonicComponents/FormikImage";
@@ -183,14 +182,6 @@ export class TerritoryMap extends GameMap {
                             })
                     }
 
-                    if (area.metadata.claimed_by_team !== null) {
-                        return (
-                            <IonButton disabled>
-                                Dit gebied is al geclaimed
-                            </IonButton>
-                        );
-                    }
-
                     if (gameState.teamData.isTagged) {
                         return (
                             <IonButton disabled>
@@ -199,13 +190,13 @@ export class TerritoryMap extends GameMap {
                         );
                     }
 
-                    // if (area.metadata.claimed_by_team.id == gameState.teamData.team.id) {
-                    //     return (
-                    //         <IonButton disabled>
-                    //             Jouw team heeft dit punt al geclaimed
-                    //         </IonButton>
-                    //     );
-                    // }
+                    if (area.metadata.claimed_by_team && area.metadata.claimed_by_team.id == gameState.teamData.team.id) {
+                        return (
+                            <IonButton disabled>
+                                Jouw team heeft dit punt al geclaimed
+                            </IonButton>
+                        );
+                    }
 
                     const initialValues: NewTerritoryMissionAnswer = {
                         multiple_choice_id: null,

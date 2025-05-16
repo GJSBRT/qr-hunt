@@ -14,10 +14,12 @@ export default function FormikTextArea({ name, form, ...props }: Props) {
 
     return (
         <IonTextarea
+            labelPlacement="stacked"
             className={`${inValid === true && 'ion-invalid'} ${form.touched[name] && 'ion-touched'}`}
             onIonChange={(e) => {
                 form.setFieldValue(name, e.detail.value);
             }}
+            value={form.values[name]}
             errorText={getIn(form.errors, name)}
             {...props}
         />

@@ -18,6 +18,7 @@ export default function FormikField({ name, form, ...props }: Props) {
             onIonChange={(e) => {
                 form.setFieldValue(name, e.detail.value);
             }}
+            value={form.values[name]}
             errorText={getIn(form.errors, name)}
             {...props}
         />

@@ -4,6 +4,7 @@ import { Team } from "@/types/team";
 import { TerritoryChallengeArea, TerritoryKoth } from "./types/koth";
 import { UseIonToastResult } from "@ionic/react";
 import { router } from "@inertiajs/react";
+import { Vibrate } from "@/Utils/vibrate";
 
 export class TerritoryEvents extends GameEvents {
     constructor(toast: UseIonToastResult, playNotificationSound: () => void) {
@@ -19,6 +20,7 @@ export class TerritoryEvents extends GameEvents {
                     if (gameState.teamData.team.id == team.id) return;
 
                     playNotificationSound();
+                    Vibrate(100);
 
                     present({
                         message: `${team.name} heeft een koth punt geclaimed!`,
@@ -36,6 +38,7 @@ export class TerritoryEvents extends GameEvents {
                     if (gameState.teamData.team.id == team.id) return;
 
                     playNotificationSound();
+                    Vibrate(100);
 
                     present({
                         message: `${team.name} heeft het gebied '${area.name}' geclaimed!`,
@@ -50,6 +53,9 @@ export class TerritoryEvents extends GameEvents {
                 name: 'MissionAnswerIncorrectEvent',
                 channel: (gameState) => `team.${gameState.teamPlayer.team_id}`,
                 action: (gameState: GameStatePlaying, area: TerritoryChallengeArea) => {
+                    playNotificationSound();
+                    Vibrate(100);
+
                     present({
                         message: `Je antwoord voor de opdracht in gebied '${area.name}' was fout`,
                         duration: 10000,
@@ -63,6 +69,7 @@ export class TerritoryEvents extends GameEvents {
                 channel: (gameState) => `game.${gameState.game.id}`,
                 action: (gameState: GameStatePlaying, byTeam: Team, taggedTeam: Team) => {
                     playNotificationSound();
+                    Vibrate(100);
 
                     present({
                         message: `Team ${taggedTeam.name} is getikt door team ${byTeam.name}`,

@@ -17,6 +17,7 @@ export default function FormikSelect({ name, form, items, ...props }: Props) {
 
     return (
         <IonSelect 
+            value={form.values[name]}
             className={`${inValid === true && 'ion-invalid'} ${form.touched[name] && 'ion-touched'}`}
             onIonChange={(e) => {
                 form.setFieldValue(name, e.detail.value);

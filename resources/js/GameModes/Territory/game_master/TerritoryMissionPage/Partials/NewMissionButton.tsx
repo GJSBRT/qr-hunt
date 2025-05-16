@@ -113,9 +113,9 @@ export default function NewMissionButton({ game }: Props) {
                                 </IonToolbar>
                             </IonHeader>
 
-                            <IonContent className="ion-padding">
+                            <IonContent>
                                 <Form className="max-w-xl mx-auto" onSubmit={form.handleSubmit}>
-                                    <IonList>
+                                    <IonList lines='full'>
                                         <IonItem>
                                             <FormikField
                                                 form={form}
