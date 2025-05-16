@@ -75,6 +75,7 @@ export default function View(props: GameMasterProps) {
         let subscribedChannels: string[] = [];
         gameModeEvents.events.forEach((gameEvent) => {
             const channelName = gameEvent.channel(props.game, null);
+            if (!channelName) return;
 
             let channel: PusherPrivateChannel | null = null;
             if (echoChannels[channelName]) {

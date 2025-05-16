@@ -174,6 +174,7 @@ export default function GameLayout({ title, description, children, gameState, ..
         let subscribedChannels: string[] = [];
         gameModeEvents.events.forEach((gameEvent) => {
             const channelName = gameEvent.channel(gameStatePlaying.game, gameStatePlaying.teamData.team);
+            if (!channelName) return;
 
             let channel: PusherPrivateChannel | null = null;
             if (echoChannels[channelName]) {

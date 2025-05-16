@@ -23,7 +23,7 @@ export default function FormikImage({ name, form }: Props) {
             <IonButton style={{marginBottom: 8}} expand="block" size='small' onClick={takePicture}>Selecteer of neem een foto</IonButton>
 
             <IonImg
-                src={form.values[name]}
+                src={'data:image;base64,'+form.values[name]}
                 alt='Taken photo'
             />
         </div>

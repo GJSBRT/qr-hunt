@@ -349,7 +349,7 @@ class Territory extends GameMode
     }
 
     public function onGameStart() {
-        $teams = $this->territory->game()->teams()->get();
+        $teams = $this->game->teams()->get();
         $newTaggedTeam = $teams[rand(0, count($teams) - 1)];
 
         $tag = TerritoryTag::create([

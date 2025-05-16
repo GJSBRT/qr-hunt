@@ -35,8 +35,6 @@ export class TerritoryEvents extends GameEvents {
                 name: 'AreaClaimedEvent',
                 channel: (game) => `game.${game.id}`,
                 action: (gameState: GameStatePlaying|null, game: Game, team: Team, area: TerritoryChallengeArea) => {
-                    if (gameState && gameState.teamData.team.id == team.id) return;
-
                     playNotificationSound();
                     Vibrate(100);
 
@@ -51,7 +49,7 @@ export class TerritoryEvents extends GameEvents {
             },
             {
                 name: 'MissionAnswerIncorrectEvent',
-                channel: (game, team) => `team.${team?.id ?? 0}`,
+                channel: (game, team) => team ? `team.${team.id}` : null,
                 action: (gameState: GameStatePlaying|null, area: TerritoryChallengeArea) => {
                     playNotificationSound();
                     Vibrate(100);

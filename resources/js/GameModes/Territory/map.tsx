@@ -194,7 +194,7 @@ export class TerritoryMap extends GameMap {
                     if (area.metadata.claimed_by_team && area.metadata.claimed_by_team.id == gameState.teamData.team.id) {
                         return (
                             <IonButton disabled>
-                                Jouw team heeft dit punt al geclaimed
+                                Jouw team heeft dit gebied al geclaimed
                             </IonButton>
                         );
                     }

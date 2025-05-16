@@ -93,6 +93,8 @@ export class TerritoryGameMaster extends GameMaster {
                     }
 
                     useEffect(() => {
+                        if (missionAnswersToReview.length == 0) return;
+
                         let intervalId = setInterval(() => {
                             router.reload();
                         }, 5000);
@@ -100,7 +102,7 @@ export class TerritoryGameMaster extends GameMaster {
                         return function() {
                             clearInterval(intervalId);
                         };
-                    }, []);
+                    }, [missionAnswersToReview]);
 
                     return (
                         <>
@@ -134,7 +136,7 @@ export class TerritoryGameMaster extends GameMaster {
                                                     )}
 
                                                     {(missionAnswer.photo !== null) && (
-                                                        <IonImg src={'data:image;base64,'+missionAnswer.photo} alt='Submitted photo' />
+                                                        <IonImg src={'data:image;base64,'+missionAnswer.photo} alt='Submitted photo' style={{maxHeight: '50vh'}}/>
                                                     )}
                                                 </IonCardContent>
 

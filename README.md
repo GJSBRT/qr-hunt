@@ -14,9 +14,9 @@ Requirements other than the normal Laravel 11 requirements.
 - Mission answer self confirm
 - Mission answer correct answer for open answer
 - Submit videos
+- game start event
 ### Game master
 - Grafiekjes op dashboard over spel verloop.
 - Add power management 
 - Add point management 
-
 

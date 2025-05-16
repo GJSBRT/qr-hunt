@@ -3,7 +3,7 @@ import { Team } from "@/types/team";
 
 export interface GameEvent {
     name: string;
-    channel: (game: Game, team: Team|null) => string;
+    channel: (game: Game, team: Team|null) => string|null;
     action: (gameState: GameStatePlaying|null, ...args: any) => void;
 }
 
