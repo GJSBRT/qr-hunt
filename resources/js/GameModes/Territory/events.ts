@@ -3,7 +3,6 @@ import { Game, GameStatePlaying } from "@/types/game";
 import { Team } from "@/types/team";
 import { TerritoryChallengeArea, TerritoryKoth } from "./types/koth";
 import { UseIonToastResult } from "@ionic/react";
-import { TerritoryMissionAnswer } from "./types/mission";
 
 export class TerritoryEvents extends GameEvents {
     constructor(toast: UseIonToastResult) {

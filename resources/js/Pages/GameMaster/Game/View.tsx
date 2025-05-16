@@ -13,7 +13,7 @@ export default function View(props: GameMasterProps) {
     const urlParams = new URLSearchParams(window.location.search);
     const [page, setPage] = useState<string>(urlParams.get('page') ?? 'overview');
 
-    const changePage = function(e: CustomEvent<{
+    const changePage = function (e: CustomEvent<{
         tab: string;
     }>) {
         setPage(e.detail.tab);
@@ -38,7 +38,7 @@ export default function View(props: GameMasterProps) {
                     {page == 'overview' && <Overview {...props} />}
                     {page == 'teams' && <Teams {...props} />}
                     {page == 'score' && <Score {...props} />}
-                    {gameModeGameMaster.pages.map(({name, element: Element}) => (page === name) && <Element {...props} />)}
+                    {gameModeGameMaster.pages.map(({ name, element: Element }) => (page === name) && <Element {...props} />)}
                 </IonTab>
 
                 <IonTabBar translucent slot="bottom" selectedTab={page} onIonTabsWillChange={changePage}>
@@ -57,7 +57,7 @@ export default function View(props: GameMasterProps) {
                         Score
                     </IonTabButton>
 
-                    {gameModeGameMaster.pages.map(({name, label, icon}) => (
+                    {gameModeGameMaster.pages.map(({ name, label, icon }) => (
                         <IonTabButton tab={name} selected={page == name}>
                             <FontAwesomeIcon size='xl' icon={icon} />
                             {label}

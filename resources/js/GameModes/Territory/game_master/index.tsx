@@ -1,18 +1,25 @@
 import { GameMaster } from "@/Class/GameMode/game_master";
 import PullToRefresh from "@/Components/IonicComponents/PullToRefresh";
 import { GameMasterProps } from "@/types/game_master";
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonImg, IonItem, IonList, IonTitle, IonToolbar, useIonLoading, useIonToast } from "@ionic/react";
-import { TerritoryMission, TerritoryMissionAnswer } from "./types/mission";
+import { IonActionSheet, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonImg, IonItem, IonLabel, IonList, IonModal, IonTitle, IonToolbar, useIonLoading, useIonToast } from "@ionic/react";
+import { TerritoryMission, TerritoryMissionAnswer, TerritoryMissionMultipleChoiceAnswer } from "../types/mission";
 import { Team } from "@/types/team";
-import { faFilePen } from "@fortawesome/free-solid-svg-icons";
+import { faFilePen, faList } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import axios from "axios";
 import { router } from "@inertiajs/react";
+import { IonActionSheetCustomEvent } from "@/types";
+import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
+import TerritoryMissionPage from "./TerritoryMissionPage";
+import { Territory } from "../types";
 
 export interface TerritoryGameMasterProps extends GameMasterProps {
     missionAnswersToReview: Array<TerritoryMissionAnswer & {
         territory_mission: TerritoryMission;
         team: Team;
+    }>;
+    missions: Array<TerritoryMission & {
+        multiple_choices: TerritoryMissionMultipleChoiceAnswer[];
     }>;
 }
 
@@ -88,7 +95,6 @@ export class TerritoryGameMaster extends GameMaster {
                             })
                     }
 
-
                     return (
                         <>
                             <IonHeader>
@@ -135,6 +141,12 @@ export class TerritoryGameMaster extends GameMaster {
                         </>
                     )
                 }
+            },
+            {
+                name: 'mission',
+                label: 'Opdrachten',
+                icon: faList,
+                element: (props) => <TerritoryMissionPage {...props as TerritoryGameMasterProps}/>
             },
         ];
     }

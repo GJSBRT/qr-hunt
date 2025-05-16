@@ -7,6 +7,8 @@ export interface TerritoryMission extends DatabaseObject {
     answer_type: 'multiple_choice' | 'open_answer' | 'photo'
 };
 
+export type NewTerritoryMission = Omit<TerritoryMission, keyof DatabaseObject | 'territory_id'>;
+
 export interface TerritoryMissionAnswer extends DatabaseObject {
     territory_mission_id: number;
     team_id: number;

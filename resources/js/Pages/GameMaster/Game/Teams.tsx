@@ -1,16 +1,11 @@
 import PullToRefresh from "@/Components/IonicComponents/PullToRefresh";
+import { IonActionSheetCustomEvent } from "@/types";
 import { GameMasterProps } from "@/types/game_master";
 import { Team, TeamPlayer } from "@/types/team";
 import { router } from "@inertiajs/react";
 import { IonActionSheet, IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonModal, IonTitle, IonToolbar, useIonLoading, useIonToast } from "@ionic/react";
 import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import { useState } from "react";
-
-// Could not import
-interface IonActionSheetCustomEvent<T> extends CustomEvent<T> {
-    detail: T;
-    target: HTMLIonActionSheetElement;
-}
 
 export default function Teams({ game }: GameMasterProps) {
     const [showTeamActions, setShowTeamActions] = useState<boolean>(false);

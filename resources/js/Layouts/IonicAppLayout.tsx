@@ -13,6 +13,8 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
+import '@ionic/react/css/palettes/dark.system.css';
+
 import { IonApp } from "@ionic/react";
 import { ReactNode } from 'react';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';

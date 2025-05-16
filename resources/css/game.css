@@ -51,3 +51,26 @@
     margin-left: -12px !important;
     font-size: 0.75rem !important;
 }
+
+@media (prefers-color-scheme: dark) {
+    .leaflet-layer {
+        filter: invert(1) hue-rotate(180deg) grayscale(0.7);
+    }
+
+    .leaflet-control-zoom {
+        filter: invert(1) hue-rotate(180deg) grayscale(0.7);
+    }
+
+    .leaflet-container {
+        background: #0d0d0d;
+    }
+
+    .leaflet-container .leaflet-control-attribution a {
+        color: lightblue;
+    }
+
+    .leaflet-control-attribution {
+        background: rgba(0, 0, 0, 0.8) !important;
+        color: white;
+    }
+}

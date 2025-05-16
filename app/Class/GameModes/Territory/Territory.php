@@ -175,6 +175,20 @@ class Territory extends GameMode
 
                 return [];
             }),
+            "delete_mission" => new GameMasterAction("delete_mission", function (int $mission_id) {
+                $missionAnswer = $this->territory->territory_missions()->where('id', $mission_id)->firstOrFail();
+                $missionAnswer->delete();
+                return [];
+            }),
+            "create_mission" => new GameMasterAction("delete_mission", function (string $title, string $description, string $answer_type) {
+                TerritoryMission::create([
+                    'territory_id' => $this->territory->id,
+                    'title' => $title,
+                    'description' => $description,
+                    'answer_type' => $answer_type,
+                ]);
+                return [];
+            }),
         ];
 
         $this->gameActions = [
@@ -298,7 +312,8 @@ class Territory extends GameMode
 
     public function toGameMasterArray(): array {
         return [
-            'missionAnswersToReview' => $this->territory->territory_mission_answers()->where('marked_correct', null)->with(['territory_mission', 'team'])->get()
+            'missionAnswersToReview' => $this->territory->territory_mission_answers()->where('marked_correct', null)->with(['territory_mission', 'team'])->get(),
+            'missions' => $this->territory->territory_missions()->with(['multiple_choices'])->get(),
         ];
     }
 

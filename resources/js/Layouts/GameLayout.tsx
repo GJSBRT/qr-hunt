@@ -91,7 +91,7 @@ export default function GameLayout({ title, description, children, gameState, ..
 
     useEffect(() => {
         if (!echo) return;
-        if (!('teamData' in gameState) || gameState.game.status !== 'started') return; // Check if we're playing
+        if (gameState.teamPlayer === null || gameState.game.status !== 'started') return; // Check if we're playing
 
         const gameMode = GameModes[gameState.gameMode.gameMode];
         if (!gameMode) return;

@@ -38,3 +38,8 @@ export interface DatabaseObject {
     created_at: string;
     updated_at: string;
 };
+
+export interface IonActionSheetCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLIonActionSheetElement;
+}
