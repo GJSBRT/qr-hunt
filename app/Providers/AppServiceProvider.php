@@ -31,6 +31,10 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         Auth::viaRequest('guest', function (Request $request) {
+            if ($request->user()) {
+                return $request->user();
+            }
+
             return new User();
         });
     }

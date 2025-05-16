@@ -7,7 +7,7 @@ use App\Http\Controllers\GameMaster\TeamController;
 use App\Http\Controllers\GameMaster\TeamPlayerController;
 
 Route::prefix('/game-master')->middleware('auth')->group(function() {
-    Route::get('/', [GameController::class, 'index'])->name('game-master.index');
+    Route::get('/', [GameController::class, 'index'])->name('dashboard');
 
     Route::post('/game', [GameController::class, 'create'])->name('game-master.game.create');
 

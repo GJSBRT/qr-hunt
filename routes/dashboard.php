@@ -13,10 +13,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::prefix('/dashboard')->middleware(['auth', 'verified'])->group(function() {
-    Route::get('/', function () {
-        return Redirect::route('dashboard.games.index');
-    })->name('dashboard');
+Route::prefix('/dashboard')->middleware(['auth', 'verified'])->group(function() {;
     
     Route::prefix('games')->group(function() {
         Route::get('/', [GameController::class, 'index'])->name('dashboard.games.index');

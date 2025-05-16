@@ -4,7 +4,7 @@ import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonItem, IonLabel, I
 import FormikField from '@/Components/IonicComponents/FormikField';
 import IonicAppLayout from '@/Layouts/IonicAppLayout';
 
-export default function Welcome() {
+export default function Welcome({inGame}: {inGame: boolean}) {
     const [presentAlert] = useIonAlert();
 
     return (
@@ -72,6 +72,8 @@ export default function Welcome() {
                                             </form>
                                         )}
                                     </Formik>
+
+                                    {(inGame) && (<IonButton expand="block" style={{marginTop: '1rem'}} onClick={() => router.visit(route('game.index'))}>Terug naar huidig spel</IonButton>)}
                                 </IonCol>
                             </IonRow>
                         </IonGrid>
@@ -104,9 +106,6 @@ export default function Welcome() {
                                                         buttons: ['Sluiten'],
                                                     })
                                                 },
-                                                onSuccess: () => {
-                                                    
-                                                }
                                             })
                                         }}
                                     >

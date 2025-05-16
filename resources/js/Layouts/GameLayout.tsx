@@ -61,10 +61,10 @@ function GameModeFab({ gameState }: { gameState: GameState }) {
         gameModeFab = new (gameMode.fab)();
     }
 
-    const actions = useMemo<GameFabAction[]>(() => {
-        if (((!gameModeFab) || (gameModeFab.actions.length == 0))) return [];
-        if ((gameState.teamPlayer === null) && (gameState.game.status !== 'started')) return [];
+    if (((!gameModeFab) || (gameModeFab.actions.length == 0))) return <></>;
+    if ((gameState.teamPlayer === null) && (gameState.game.status !== 'started')) return <></>;
 
+    const actions = useMemo<GameFabAction[]>(() => {
         return gameModeFab.actions;
     }, [])
 
