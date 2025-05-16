@@ -44,6 +44,7 @@ export default function Teams({ game }: GameMasterProps) {
                     },
                     onSuccess: () => {
                         router.reload();
+                        setViewingTeam(null);
                     },
                     onError: (error) => {
                         let errors = '';

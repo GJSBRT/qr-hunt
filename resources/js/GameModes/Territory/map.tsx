@@ -87,7 +87,7 @@ export class TerritoryMap extends GameMap {
 
                     return (
                         <>
-                            <IonButton onClick={submit}>
+                            <IonButton onClick={submit} disabled={submitting}>
                                 Claim king of the hill {/* TODO: zoek een nederlandse naam */}
                             </IonButton>
                         </>

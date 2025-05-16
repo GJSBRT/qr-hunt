@@ -37,6 +37,7 @@ export class TerritoryFab extends GameFab {
                             })
                             .then(() => {
                                 router.reload();
+                                setShowModal(false);
 
                                 present({
                                     message: 'Je bent nu geen tikker meer. Je kan nu weer punten claimen.',
