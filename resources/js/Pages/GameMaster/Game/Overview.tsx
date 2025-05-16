@@ -74,7 +74,7 @@ export default function Overview({ game, gameMode }: GameMasterProps) {
                                 <IonTitle>Overzicht</IonTitle>
 
                                 <IonButtons slot="end">
-                                    <IonButton strong={true} onClick={() => form.submitForm()}>
+                                    <IonButton onClick={() => form.submitForm()}>
                                         Opslaan
                                     </IonButton>
                                 </IonButtons>
