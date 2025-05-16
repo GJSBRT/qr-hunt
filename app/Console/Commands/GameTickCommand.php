@@ -67,6 +67,7 @@ class GameTickCommand extends Command
                 break;
             case GameMode::END_TYPE_DURATION:
                 if (!$game->play_duration) break;
+                if (!$game->started_at) break;
                 if ($game->started_at->addSeconds($game->play_duration)->isAfter(Carbon::now())) break;
 
                 $results = $gameMode->getResults();

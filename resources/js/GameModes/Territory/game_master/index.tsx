@@ -127,7 +127,7 @@ export class TerritoryGameMaster extends GameMaster {
                                                     )}
 
                                                     {(missionAnswer.photo !== null) && (
-                                                        <IonImg src={missionAnswer.photo} alt='Submitted photo' />
+                                                        <IonImg src={'data:image;base64,'+missionAnswer.photo} alt='Submitted photo' />
                                                     )}
                                                 </IonCardContent>
 
