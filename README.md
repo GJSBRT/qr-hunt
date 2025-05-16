@@ -10,11 +10,9 @@ Requirements other than the normal Laravel 11 requirements.
 ## TODO
 - Haptics? (@capacitor/haptics)
 - Powers toevoegen
-- Tikker team
-- Move dashboard to mobile area
-- Add notifications (@capacitor/local-notifications)
+- Set random team as tagged when game starts 
 ### Game master
 - Grafiekjes op dashboard over spel verloop.
 - Add power management 
 - Add point management 
-- Add review of mission answers
+- Start game via game master area.

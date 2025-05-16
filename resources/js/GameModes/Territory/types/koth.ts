@@ -25,7 +25,7 @@ export interface TerritoryKothArea extends GameMapArea {
 
 export interface TerritoryChallengeArea extends GameMapArea {
     metadata: {
-        claimed_by_team: Team;
+        claimed_by_team: Team|null;
         mission: null|(TerritoryMission & {
             multiple_choices: TerritoryMissionMultipleChoiceAnswer[];
         });

@@ -10,6 +10,7 @@ import FormikRadio from "@/Components/IonicComponents/FormikRadio";
 import FormikTextArea from "@/Components/IonicComponents/FormikTextArea";
 import FormikImage from "@/Components/IonicComponents/FormikImage";
 import { NewTerritoryMissionAnswer } from "./types/mission";
+import { TerritoryGameStatePlaying } from "./types";
 
 export class TerritoryMap extends GameMap {
     constructor() {
@@ -96,7 +97,9 @@ export class TerritoryMap extends GameMap {
             },
             {
                 type: "in_zone",
-                element: ({ area, gameState }: { area: TerritoryChallengeArea } & Omit<GameMapAreaActionElementProps, 'area'>) => {
+                element: (props) => {
+                    const { area, gameState } = props as { area: TerritoryChallengeArea, gameState: TerritoryGameStatePlaying }; 
+
                     if (area.gameType != 'challenge') return <></>;
 
                     const [presentLoading, dismissLoading] = useIonLoading();
@@ -180,13 +183,29 @@ export class TerritoryMap extends GameMap {
                             })
                     }
 
-                    if (area.metadata.claimed_by_team && area.metadata.claimed_by_team.id == gameState.teamData.team.id) {
+                    if (area.metadata.claimed_by_team !== null) {
                         return (
                             <IonButton disabled>
-                                Jouw team heeft dit punt al geclaimed
+                                Dit gebied is al geclaimed
                             </IonButton>
                         );
                     }
+
+                    if (gameState.teamData.isTagged) {
+                        return (
+                            <IonButton disabled>
+                                Je kan niet claimen als de tikker
+                            </IonButton>
+                        );
+                    }
+
+                    // if (area.metadata.claimed_by_team.id == gameState.teamData.team.id) {
+                    //     return (
+                    //         <IonButton disabled>
+                    //             Jouw team heeft dit punt al geclaimed
+                    //         </IonButton>
+                    //     );
+                    // }
 
                     const initialValues: NewTerritoryMissionAnswer = {
                         multiple_choice_id: null,

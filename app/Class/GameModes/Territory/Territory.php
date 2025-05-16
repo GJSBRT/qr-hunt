@@ -11,6 +11,7 @@ use App\Class\GameMode;
 use App\Class\GameModes\Territory\Events\AreaClaimedEvent;
 use App\Class\GameModes\Territory\Events\KothClaimedEvent;
 use App\Class\GameModes\Territory\Events\MissionAnswerIncorrectEvent;
+use App\Class\GameModes\Territory\Events\TeamTaggedEvent;
 use App\Class\GameState;
 use App\Class\TeamScore;
 use App\Exceptions\GameModeException;
@@ -22,6 +23,7 @@ use App\Models\TerritoryKoth;
 use App\Models\TerritoryKothClaim;
 use App\Models\TerritoryMission;
 use App\Models\TerritoryMissionAnswer;
+use App\Models\TerritoryTag;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
@@ -35,6 +37,7 @@ class Territory extends GameMode
     const GAME_MAP_AREA_TYPE_KOTH = 'koth';
 
     private ModelsTerritory $territory;
+    private ?TerritoryTag $currentTag = null;
 
     /**
      * The available end types for this game mode.
@@ -109,7 +112,7 @@ class Territory extends GameMode
                 opacity: 0.2,
                 displayName: true,
                 gameType: self::GAME_MAP_AREA_TYPE_CHALLENGE,
-                color: $claimedByTeam ? $this->stringToColorCode($claimedByTeam->name) :'gray',
+                color: $claimedByTeam ? $this->stringToColor($claimedByTeam->name) :'gray',
                 metadata: [
                     'claimed_by_team' => $claimedByTeam,
                     'mission' => $territoryArea->territory_mission()->with(['multiple_choices'])->first(),
@@ -132,25 +135,14 @@ class Territory extends GameMode
             );
         }
 
-        $teamPlayer = null;
-        try {
-            $teamPlayerId = request()->session()->get(GameState::SESSION_KEY_TEAM_PLAYER_ID);
-            if (!$teamPlayerId) {
-                return;
-            }
-
-            $teamPlayer = TeamPlayer::where("id", $teamPlayerId)->first();
-        } catch (RuntimeException $e) {} catch (\Exception $e) {
-            throw $e;
-        }
+        $this->currentTag = $this->territory->territory_tags()->orderBy('created_at', 'desc')->first();
 
         $this->gameMap = new GameMap(
             showPlayerLocation: true,
-            playerLocationColor: $teamPlayer ? $this->stringToColorCode($teamPlayer->team()->first()->name) : GameMap::DEFAULT_PLAYER_LOCATION_MARKER_COLOR,
             shareLocationDataToServer: true,
-            playersWhichCanViewOthersLocations: [],
             startLocationMarker: $startLocationMarker,
             areas: $areas,
+            teamIdsWhichCanViewOthersLocations: $this->currentTag ? [$this->currentTag->team_id] : [],
         );
 
         $this->gameMasterActions = [
@@ -200,6 +192,12 @@ class Territory extends GameMode
                     ]);
                 }
 
+                if ($this->currentTag && $this->currentTag->team_id == $gameState->team->id) {
+                    throw ValidationException::withMessages([
+                        'tagged' => 'You may not claim while tagged'
+                    ]);
+                }
+
                 $lastClaim = $dbKoth->claims()->orderBy('claimed_at', 'desc')->first();
                 if ($lastClaim) {
                     throw ValidationException::withMessages([
@@ -228,6 +226,12 @@ class Territory extends GameMode
                 if ($dbArea->team_id == $gameState->team->id) {
                     throw ValidationException::withMessages([
                         'areaId' => 'You already have claimed this area.'
+                    ]);
+                }
+
+                if ($this->currentTag && $this->currentTag->team_id == $gameState->team->id) {
+                    throw ValidationException::withMessages([
+                        'tagged' => 'You may not claim while tagged'
                     ]);
                 }
 
@@ -300,6 +304,22 @@ class Territory extends GameMode
                     'correct' => $correct
                 ];
             }),
+            "tag_team" => new GameAction("tag_team", function (GameState $gameState, int $team_id) {
+                if ($gameState->teamPlayer->team_id == $team_id) {
+                    throw ValidationException::withMessages([
+                        'team_id' => 'You cannot tag your own team'
+                    ]);
+                }
+
+                $tag = TerritoryTag::create([
+                    'territory_id' => $this->territory->id,
+                    'team_id' => $team_id,
+                ]);
+
+                TeamTaggedEvent::dispatch($this->game, $gameState->team, $tag->team()->first());
+
+                return [];
+            }),
         ];
     }
 
@@ -307,6 +327,7 @@ class Territory extends GameMode
     {
         return [
             ...parent::getTeamData($team),
+            'isTagged' => $this->currentTag ? $this->currentTag->team_id === $team->id : false,
         ];
     }
 
@@ -366,10 +387,20 @@ class Territory extends GameMode
         return array_values($results);
     }
 
-    // from: https://stackoverflow.com/questions/3724111/how-can-i-convert-strings-to-an-html-color-code-hash
-    private function stringToColorCode($str) {
-        $code = dechex(crc32($str));
-        $code = substr($code, 0, 6);
-        return "#".$code;
+    private function stringToColor(string $str): string {
+        $str = $str . $str;
+
+        $hash = 0;
+        for ($i = 0; $i < strlen($str); $i++) {
+            $hash = ord($str[$i]) + (($hash << 5) - $hash);
+        }
+
+        $color = '#';
+        for ($i = 0; $i < 3; $i++) {
+            $value = ($hash >> ($i * 8)) & 0xFF;
+            $color .= str_pad(dechex($value), 2, '0', STR_PAD_LEFT);
+        }
+
+        return $color;
     }
 }

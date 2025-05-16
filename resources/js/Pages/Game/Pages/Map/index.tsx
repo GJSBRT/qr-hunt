@@ -1,6 +1,6 @@
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
 import { Circle, CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMapEvents } from "react-leaflet";
@@ -9,6 +9,10 @@ import { IonContent, IonFabButton, IonHeader, IonItem, IonText, IonTitle, IonToo
 import { GameStatePlaying } from "@/types/game";
 import GameModes from '@/GameModes/gamemodes';
 import { HaversineDistance, IsPointInPolygon } from '@/Utils/polygons';
+import { SocketContext } from '@/Layouts/GameLayout';
+import moment from 'moment';
+import { Team, TeamPlayer } from '@/types/team';
+import { StringToColor } from '@/Utils/color';
 
 interface GeolocationPosition {
     lat: number
@@ -34,7 +38,7 @@ function StartLocationMarker({ location }: { location: GeolocationPosition }) {
     );
 };
 
-function UserLocationMarker({ location, color }: { location: GeolocationPosition, color: string }) {
+function UserLocationMarker({ location, color, ringColor }: { location: GeolocationPosition, color: string, ringColor?: string }) {
     const map = useMapEvents({});
     const [position, setPosition] = useState<GeolocationPosition>({
         lat: location.lat,
@@ -65,7 +69,7 @@ function UserLocationMarker({ location, color }: { location: GeolocationPosition
                     fillOpacity: 1,
                     opacity: 1,
                     weight: 5,
-                    color: '#ffffff',
+                    color: ringColor ?? '#ffffff',
                 }}
                 radius={10}
                 className='pulse'
@@ -82,11 +86,22 @@ function UserLocationMarker({ location, color }: { location: GeolocationPosition
     );
 }
 
+const UPDATE_PLAYER_LOCATION_SECONDS = 3;
+
+interface PlayerLocationEvent {
+    team: Team;
+    teamPlayer: TeamPlayer;
+    position: GeolocationPosition;
+}
+
 export default function Map({ gameState }: { gameState: GameStatePlaying }) {
     const [presentToast] = useIonToast();
     const [renderMap, setRenderMap] = useState(false);
     const [locationStatus, setLocationStatus] = useState<'accessed' | 'denied' | 'error' | null>(null);
     const [position, setPosition] = useState<GeolocationPosition | null>(null);
+    const [lastPositionSent, setLastPositionSent] = useState<number>(0);
+    const [playerLocations, setPlayerLocations] = useState<{[key: number]: PlayerLocationEvent}>({});
+    const echo = useContext(SocketContext);
     const [actionElements, setActionElements] = useState<{
         element: (...args: any) => JSX.Element
         props: {[key: string]: any}
@@ -105,6 +120,38 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
     }, []);
 
     useEffect(() => {
+        if (!echo) return;
+        if (!position) return;
+        if (!gameState.gameMode.gameMap?.shareLocationDataToServer) return;
+        if ((moment().unix() - lastPositionSent) <= UPDATE_PLAYER_LOCATION_SECONDS) return;
+
+        setLastPositionSent(moment().unix());
+
+        echo.private(`game.${gameState.game.id}`)
+            .whisper('player_location', {
+                team: gameState.teamData.team,
+                teamPlayer: gameState.teamPlayer,
+                position: position,
+            });
+    }, [echo, position]);
+
+    useEffect(() => {
+        if (!echo) return;
+        if (!gameState.gameMode.gameMap?.shareLocationDataToServer) return;
+        if ((moment().unix() - lastPositionSent) <= UPDATE_PLAYER_LOCATION_SECONDS) return;
+
+        setLastPositionSent(moment().unix());
+
+        echo.private(`game.${gameState.game.id}`)
+            .listenForWhisper('player_location', (e: PlayerLocationEvent) => {
+                setPlayerLocations({
+                    ...playerLocations,
+                    [e.teamPlayer.id]: e
+                });
+            });
+    }, [echo]);
+
+    useEffect(() => {
         if (!('geolocation' in navigator)) {
             return;
         }
@@ -114,8 +161,8 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
             let currentLng = position.coords.longitude;
 
             if (import.meta.env.DEV) {
-                currentLat = import.meta.env.VITE_DEV_COORDS_LAT,
-                currentLng = import.meta.env.VITE_DEV_COORDS_LONG
+                currentLat = parseFloat(import.meta.env.VITE_DEV_COORDS_LAT) + (Math.random() / 10000),
+                currentLng = parseFloat(import.meta.env.VITE_DEV_COORDS_LONG) + (Math.random() / 10000)
             }
 
             setPosition({
@@ -236,7 +283,10 @@ export default function Map({ gameState }: { gameState: GameStatePlaying }) {
                             })}
 
                             {(gameState.gameMode.gameMap.startLocationMarker) && <StartLocationMarker location={gameState.gameMode.gameMap.startLocationMarker} />}
-                            {(position && locationStatus == 'accessed') && <UserLocationMarker color={gameState.gameMode.gameMap.playerLocationColor} location={position} />}
+                            {(position && locationStatus == 'accessed') && <UserLocationMarker color={StringToColor(gameState.teamData.team.name)} ringColor='#2563eb' location={position} />}
+                            {gameState.gameMode.gameMap.teamIdsWhichCanViewOthersLocations.includes(gameState.teamPlayer.team_id) && (Object.values(playerLocations).map(playerLocation => (
+                                <UserLocationMarker color={StringToColor(playerLocation.team.name)} location={playerLocation.position} />
+                            )))}
                         </MapContainer>
                     </div>
                     :

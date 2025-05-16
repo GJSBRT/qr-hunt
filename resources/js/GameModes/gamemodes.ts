@@ -4,6 +4,8 @@ import { GameEvents } from "@/Class/GameMode/events";
 import { TerritoryEvents } from "./Territory/events";
 import { GameMaster } from "@/Class/GameMode/game_master";
 import { TerritoryGameMaster } from "./Territory/game_master";
+import { GameFab } from "@/Class/GameMode/fab";
+import { TerritoryFab } from "./Territory/fab";
 
 interface GameModesInterface {
     [key: string]: {
@@ -11,6 +13,7 @@ interface GameModesInterface {
         map?: typeof GameMap;
         events?: typeof GameEvents;
         game_master?: typeof GameMaster;
+        fab?: typeof GameFab;
     }
 }
 
@@ -19,7 +22,8 @@ const GameModes: GameModesInterface = {
         label: 'Territory',
         map: TerritoryMap,
         events: TerritoryEvents,
-        game_master: TerritoryGameMaster
+        game_master: TerritoryGameMaster,
+        fab: TerritoryFab
     },
 }
 

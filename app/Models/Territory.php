@@ -28,6 +28,10 @@ class Territory extends Model
         return $this->hasMany(TerritoryArea::class, 'territory_id', 'id');
     }
 
+    public function territory_tags() {
+        return $this->hasMany(TerritoryTag::class, 'territory_id', 'id');
+    }
+
     public function territory_missions() {
         return $this->hasMany(TerritoryMission::class, 'territory_id', 'id');
     }

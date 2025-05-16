@@ -6,27 +6,20 @@ namespace App\Class;
  * This class holds configuration information about the game map.
  */
 class GameMap {
-    const DEFAULT_PLAYER_LOCATION_MARKER_COLOR = '#2563eb';
-
     public function __construct(
         protected bool $showPlayerLocation = true,
-        protected string $playerLocationColor = self::DEFAULT_PLAYER_LOCATION_MARKER_COLOR,
         protected bool $shareLocationDataToServer = false,
-        protected array $playersWhichCanViewOthersLocations = [], 
+        protected array $teamIdsWhichCanViewOthersLocations = [], 
         protected ?GeoLocation $startLocationMarker = null, // Long, lat in array
         protected array $areas = [], // array of GameMapArea
     ) {}
 
-    public function updatePlayersWhichCanViewOthersLocations(array $players) {
-        $this->playersWhichCanViewOthersLocations = $players;
-    }
-
     public function toArray() {
         return [
             'showPlayerLocation' => $this->showPlayerLocation,
-            'playerLocationColor' => $this->playerLocationColor,
             'shareLocationDataToServer' => $this->shareLocationDataToServer,
             'startLocationMarker' => $this->startLocationMarker,
+            'teamIdsWhichCanViewOthersLocations' => $this->teamIdsWhichCanViewOthersLocations,
             'areas' => $this->areas,
         ];
     }
