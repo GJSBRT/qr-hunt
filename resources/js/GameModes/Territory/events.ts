@@ -15,9 +15,9 @@ export class TerritoryEvents extends GameEvents {
         this.events = [
             {
                 name: 'KothClaimedEvent',
-                channel: (gameState) => `game.${gameState.game.id}`,
-                action: (gameState: GameStatePlaying, game: Game, team: Team, koth: TerritoryKoth) => {
-                    if (gameState.teamData.team.id == team.id) return;
+                channel: (game) => `game.${game.id}`,
+                action: (gameState: GameStatePlaying|null, game: Game, team: Team, koth: TerritoryKoth) => {
+                    if (gameState && gameState.teamData.team.id == team.id) return;
 
                     playNotificationSound();
                     Vibrate(100);
@@ -33,9 +33,9 @@ export class TerritoryEvents extends GameEvents {
             },
             {
                 name: 'AreaClaimedEvent',
-                channel: (gameState) => `game.${gameState.game.id}`,
-                action: (gameState: GameStatePlaying, game: Game, team: Team, area: TerritoryChallengeArea) => {
-                    if (gameState.teamData.team.id == team.id) return;
+                channel: (game) => `game.${game.id}`,
+                action: (gameState: GameStatePlaying|null, game: Game, team: Team, area: TerritoryChallengeArea) => {
+                    if (gameState && gameState.teamData.team.id == team.id) return;
 
                     playNotificationSound();
                     Vibrate(100);
@@ -51,8 +51,8 @@ export class TerritoryEvents extends GameEvents {
             },
             {
                 name: 'MissionAnswerIncorrectEvent',
-                channel: (gameState) => `team.${gameState.teamPlayer.team_id}`,
-                action: (gameState: GameStatePlaying, area: TerritoryChallengeArea) => {
+                channel: (game, team) => `team.${team?.id ?? 0}`,
+                action: (gameState: GameStatePlaying|null, area: TerritoryChallengeArea) => {
                     playNotificationSound();
                     Vibrate(100);
 
@@ -66,13 +66,18 @@ export class TerritoryEvents extends GameEvents {
             },
             {
                 name: 'TeamTaggedEvent',
-                channel: (gameState) => `game.${gameState.game.id}`,
-                action: (gameState: GameStatePlaying, byTeam: Team, taggedTeam: Team) => {
+                channel: (game) => `game.${game.id}`,
+                action: (gameState: GameStatePlaying|null, byTeam: Team|null, taggedTeam: Team) => {
                     playNotificationSound();
                     Vibrate(100);
 
+                    let message = `Team ${taggedTeam.name} is nu de tikker`;
+                    if (byTeam) {
+                        message = `Team ${taggedTeam.name} is getikt door team ${byTeam.name}`;
+                    }
+
                     present({
-                        message: `Team ${taggedTeam.name} is getikt door team ${byTeam.name}`,
+                        message: message,
                         duration: 10000,
                         position: 'top',    
                         color: 'warning',

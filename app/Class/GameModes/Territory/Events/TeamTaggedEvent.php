@@ -16,7 +16,7 @@ class TeamTaggedEvent implements ShouldBroadcastNow
 
     public function __construct(
         private Game $game,
-        private Team $byTeam,
+        private ?Team $byTeam,
         private Team $taggedTeam,
     ) {}
 

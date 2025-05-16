@@ -63,7 +63,7 @@ function GameModeFab({ gameState }: { gameState: GameState }) {
     }
 
     if (((!gameModeFab) || (gameModeFab.actions.length == 0))) return <></>;
-    if ((gameState.teamPlayer === null) && (gameState.game.status !== 'started')) return <></>;
+    if ((gameState.teamPlayer === null) || (gameState.game.status !== 'started')) return <></>;
 
     const actions = useMemo<GameFabAction[]>(() => {
         return gameModeFab.actions;
@@ -173,7 +173,7 @@ export default function GameLayout({ title, description, children, gameState, ..
 
         let subscribedChannels: string[] = [];
         gameModeEvents.events.forEach((gameEvent) => {
-            const channelName = gameEvent.channel(gameStatePlaying);
+            const channelName = gameEvent.channel(gameStatePlaying.game, gameStatePlaying.teamData.team);
 
             let channel: PusherPrivateChannel | null = null;
             if (echoChannels[channelName]) {

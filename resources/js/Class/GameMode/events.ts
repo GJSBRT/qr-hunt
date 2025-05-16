@@ -1,9 +1,10 @@
-import { GameStatePlaying } from "@/types/game";
+import { Game, GameStatePlaying } from "@/types/game";
+import { Team } from "@/types/team";
 
 export interface GameEvent {
     name: string;
-    channel: (gameState: GameStatePlaying) => string;
-    action: (gameState: GameStatePlaying, ...args: any) => void;
+    channel: (game: Game, team: Team|null) => string;
+    action: (gameState: GameStatePlaying|null, ...args: any) => void;
 }
 
 export class GameEvents {

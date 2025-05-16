@@ -67,4 +67,9 @@ class GameMode {
     public function getResults(): array|null {
         return null;
     }
+
+    /**
+     * Ran when the game starts. Useful for extra game initialization.
+     */
+    public function onGameStart() {}
 }

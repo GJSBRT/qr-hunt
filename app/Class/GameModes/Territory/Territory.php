@@ -127,7 +127,7 @@ class Territory extends GameMode
                 id: 'koth:' . $territoryKoth->id,
                 name: 'Koth #' . $idx + 1, // TODO: add in db
                 geoLocations: [(new GeoLocation($territoryKoth->lng, $territoryKoth->lat))],
-                radius: 10,
+                radius: 20,
                 type: 'circle',
                 color: $claimedByTeam ? $this->stringToColor($claimedByTeam->claim_team->name) : 'gray',
                 opacity: 0.2,
@@ -346,6 +346,18 @@ class Territory extends GameMode
             'missionAnswersToReview' => $this->territory->territory_mission_answers()->where('marked_correct', null)->with(['territory_mission', 'team'])->get(),
             'missions' => $this->territory->territory_missions()->with(['multiple_choices'])->get(),
         ];
+    }
+
+    public function onGameStart() {
+        $teams = $this->territory->game()->teams()->get();
+        $newTaggedTeam = $teams[rand(0, count($teams) - 1)];
+
+        $tag = TerritoryTag::create([
+            'territory_id' => $this->territory->id,
+            'team_id' => $newTaggedTeam->id,
+        ]);
+
+        TeamTaggedEvent::dispatch($this->game, null, $tag->team()->first());
     }
 
     public function getResults(): array|null {

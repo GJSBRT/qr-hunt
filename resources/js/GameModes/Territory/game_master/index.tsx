@@ -1,17 +1,14 @@
 import { GameMaster } from "@/Class/GameMode/game_master";
 import PullToRefresh from "@/Components/IonicComponents/PullToRefresh";
 import { GameMasterProps } from "@/types/game_master";
-import { IonActionSheet, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonImg, IonItem, IonLabel, IonList, IonModal, IonTitle, IonToolbar, useIonLoading, useIonToast } from "@ionic/react";
+import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonHeader, IonImg, IonItem, IonLabel, IonList, IonModal, IonTitle, IonToolbar, useIonLoading, useIonToast } from "@ionic/react";
 import { TerritoryMission, TerritoryMissionAnswer, TerritoryMissionMultipleChoiceAnswer } from "../types/mission";
 import { Team } from "@/types/team";
 import { faFilePen, faList } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { router } from "@inertiajs/react";
-import { IonActionSheetCustomEvent } from "@/types";
-import { OverlayEventDetail } from "@ionic/react/dist/types/components/react-component-lib/interfaces";
 import TerritoryMissionPage from "./TerritoryMissionPage";
-import { Territory } from "../types";
 
 export interface TerritoryGameMasterProps extends GameMasterProps {
     missionAnswersToReview: Array<TerritoryMissionAnswer & {
@@ -94,6 +91,16 @@ export class TerritoryGameMaster extends GameMaster {
                                 }
                             })
                     }
+
+                    useEffect(() => {
+                        let intervalId = setInterval(() => {
+                            router.reload();
+                        }, 5000);
+
+                        return function() {
+                            clearInterval(intervalId);
+                        };
+                    }, []);
 
                     return (
                         <>

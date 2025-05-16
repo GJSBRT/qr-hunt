@@ -43,6 +43,12 @@ class GameTickCommand extends Command
                 $game->status = Game::STATUS_STARTED;
                 $game->started_at = Carbon::now();
                 $game->save();
+
+                $gameMode = $game->getGameMode();
+                if ($gameMode) {
+                    $gameMode->onGameStart();
+                }
+
                 GameStartedEvent::dispatch($game);
                 return;
             case Game::STATUS_STARTED:

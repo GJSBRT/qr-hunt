@@ -1,5 +1,5 @@
 import 'leaflet/dist/leaflet.css';
-import { IonTab, IonTabBar, IonTabButton, IonTabs } from "@ionic/react";
+import { IonTab, IonTabBar, IonTabButton, IonTabs, useIonToast } from "@ionic/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faMap, faTrophy, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
@@ -13,11 +13,14 @@ import Map from "./Map";
 import Echo from "laravel-echo";
 import Pusher from "pusher-js";
 import { SocketContext } from "@/Layouts/GameLayout";
+import { PusherPrivateChannel } from 'laravel-echo/dist/channel';
 
 export default function View(props: GameMasterProps) {
     const urlParams = new URLSearchParams(window.location.search);
+    const toast = useIonToast();
     const [echo, setEcho] = useState<Echo<"pusher"> | null>(null);
     const [page, setPage] = useState<string>(urlParams.get('page') ?? 'overview');
+    const [echoChannels, setEchoChannels] = useState<{ [key: string]: PusherPrivateChannel }>({});
 
     const changePage = function (e: CustomEvent<{
         tab: string;
@@ -58,6 +61,40 @@ export default function View(props: GameMasterProps) {
             setEcho(window.Echo);
         }
     }, []);
+
+    useEffect(() => {
+        if (!echo) return;
+        if (props.game.status !== 'started') return; // Check if we're playing
+
+        const gameMode = GameModes[props.game.game_mode];
+        if (!gameMode) return;
+        if (!gameMode.events) return;
+
+        const gameModeEvents = new (gameMode.events)(toast, () => {});
+
+        let subscribedChannels: string[] = [];
+        gameModeEvents.events.forEach((gameEvent) => {
+            const channelName = gameEvent.channel(props.game, null);
+
+            let channel: PusherPrivateChannel | null = null;
+            if (echoChannels[channelName]) {
+                channel = echoChannels[channelName];
+            } else {
+                channel = echo.private(channelName);
+                setEchoChannels({ ...echoChannels, [channelName]: channel });
+            }
+
+            channel.listen(".App\\Class\\GameModes\\" + gameMode.label + "\\Events\\" + gameEvent.name, (data: any) => gameEvent.action(null, ...Object.values(data)));
+            subscribedChannels.push(channelName);
+        });
+
+        return () => {
+            subscribedChannels.forEach((channel) => {
+                if (channel == `game.${props.game.id}`) return;
+                echo.leave(channel);
+            });
+        };
+    }, [echo, props.game]);
 
     const gameMode = GameModes[props.game.game_mode];
     if (!gameMode) return <></>;
