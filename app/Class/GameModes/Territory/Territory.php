@@ -122,7 +122,7 @@ class Territory extends GameMode
 
         foreach ($this->territory->territory_koths as $idx => $territoryKoth) {
             $areas[] = new GameMapArea(
-                id: 'koth:' . $territoryArea->id,
+                id: 'koth:' . $territoryKoth->id,
                 name: 'Koth #' . $idx + 1, // TODO: add in db
                 geoLocations: [(new GeoLocation($territoryKoth->lng, $territoryKoth->lat))],
                 radius: 10,
