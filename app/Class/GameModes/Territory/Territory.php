@@ -121,16 +121,19 @@ class Territory extends GameMode
         }
 
         foreach ($this->territory->territory_koths as $idx => $territoryKoth) {
+            $claimedByTeam = $territoryKoth->claims()->orderBy('claimed_at', 'desc')->with('claim_team')->first();
+
             $areas[] = new GameMapArea(
                 id: 'koth:' . $territoryKoth->id,
                 name: 'Koth #' . $idx + 1, // TODO: add in db
                 geoLocations: [(new GeoLocation($territoryKoth->lng, $territoryKoth->lat))],
                 radius: 10,
                 type: 'circle',
+                color: $claimedByTeam ? $this->stringToColor($claimedByTeam->claim_team->name) : 'gray',
                 opacity: 0.2,
                 gameType: self::GAME_MAP_AREA_TYPE_KOTH,
                 metadata: [
-                    'claimed_by_team' => $territoryKoth->claims()->orderBy('claimed_at', 'desc')->with('claim_team')->first()
+                    'claimed_by_team' => $claimedByTeam,
                 ]
             );
         }

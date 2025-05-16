@@ -49,7 +49,7 @@ class GameMode {
 
         return [
             'team' => $team,
-            'gamePowers' => $this->game->powers()->where('owner_team_id', $team->id)->get(),
+            'gamePowers' => [],
         ];
     }
 
