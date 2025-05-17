@@ -154,6 +154,8 @@ export default function Overview({ game, gameMode }: GameMasterProps) {
                                     </IonItem>
                                 </IonList>
                             </Form>
+
+                            <div style={{ margin: '1rem', maxWidth: '75rem' }} dangerouslySetInnerHTML={{ __html: gameMode.gameDescriptionHtml }}></div>
                         </IonContent>
                     </>
                 )}

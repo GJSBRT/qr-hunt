@@ -52,26 +52,26 @@ class Territory extends GameMode
     ) {
         $this->gameMode = self::GAME_MODE_TYPE;
         $this->gameDescriptionHtml = <<<HTML
-            <h2>Spel regels</h2>
+            <h2>Uitleg</h2>
             <ul>
                 <li>
-                    Iedereen wordt in teams verdeeld en een gebied ook. Het doel is om als team zo veel mogelijke delen geclaimed te hebben. Om een deel te claimen moet je een korte opdracht doen binnen het deel. Als een deel geclaimd is door een team kunnen andere teams dat deel nogsteeds claimen.
+                    Iedereen wordt in teams verdeeld en een gebied ook. Het doel is om als team zo veel mogelijke delen geclaimed te hebben binnen de tijd. Om een gebied te claimen moet je een korte opdracht doen binnen het gebied. Geclaimde gebieden kunnen opnieuw geclaimed worden door een ander team.
                 </li>
 
                 <li>
-                    In het midden van de binnenstad is er een glazen engel. Deze engel kan geclaimed worden. Wanneer deze geclaimed is krijgt het team voor elke 5 minuten een extra bonus punt. Wanneer deze geclaimed is krijgen alle teams hier bericht van.
+                    Er zijn meerdere "king of the hill" punten. Dit zijn ronde circles. Voor elke 5 minuten dat je dit punt geclaimed hebt krijg je een punt. Je hoeft voor deze punten geen opdracht te doen.
                 </li>
 
                 <li>
-                    Er is telkens ook een team een tikker. Dit team mag geen delen claimen en moet eerst een persoon van een ander team tikken, waardoor dit team de tikker wordt. De tikker krijgt de locaties te zien van alle teams. De tikker mag niet terug tikken.
+                    Wanneer een team een punt claimt krijgt iedereen hier bericht van.
                 </li>
 
                 <li>
-                    Teams mogen niet splitsen.
+                    Er is telkens ook een team een tikker. Het tikker team mag geen punten claimen. Het tikker team krijgt de locaties te zien van alle spelers. Om punten weer te mogen claimen moet je als tikker eerst een ander team tikken en het stokje overdragen.
                 </li>
 
                 <li>
-                    Op bepaalde plekken kan je power up/downs krijgen. Deze kunnen maar door een team gepakt worden.
+                    Als team mag je niet splitsen.
                 </li>
             </ul>
         HTML;
