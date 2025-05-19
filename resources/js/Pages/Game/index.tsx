@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBolt, faHome, faMap } from "@fortawesome/free-solid-svg-icons";
 import GameLayout from "@/Layouts/GameLayout";
 import { useState } from "react";
-import Powers from "./Pages/Powers";
 
 export default function Game({ gameState }: { gameState: GameStatePlaying }) {
     const urlParams = new URLSearchParams(window.location.search);

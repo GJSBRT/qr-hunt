@@ -1,8 +1,5 @@
-import { LatLngExpression, LatLngLiteral } from "leaflet";
+import { LatLngLiteral } from "leaflet";
 import { DatabaseObject } from ".";
-import { Power } from "./power";
-import { QRCode, TeamQRCode } from "./qr_code";
-import { Quartet } from "./quartet";
 import { Team, TeamPlayer, TeamScanFreeze } from "./team";
 
 export interface Game extends DatabaseObject {

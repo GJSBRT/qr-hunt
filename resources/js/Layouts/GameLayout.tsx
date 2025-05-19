@@ -305,7 +305,6 @@ export default function GameLayout({ title, description, children, gameState, ..
                         setLocationStatus: setLocationStatus
                     }}>
                         <GameOverScreen game={gameState.game} />
-                        {/* {gameState.team && <PowerActivatedScreen team={gameState.team} />} */}
 
                         <div {...props}>
                             {children}

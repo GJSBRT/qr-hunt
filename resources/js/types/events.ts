@@ -1,5 +1,4 @@
 import { Game } from "./game";
-import { Power } from "./power";
 import { Team } from "./team";
 
 export interface GameStartedEvent {
@@ -18,7 +17,3 @@ export interface TeamWonEvent {
 
 export interface LobbyUpdatedEvent {};
 
-export interface PowerActivatedEvent {
-    power: Power;
-    fromTeam: Team|null;
-};
