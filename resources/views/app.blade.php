@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="manifest" href="/build/manifest.webmanifest">
 
-    <title inertia>QR Hunt</title>
+    <title inertia>Playmix</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
