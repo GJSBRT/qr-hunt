@@ -14,9 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
-        //
     })
-    ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })
+    ->withCommands([
+        __DIR__.'/../app/Console/Commands',
+        ...glob('app/GameModes/*/Commands', GLOB_ONLYDIR)
+    ])
+    ->withExceptions(function (Exceptions $exceptions) {})
     ->create();

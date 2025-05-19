@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\GameModes\Territory\Commands;
 
 use App\GameModes\Territory\Models\TerritoryArea;
 use App\GameModes\Territory\Models\TerritoryAreaPoint;
@@ -13,7 +13,7 @@ class ImportFromGoogleMapsCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import-from-google-maps {file}';
+    protected $signature = 'territory:import-from-google-maps {file}';
 
     /**
      * The console command description.
