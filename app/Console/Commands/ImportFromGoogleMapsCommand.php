@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Class\GameModes\Territory\Models\TerritoryArea;
-use App\Class\GameModes\Territory\Models\TerritoryAreaPoint;
+use App\GameModes\Territory\Models\TerritoryArea;
+use App\GameModes\Territory\Models\TerritoryAreaPoint;
 use Illuminate\Console\Command;
 
 class ImportFromGoogleMapsCommand extends Command

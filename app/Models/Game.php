@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Class\GameMode;
-use App\Class\GameModes\Territory\Territory as TerritoryGameMode;
+use App\GameModes\Territory\Territory as TerritoryGameMode;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 

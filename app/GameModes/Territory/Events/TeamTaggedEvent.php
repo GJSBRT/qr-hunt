@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Class\GameModes\Territory\Events;
+namespace App\GameModes\Territory\Events;
 
-use App\Class\GameModes\Territory\Models\TerritoryKoth;
 use App\Models\Game;
 use App\Models\Team;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -11,14 +10,14 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class KothClaimedEvent implements ShouldBroadcastNow
+class TeamTaggedEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(
         private Game $game,
-        private Team $team,
-        private TerritoryKoth $koth,
+        private ?Team $byTeam,
+        private Team $taggedTeam,
     ) {}
 
     public function broadcastOn(): array
@@ -31,9 +30,8 @@ class KothClaimedEvent implements ShouldBroadcastNow
     public function broadcastWith(): array
     {
         return [
-            'game' => $this->game,
-            'team' => $this->team,
-            'koth' => $this->koth,
+            'byTeam' => $this->byTeam,
+            'taggedTeam' => $this->taggedTeam,
         ];
     }
 }

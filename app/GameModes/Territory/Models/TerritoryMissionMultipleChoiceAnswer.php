@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Class\GameModes\Territory\Models;
+namespace App\GameModes\Territory\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

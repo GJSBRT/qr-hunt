@@ -2,7 +2,6 @@
 
 namespace App\Class;
 
-use App\Class\GameModes\Territory\Territory;
 use Illuminate\Http\Request;
 use App\Exceptions\InvalidGameState;
 use App\Exceptions\InvalidTeamPlayer;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Class\GameModes\Territory;
+namespace App\GameModes\Territory;
 
 use App\Class\GameAction;
 use App\Class\GameMap;
@@ -8,24 +8,23 @@ use App\Class\GameMapArea;
 use App\Class\GameMasterAction;
 use App\Class\GeoLocation;
 use App\Class\GameMode;
-use App\Class\GameModes\Territory\Events\AreaClaimedEvent;
-use App\Class\GameModes\Territory\Events\KothClaimedEvent;
-use App\Class\GameModes\Territory\Events\MissionAnswerIncorrectEvent;
-use App\Class\GameModes\Territory\Events\TeamTaggedEvent;
 use App\Class\GameState;
 use App\Class\TeamScore;
 use App\Exceptions\GameModeException;
 use App\Models\Team;
-use App\Class\GameModes\Territory\Models\Territory as ModelsTerritory;
-use App\Class\GameModes\Territory\Models\TerritoryArea;
-use App\Class\GameModes\Territory\Models\TerritoryKoth;
-use App\Class\GameModes\Territory\Models\TerritoryKothClaim;
-use App\Class\GameModes\Territory\Models\TerritoryMission;
-use App\Class\GameModes\Territory\Models\TerritoryMissionAnswer;
-use App\Class\GameModes\Territory\Models\TerritoryTag;
+use App\GameModes\Territory\Events\AreaClaimedEvent;
+use App\GameModes\Territory\Events\KothClaimedEvent;
+use App\GameModes\Territory\Events\MissionAnswerIncorrectEvent;
+use App\GameModes\Territory\Events\TeamTaggedEvent;
+use App\GameModes\Territory\Models\Territory as ModelsTerritory;
+use App\GameModes\Territory\Models\TerritoryArea;
+use App\GameModes\Territory\Models\TerritoryKoth;
+use App\GameModes\Territory\Models\TerritoryKothClaim;
+use App\GameModes\Territory\Models\TerritoryMission;
+use App\GameModes\Territory\Models\TerritoryMissionAnswer;
+use App\GameModes\Territory\Models\TerritoryTag;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
-use RuntimeException;
 
 class Territory extends GameMode
 {
