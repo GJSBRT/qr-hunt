@@ -34,9 +34,9 @@ export default defineConfig({
                 scope: '/',
                 start_url: '/',
                 orientation: 'portrait',
-                name: 'QR Hunt',
-                short_name: 'QR Hunt',
-                description: 'QR Hunt game!',
+                name: 'Playmix',
+                short_name: 'Playmix',
+                description: 'Play interactive games together.',
                 theme_color: '#3880ff',
                 background: {
                     service_worker: "sw.js"

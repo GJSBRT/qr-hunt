@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Class\GameMode;
 use App\Events\GameStartedEvent;
 use App\Events\TeamWonEvent;
 use App\Models\Game;
-use App\Models\Power;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
@@ -43,107 +43,46 @@ class GameTickCommand extends Command
                 $game->status = Game::STATUS_STARTED;
                 $game->started_at = Carbon::now();
                 $game->save();
+
+                $gameMode = $game->getGameMode();
+                if ($gameMode) {
+                    $gameMode->onGameStart();
+                }
+
                 GameStartedEvent::dispatch($game);
                 return;
             case Game::STATUS_STARTED:
-                // Has game timer expired?
-                if ($game->play_duration && $game->started_at->addSeconds($game->play_duration)->isBefore(Carbon::now())) {
-                    $game->status = Game::STATUS_ENDED;
-                    $game->ended_at = Carbon::now();
-                    $game->save();
+                $this->handleStarted($game);
+                break;
+        }
+    }
 
-                    TeamWonEvent::dispatch($game, $game->getResults()[0]['team']);
-                    return;
-                }
+    private function handleStarted(Game $game) {
+        $gameMode = $game->getGameMode();
 
-                // Check if a team has won
-                $teamsWon = [];
-                foreach($game->teams()->get() as $team) {
-                    $teamQrCodes = $team->team_qr_codes()->with(['power'])->get();
+        switch ($game->end_type) {
+            case GameMode::END_TYPE_WINNER:
+                $winningTeam = $gameMode->getWinner();
+                if (!$winningTeam) break;
 
-                    $wildCards = 0;
-                    foreach ($teamQrCodes as $teamQrCode) {
-                        if ($teamQrCode->type == Power::TYPE_WILDCARD) {
-                            $wildCards++;
-                        }
-                    }
+                $game->status = Game::STATUS_ENDED;
+                $game->ended_at = Carbon::now();
+                $game->save();
 
-                    $categoryCount = [];
-                    foreach($teamQrCodes as $teamQrCode) {
-                        $qrCode = $teamQrCode->qr_code()->first();
-                        if (!$qrCode) continue;
+                TeamWonEvent::dispatch($game, $winningTeam, $gameMode->getResults());
+                break;
+            case GameMode::END_TYPE_DURATION:
+                if (!$game->play_duration) break;
+                if (!$game->started_at) break;
+                if ($game->started_at->addSeconds($game->play_duration)->isAfter(Carbon::now())) break;
 
-                        $quartet = $qrCode->quartet()->first();
-                        if (!$quartet) continue;
+                $results = $gameMode->getResults();
 
-                        if (isset($categoryCount[$quartet->category])) {
-                            $categoryCount[$quartet->category]++;
-                        } else {
-                            $categoryCount[$quartet->category] = 1;
-                        }
-                    }
+                $game->status = Game::STATUS_ENDED;
+                $game->ended_at = Carbon::now();
+                $game->save();
 
-                    if (count($categoryCount) != $game->quartet_categories) {
-                        continue;
-                    }
-
-                    // Apply wildcards
-                    foreach($categoryCount as $k => $count) {
-                        if (($game->quartet_values - $count) <= $wildCards) {
-                            $cardsNeeded = $game->quartet_values - $count;
-
-                            $categoryCount[$k] += $cardsNeeded;
-                            $wildCards -= $cardsNeeded;
-                        }
-                    }
-
-                    $ok = true;
-                    foreach($categoryCount as $count) {
-                        if ($count != $game->quartet_values) {
-                            $ok = false;
-                            break;
-                        }
-                    }
-
-                    if ($ok) {
-                        $teamsWon[] = $team;
-                    }
-                }
-
-                if (count($teamsWon) > 0) {
-                    $winningTeam = [
-                        'points'    => 0,
-                        'team'      => null,
-                    ];
-
-                    foreach($teamsWon as $team) {
-                        // Add a point for each card and add two points for each completed set.
-                        $points = ($game->quartet_categories * $game->quartet_values) + ($game->quartet_categories * 2);
-
-                        $pointsModifiers = $team->team_points_modifiers()->get();
-                        foreach($pointsModifiers as $pointsModifier) {
-                            $points = $pointsModifier->modifyPoints($points);
-                        }
-
-                        if ($points <= $winningTeam['points']) {
-                            continue;
-                        }
-
-                        $winningTeam = [
-                            'points'    => $points,
-                            'team'      => $team,
-                        ];
-                    }
-
-                    $game->status = Game::STATUS_ENDED;
-                    $game->ended_at = Carbon::now();
-                    $game->save();
-
-                    TeamWonEvent::dispatch($game, $winningTeam['team']);
-
-                    return;
-                }
-
+                TeamWonEvent::dispatch($game, $results[0], $results);
                 break;
         }
     }

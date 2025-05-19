@@ -15,10 +15,10 @@ export default function FormikField({ name, form, ...props }: Props) {
     return (
         <IonInput
             className={`${inValid === true && 'ion-invalid'} ${form.touched[name] && 'ion-touched'}`}
-            labelPlacement="stacked"
             onIonChange={(e) => {
                 form.setFieldValue(name, e.detail.value);
             }}
+            value={form.values[name]}
             errorText={getIn(form.errors, name)}
             {...props}
         />

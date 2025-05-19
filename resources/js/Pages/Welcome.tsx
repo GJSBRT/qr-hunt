@@ -1,90 +1,145 @@
-
-import '../../css/game.css';
-import '@ionic/react/css/core.css';
-
-/* Basic CSS for apps built with Ionic */
-import '@ionic/react/css/normalize.css';
-import '@ionic/react/css/structure.css';
-import '@ionic/react/css/typography.css';
-
-/* Optional CSS utils that can be commented out */
-import '@ionic/react/css/padding.css';
-import '@ionic/react/css/float-elements.css';
-import '@ionic/react/css/text-alignment.css';
-import '@ionic/react/css/text-transformation.css';
-import '@ionic/react/css/flex-utils.css';
-import '@ionic/react/css/display.css';
-
-import { Head, Link, router } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import { Formik } from "formik";
-import { Alert, Form, Row } from "react-bootstrap";
-import { IonApp, IonButton, IonCol, IonItem, IonLabel, IonPage, IonRow } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonItem, IonLabel, IonRow, IonSegment, IonSegmentButton, IonSegmentContent, IonSegmentView, IonTitle, IonToolbar, useIonAlert } from '@ionic/react';
 import FormikField from '@/Components/IonicComponents/FormikField';
+import IonicAppLayout from '@/Layouts/IonicAppLayout';
 
-export default function Welcome({ errors }: { errors: { [key: string]: string } }) {
+export default function Welcome({inGame}: {inGame: boolean}) {
+    const [presentAlert] = useIonAlert();
+
     return (
-        <div className="w-full h-screen grid place-items-center">
-            <Head title='Welkom' />
+        <IonicAppLayout title='Welkom'>
+            <IonHeader>
+                <IonToolbar>
+                    <IonTitle>Welkom!</IonTitle>
+                </IonToolbar>
+            </IonHeader>
 
-            <IonApp>
-                <IonPage className="ion-padding">
-                    <IonItem>
-                        <IonLabel>
-                            <h1>QR Hunt</h1>
-                            <p>
-                                QR Hunt is een spel waarbij je op jacht gaat op QR codes. Door QR codes te scannen kan je kwartet kaartjes of power up/downs bemachtigen.
+            <IonContent>
+                <IonSegment value="join" >
+                    <IonSegmentButton value="join" contentId='join'>
+                        <IonLabel>Meedoen</IonLabel>
+                    </IonSegmentButton>
+                    <IonSegmentButton value="create" contentId='create'>
+                        <IonLabel>Spel creeren</IonLabel>
+                    </IonSegmentButton>
+                </IonSegment>
 
-                                Het team met alle kwartet setjes of de meeste punten wint!
-                            </p>
-                        </IonLabel>
-                    </IonItem>
+                <IonSegmentView>
+                    <IonSegmentContent id='join'>
+                        <IonGrid style={{height: '100%'}}>
+                            <IonRow className='ion-justify-content-center ion-align-items-center' style={{height: '100%'}}>
+                                <IonCol size='12'>
+                                    <Formik
+                                        initialValues={{ code: '' }}
+                                        onSubmit={(values) => {
+                                            router.post(route('game.lobby.join'), {
+                                                code: values.code
+                                            }, {
+                                                onError: (error) => {
+                                                    let errors = '';
 
-                    {(Object.keys(errors).length > 0) &&
-                        <Row className="max-w-xl w-full mx-auto">
-                            <Alert variant="danger">
-                                <ul className="list-disc text-left">
-                                    {Object.entries(errors).map(([field, error]) => <li key={field}>{error}</li>)}
-                                </ul>
-                            </Alert>
-                        </Row>
-                    }
+                                                    Object.values(error).forEach((error, index) => {
+                                                        errors += error;
 
-                    <Formik
-                        initialValues={{ code: '' }}
-                        onSubmit={(values) => {
-                            router.post(route('game.lobby.join'), {
-                                code: values.code
-                            })
-                        }}
-                    >
-                        {(form) => (
-                            <Form className="max-w-xl mx-auto" onSubmit={form.handleSubmit}>
-                                <IonItem>
-                                    <FormikField
-                                        form={form}
-                                        label='Code'
-                                        name='code'
-                                        placeholder='Vul hier je spel code in'
-                                        type='text'
-                                    />
-                                </IonItem>
+                                                        if (Object.values(error).length - 1 != index) {
+                                                            errors + '\n\n';
+                                                        }
+                                                    });
 
-                                <IonButton style={{ marginTop: '1rem' }} type='submit'>Deel mee aan spel</IonButton>
-                            </Form>
-                        )}
-                    </Formik>
+                                                    presentAlert({
+                                                        header: 'Oops.',
+                                                        message: errors,
+                                                        buttons: ['Sluiten'],
+                                                    })
+                                                },
+                                            })
+                                        }}
+                                    >
+                                        {(form) => (
+                                            <form onSubmit={form.handleSubmit}>
+                                                <IonItem>
+                                                    <FormikField
+                                                        form={form}
+                                                        label='Code'
+                                                        name='code'
+                                                        placeholder='Vul hier je spel code in'
+                                                        type='text'
+                                                    />
+                                                </IonItem>
 
-                    <IonRow>
-                        <IonCol>
-                            <Link href={route('login')}>Inloggen</Link>
-                        </IonCol>
+                                                <IonButton expand='block' style={{ marginTop: '1rem' }} type='submit'>Deelnemen aan spel</IonButton>
+                                            </form>
+                                        )}
+                                    </Formik>
 
-                        <IonCol>
-                            <Link href={route('register')}>Registeren</Link>
-                        </IonCol>
-                    </IonRow>
-                </IonPage>
-            </IonApp>
-        </div>
+                                    {(inGame) && (<IonButton expand="block" style={{marginTop: '1rem'}} onClick={() => router.visit(route('game.index'))}>Terug naar huidig spel</IonButton>)}
+                                </IonCol>
+                            </IonRow>
+                        </IonGrid>
+                    </IonSegmentContent>
+
+                    <IonSegmentContent id='create'>
+                        <IonGrid style={{height: '100%'}}>
+                            <IonRow className='ion-justify-content-center ion-align-items-center' style={{height: '100%'}}>
+                                <IonCol size='12'>
+                                    <Formik
+                                        initialValues={{ email: '', password: '', remember: true }}
+                                        onSubmit={(values) => {
+                                            router.post(route('auth.login'), {
+                                                ...values,
+                                            }, {
+                                                onError: (error) => {
+                                                    let errors = '';
+
+                                                    Object.values(error).forEach((error, index) => {
+                                                        errors += error;
+
+                                                        if (Object.values(error).length - 1 != index) {
+                                                            errors + '\n\n';
+                                                        }
+                                                    });
+
+                                                    presentAlert({
+                                                        header: 'Oops.',
+                                                        message: errors,
+                                                        buttons: ['Sluiten'],
+                                                    })
+                                                },
+                                            })
+                                        }}
+                                    >
+                                        {(form) => (
+                                            <form onSubmit={form.handleSubmit}>
+                                                <IonItem>
+                                                    <FormikField
+                                                        form={form}
+                                                        label='Email adres'
+                                                        name='email'
+                                                        placeholder='j.janneke@example.nl'
+                                                        type='text'
+                                                    />
+                                                </IonItem>
+
+                                                <IonItem>
+                                                    <FormikField
+                                                        form={form}
+                                                        label='Wachtwoord'
+                                                        name='password'
+                                                        type='password'
+                                                    />
+                                                </IonItem>
+
+                                                <IonButton expand='block' style={{ marginTop: '1rem' }} type='submit'>Inloggen</IonButton>
+                                            </form>
+                                        )}
+                                    </Formik>
+                                </IonCol>
+                            </IonRow>
+                        </IonGrid>
+                    </IonSegmentContent>
+                </IonSegmentView>
+            </IonContent>
+        </IonicAppLayout>
     );
 }

@@ -34,20 +34,8 @@ class Team extends Model
         return $this->hasMany(TeamPlayer::class, 'team_id', 'id');
     }
 
-    public function team_qr_codes() {
-        return $this->hasMany(TeamQRCode::class, 'team_id', 'id');
-    }
-
     public function team_points_modifiers() {
         return $this->hasMany(TeamPointsModifier::class, 'team_id', 'id');
-    }
-
-    public function team_scan_freezes() {
-        return $this->hasMany(TeamScanFreeze::class, 'team_id', 'id');
-    }
-
-    public function power_applied_team_qr_codes() {
-        return $this->hasMany(TeamQRCode::class, 'power_applied_to_team_id', 'id');
     }
 
     protected function playerCount(): Attribute

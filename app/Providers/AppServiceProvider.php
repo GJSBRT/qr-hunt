@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Models\User;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Vite;
@@ -31,7 +30,16 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         Auth::viaRequest('guest', function (Request $request) {
+            if ($request->user()) {
+                return $request->user();
+            }
+
             return new User();
         });
+
+        // Load migrations from GameModes.
+        $directories = glob('app/GameModes/*/migrations', GLOB_ONLYDIR);
+        $paths = array_merge(['database/migrations'], $directories);
+        $this->loadMigrationsFrom($paths);
     }
 }

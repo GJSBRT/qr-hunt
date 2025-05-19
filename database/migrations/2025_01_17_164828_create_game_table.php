@@ -14,15 +14,12 @@ return new class extends Migration
         Schema::create('game', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('game_mode');
             $table->string('name');
             $table->string('code')->unique();
             $table->string('status');
+            $table->boolean('show_results')->default(true);
             $table->integer('play_duration')->nullable();
-            $table->integer('cooldown_duration')->nullable();
-            $table->float('start_lat')->nullable();
-            $table->float('start_lng')->nullable();
-            $table->integer('quartet_categories');
-            $table->integer('quartet_values');
             $table->timestamp('started_at')->nullable();
             $table->timestamp('ended_at')->nullable();
             $table->timestamps();

@@ -26,14 +26,7 @@ export default function GameOverScreen({ game }: Props) {
         if (!echo) return;
 
         echo.private(`game.${game.id}`).listen('TeamWonEvent', (e: TeamWonEvent) => {
-            if (e.results) {
-                setTeamWonEvent({
-                    winningTeam: e.winningTeam,
-                    results: e.results.sort((a, b) => b.points - a.points),
-                });
-            } else {
-                setTeamWonEvent(e);
-            }
+            setTeamWonEvent(e);
 
             setShowConfetti(true);
             setShowModal(true);
@@ -62,16 +55,16 @@ export default function GameOverScreen({ game }: Props) {
                     </IonToolbar>
                 </IonHeader>
 
-                {(game.show_results && teamWonEvent && teamWonEvent.results != null) ?
+                {(game.show_results && teamWonEvent && teamWonEvent != null) ?
                     <IonContent>
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: `repeat(${teamWonEvent.results.length >= 3 ? 3 : teamWonEvent.results.length}, minmax(0, 1fr))`,
+                            gridTemplateColumns: `repeat(${teamWonEvent.teamScores.length >= 3 ? 3 : teamWonEvent.teamScores.length}, minmax(0, 1fr))`,
                             marginTop: '1rem',
                             paddingLeft: '0.5rem',
                             paddingRight: '0.5rem',
                         }}>
-                            {(teamWonEvent.results.length >= 2) &&
+                            {(teamWonEvent.teamScores.length >= 2) &&
                                 <div style={{
                                     display: 'flex',
                                     flexDirection: 'column',
@@ -82,7 +75,7 @@ export default function GameOverScreen({ game }: Props) {
                                     <IonText style={{
                                         fontSize: '1.25rem',
                                     }}>
-                                        {teamWonEvent.results[1].team.name}
+                                        {teamWonEvent.teamScores[1].team.name}
                                     </IonText>
 
                                     <div style={{
@@ -95,8 +88,8 @@ export default function GameOverScreen({ game }: Props) {
                                         height: '100%'
                                     }}>
                                         <FontAwesomeIcon color='#d6d6d6' size='3x' icon={faMedal} />
-                                        <IonText style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{teamWonEvent.results[1].points} Punten</IonText>
-                                        <IonText>2e van de {teamWonEvent.results.length}</IonText>
+                                        <IonText style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{teamWonEvent.teamScores[1].score} Punten</IonText>
+                                        <IonText>2e van de {teamWonEvent.teamScores.length}</IonText>
                                     </div>
                                 </div>
                             }
@@ -109,7 +102,7 @@ export default function GameOverScreen({ game }: Props) {
                                 <IonText style={{
                                     fontSize: '1.25rem',
                                 }}>
-                                    {teamWonEvent.results[0].team.name}
+                                    {teamWonEvent.teamScores[0].team.name}
                                 </IonText>
 
                                 <div style={{
@@ -123,11 +116,11 @@ export default function GameOverScreen({ game }: Props) {
                                     boxShadow: '0 0px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
                                 }}>
                                     <FontAwesomeIcon color='#FCB434' size='3x' icon={faMedal} />
-                                    <IonText style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{teamWonEvent.results[0].points} Punten</IonText>
-                                    <IonText>1e van de {teamWonEvent.results.length}</IonText>
+                                    <IonText style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{teamWonEvent.teamScores[0].score} Punten</IonText>
+                                    <IonText>1e van de {teamWonEvent.teamScores.length}</IonText>
                                 </div>
                             </div>
-                            {(teamWonEvent.results.length >= 3) &&
+                            {(teamWonEvent.teamScores.length >= 3) &&
                                 <div style={{
                                     display: 'flex',
                                     flexDirection: 'column',
@@ -138,7 +131,7 @@ export default function GameOverScreen({ game }: Props) {
                                     <IonText style={{
                                         fontSize: '1.25rem',
                                     }}>
-                                        {teamWonEvent.results[2].team.name}
+                                        {teamWonEvent.teamScores[2].team.name}
                                     </IonText>
 
                                     <div style={{
@@ -151,19 +144,19 @@ export default function GameOverScreen({ game }: Props) {
                                         height: '100%'
                                     }}>
                                         <FontAwesomeIcon color='#f5a23b' size='3x' icon={faMedal} />
-                                        <IonText style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{teamWonEvent.results[2].points} Punten</IonText>
-                                        <IonText>3e van de {teamWonEvent.results.length}</IonText>
+                                        <IonText style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{teamWonEvent.teamScores[2].score} Punten</IonText>
+                                        <IonText>3e van de {teamWonEvent.teamScores.length}</IonText>
                                     </div>
                                 </div>
                             }
                         </div>
 
                         <IonList lines="full">
-                            {teamWonEvent.results.map((result, index) => (
+                            {teamWonEvent.teamScores.map((result, index) => (
                                 (![0, 1, 2].includes(index)) &&
                                 <IonItem key={result.team.id}>
                                     <IonText>{result.team.name}</IonText>
-                                    <IonText slot='end'>{result.points} punten</IonText>
+                                    <IonText slot='end'>{result.score} punten</IonText>
                                 </IonItem>
                             ))}
                         </IonList>

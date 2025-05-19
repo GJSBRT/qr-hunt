@@ -13,7 +13,7 @@ setLocale(nl);
 moment().locale('nl');
 
 createInertiaApp({
-    title: (title) => `${title} - QR Hunt`,
+    title: (title) => `${title} - Playmix`,
     resolve: (name) => {
         const pages = import.meta.glob('./Pages/**/*.tsx');
         let filePath = `./Pages/${name}.tsx`;

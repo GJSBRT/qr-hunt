@@ -1,12 +1,15 @@
-import 'leaflet/dist/leaflet.css';
-import L, { LatLngExpression } from 'leaflet';
-import { useEffect, useLayoutEffect, useState } from "react";
+import L from 'leaflet';
+import { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationArrow } from '@fortawesome/free-solid-svg-icons';
-import { CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMapEvents } from "react-leaflet";
+import { Circle, CircleMarker, MapContainer, Marker, Polygon, Popup, TileLayer, useMapEvents } from "react-leaflet";
 import { IonContent, IonFabButton, IonHeader, IonItem, IonText, IonTitle, IonToolbar, useIonToast } from "@ionic/react";
 
 import { GameStatePlaying } from "@/types/game";
+import GameModes from '@/GameModes/gamemodes';
+import { HaversineDistance, IsPointInPolygon } from '@/Utils/polygons';
+import { LocationContext } from '@/Layouts/GameLayout';
+import { StringToColor } from '@/Utils/color';
 
 interface GeolocationPosition {
     lat: number
@@ -32,124 +35,123 @@ function StartLocationMarker({ location }: { location: GeolocationPosition }) {
     );
 };
 
-function UserLocationMarker({ location }: { location: GeolocationPosition }) {
+function UserLocationMarker({ location, color, self }: { location: GeolocationPosition, color: string, self?: boolean }) {
     const map = useMapEvents({});
-    const [position, setPosition] = useState<GeolocationPosition>({
-        lat: location.lat,
-        lng: location.lng
-    });
 
     useEffect(() => {
-        setPosition({
-            lat: location.lat,
-            lng: location.lng
-        });
-    }, [location])
-
-    useEffect(() => {
+        if (self !== true) return;
         map.flyTo([location.lat, location.lng]);
     }, [])
 
     const flyToSelf = function () {
-        map.flyTo([location.lat, location.lng]);
+        map.flyTo([location.lat, location.lng], 17);
     }
 
-    return position === null ? null : (
+    return (
         <>
             <CircleMarker
-                center={position}
+                center={location}
                 pathOptions={{
-                    fillColor: '#2563eb',
+                    fillColor: color,
                     fillOpacity: 1,
                     opacity: 1,
                     weight: 5,
-                    color: '#ffffff',
+                    color: (self === true) ? '#2563eb' : '#ffffff',
                 }}
                 radius={10}
                 className='pulse'
             />
 
-            <div className='leaflet-bottom leaflet-left'>
-                <div className="leaflet-control">
-                    <IonFabButton size='small' color='medium' onClick={flyToSelf}>
-                        <FontAwesomeIcon size='lg' icon={faLocationArrow} />
-                    </IonFabButton>
+            {(self) && (
+                <div className='leaflet-bottom leaflet-left'>
+                    <div className="leaflet-control">
+                        <IonFabButton size='small' color='medium' onClick={flyToSelf}>
+                            <FontAwesomeIcon size='lg' icon={faLocationArrow} />
+                        </IonFabButton>
+                    </div>
                 </div>
-            </div>
+            )}
         </>
     );
 }
 
-export default function Overview({ gameState }: { gameState: GameStatePlaying }) {
+export default function Map({ gameState }: { gameState: GameStatePlaying }) {
     const [presentToast] = useIonToast();
     const [renderMap, setRenderMap] = useState(false);
-    const [locationStatus, setLocationStatus] = useState<'accessed' | 'denied' | 'error' | null>(null);
-    const [position, setPosition] = useState<GeolocationPosition | null>(null);
+    const location = useContext(LocationContext);
+    const [actionElements, setActionElements] = useState<{
+        id: string;
+        element: (...args: any) => JSX.Element
+        props: { [key: string]: any }
+    }[]>([]);
+
+    if (!gameState.gameMode.gameMap) return <></>;
+
+    const gameMode = GameModes[gameState.gameMode.gameMode];
+    if (!gameMode) return <></>;
+    if (!gameMode.map) return <></>;
+
+    const gameModeMap = new (gameMode.map)();
+
+    if (!location) return <></>;
 
     useLayoutEffect(() => {
-        setTimeout(() => setRenderMap(true), 10);
+        setTimeout(() => setRenderMap(true), 1);
     }, []);
 
     useEffect(() => {
-        let watchId: number | null = null
+        if (location.position === null) return;
 
-        if ('geolocation' in navigator) {
-            watchId = navigator.geolocation.watchPosition((position) => {
-                setPosition({
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                });
-                setLocationStatus('accessed');
-            }, (error) => {
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        setLocationStatus('denied');
-                        presentToast({
-                            message: 'Je hebt geen toegang tot je locatie gegeven. De kaart zal gelimiteerde functionaliteit hebben.',
-                            duration: 5000,
-                            position: 'bottom',
-                            color: 'danger',
-                        });
-                        break
-                    case error.POSITION_UNAVAILABLE:
-                        setLocationStatus(null);
-                        break
-                    case error.TIMEOUT:
-                        setLocationStatus('error');
-                        presentToast({
-                            message: 'Mislukt om je locatie te vinden!',
-                            duration: 5000,
-                            position: 'bottom',
-                            color: 'danger',
-                        });
-                        break
-                    default:
-                        setLocationStatus('error');
-                        presentToast({
-                            message: 'Mislukt om je locatie te vinden!',
-                            duration: 5000,
-                            position: 'bottom',
-                            color: 'danger',
-                        });
-                        break
-                }
-            });
+        const position = location.position as GeolocationPosition;
 
-            return () => {
-                if (watchId) {
-                    navigator.geolocation.clearWatch(watchId);
-                }
+        let showElements: {
+            id: string;
+            element: (...args: any) => JSX.Element
+            props: { [key: string]: any }
+        }[] = [];
+
+        gameState.gameMode.gameMap?.areas.forEach((area) => {
+            let isWithinArea = false;
+
+            switch (area.type) {
+                case 'polygon':
+                    isWithinArea = IsPointInPolygon([position.lat, position.lng], area.geoLocations.map((v) => [v.lat, v.lng]));
+                    break;
+                case 'circle':
+                    let distance = HaversineDistance([position.lng, position.lat], [area.geoLocations[0].lng, area.geoLocations[0].lat])
+                    isWithinArea = (distance <= area.radius);
+                    break;
             }
-        }
-    }, []);
 
-    let mapAreaPositions: LatLngExpression[] = [];
-    gameState.game.game_map_area_points.forEach((gameMapAreaPoint) => {
-        mapAreaPositions.push({
-            lat: gameMapAreaPoint.lat,
-            lng: gameMapAreaPoint.lng,
-        })
-    });
+            if (!isWithinArea) return;
+
+            gameModeMap.areaActions.forEach((areaAction) => {
+                if (areaAction.type !== 'in_zone') return;
+                showElements.push({
+                    id: area.id,
+                    element: areaAction.element,
+                    props: {
+                        area: area,
+                        gameState: gameState
+                    }
+                });
+            });
+        });
+
+        let currentIds = actionElements.map((item) => item.id).sort();
+        let newIds = showElements.map((item) => item.id).sort();
+
+        if (currentIds.length !== newIds.length) {
+            setActionElements(showElements);
+            return;
+        }
+
+        if (currentIds.every((value, index) => value === newIds[index])) {
+            return;
+        }
+
+        setActionElements(showElements);
+    }, [location.position])
 
     return (
         <>
@@ -160,25 +162,46 @@ export default function Overview({ gameState }: { gameState: GameStatePlaying })
             </IonHeader>
 
             <IonContent>
-                {(locationStatus == 'accessed') ?
+                {(location.locationStatus == 'accessed') ?
                     renderMap &&
-                    <div style={{ width: '100%', height: '100%' }}>
-                        <MapContainer style={{ width: '100%', height: '100%' }} center={[gameState.game.start_lat ?? 0, gameState.game.start_lng ?? 0]} zoom={13} scrollWheelZoom={false}>
+                    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                        <div style={{ position: 'absolute', zIndex: 99999, display: 'flex', flexDirection: 'column', justifyContent: 'end', alignItems: 'center', bottom: 5, left: 50, right: 50 }}>
+                            {actionElements.map(({ element: Element, props }) => <Element {...props} />)}
+                        </div>
+
+                        <MapContainer style={{ width: '100%', height: '100%' }} center={gameState.gameMode.gameMap.startLocationMarker ?? undefined} zoom={15} scrollWheelZoom={false}>
                             <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
 
-                            <Polygon pathOptions={{ color: 'purple', fillOpacity: 0.1 }} positions={mapAreaPositions} />
-                            {(gameState.game.start_lat && gameState.game.start_lng) && <StartLocationMarker location={{ lat: gameState.game.start_lat, lng: gameState.game.start_lng }} />}
-                            {(position && locationStatus == 'accessed') && <UserLocationMarker location={position} />}
+                            {gameState.gameMode.gameMap.areas.map((area) => {
+                                switch (area.type) {
+                                    case 'polygon':
+                                        return (
+                                            <>
+                                                <Polygon key={'polygon' + area.id} pathOptions={{ color: area.color, fillOpacity: area.opacity }} positions={area.geoLocations} />
+                                                <Marker icon={L.divIcon({ html: area.name, className: 'marker-text' })} key={'marker' + area.id} position={[area.geoLocations.map((v) => v.lat).reduce((a, b) => (a + b)) / area.geoLocations.length, area.geoLocations.map((v) => v.lng).reduce((a, b) => (a + b)) / area.geoLocations.length]} />
+                                            </>
+                                        );
+                                    case 'circle':
+                                        return <Circle key={'circle' + area.id} pathOptions={{ color: area.color, fillOpacity: area.opacity }} center={area.geoLocations[0]} radius={area.radius} />;
+                                }
+                            })}
+
+                            {(gameState.gameMode.gameMap.startLocationMarker) && <StartLocationMarker location={gameState.gameMode.gameMap.startLocationMarker} />}
+                            {(location.position && location.locationStatus == 'accessed') && <UserLocationMarker color={StringToColor(gameState.teamData.team.name)} self location={location.position} />}
+                            {gameState.gameMode.gameMap.teamIdsWhichCanViewOthersLocations.includes(gameState.teamPlayer.team_id) && (Object.values(location.playerLocations).map(playerLocation => (
+                                <UserLocationMarker color={StringToColor(playerLocation.team.name)} location={playerLocation.position} />
+                            )))}
                         </MapContainer>
                     </div>
                     :
                     <IonItem>
                         <IonText>
                             <p>
-                                {(locationStatus == null) && 'Sta je locatie toegang toe om de kaart te gebruiken.'}
+                                {(location.locationStatus == null) && 'Sta je locatie toegang toe om de kaart te gebruiken.'}
+                                {!('geolocation' in navigator) && 'Je browser ondersteunt geolocatie niet.'}
                             </p>
                         </IonText>
                     </IonItem>
