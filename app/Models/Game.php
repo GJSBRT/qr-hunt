@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Class\GameMode;
+use App\GameModes\Territory\Models\Territory;
 use App\GameModes\Territory\Territory as TerritoryGameMode;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
@@ -60,10 +61,6 @@ class Game extends Model
 
     public function territory() {
         return $this->hasOne(Territory::class, 'game_id', 'id');
-    }
-
-    public function powers() {
-        return $this->hasMany(Power::class, 'game_id', 'id');
     }
 
     public function teams() {
