@@ -1,7 +1,9 @@
 <?php
 
-namespace App\Models;
+namespace App\Class\GameModes\Territory\Models;
 
+use App\Models\Game;
+use App\Models\Team;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
 

@@ -2,9 +2,9 @@
 
 namespace App\Class\GameModes\Territory\Events;
 
+use App\Class\GameModes\Territory\Models\TerritoryKoth;
 use App\Models\Game;
 use App\Models\Team;
-use App\Models\TerritoryKoth;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;

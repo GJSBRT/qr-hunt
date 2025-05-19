@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Class\GameModes\Territory\Models;
 
+use App\Models\Team;
 use Illuminate\Database\Eloquent\Model;
 
 class TerritoryArea extends Model
