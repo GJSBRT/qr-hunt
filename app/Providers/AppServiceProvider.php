@@ -37,5 +37,10 @@ class AppServiceProvider extends ServiceProvider
 
             return new User();
         });
+
+        // Load migrations from GameModes.
+        $directories = glob('app/GameModes/*/migrations', GLOB_ONLYDIR);
+        $paths = array_merge(['database/migrations'], $directories);
+        $this->loadMigrationsFrom($paths);
     }
 }
